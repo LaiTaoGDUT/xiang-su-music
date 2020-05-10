@@ -21,11 +21,11 @@ async function searchMusicFile (folder, songs, localSongs) {
       const stat = fs.statSync(pathname)
       if (stat.isFile()) {
         if (item.endsWith('.mp3') || item.endsWith('.m4a') || item.endsWith('.flac')) { // 在未来增加更多可识别的格式
-          // let localSong = localSongs.find(song => pathname == song.url)
-          // if (localSong) { // the song is existed
-          //   songs.push(localSong)
-          //   continue
-          // }
+          let localSong = localSongs.find(song => pathname == song.url)
+          if (localSong) { // the song is existed
+            songs.push(localSong)
+            continue
+          }
           const metadata = await mm.parseFile(pathname, {
             duration: true
           })
