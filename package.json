@@ -1,8 +1,8 @@
 {
   "name": "xiang-su-music",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "author": "shouZi",
-  "description": "xiangsumusic",
+  "description": "a music player which can listen music",
   "private": true,
   "scripts": {
     "build": "vue-cli-service electron:build",

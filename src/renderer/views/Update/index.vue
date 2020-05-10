@@ -148,10 +148,10 @@ export default {
     },
     handleErr (err) {
       this.showDownload = false
-      let networkNotification = new Notification('网易云音乐', {
-        title: '网易云音乐',
+      let networkNotification = new Notification('像素音乐', {
+        title: '像素音乐',
         body: '下载失败:' + err,
-        icon: 'images/icon.ico'
+        icon: 'images/logo.ico'
       })
     },
     handleProgress (state) {

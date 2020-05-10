@@ -2,9 +2,13 @@
   <div class="tray">
     <div class="tray-box">
       <div class="control-box">
-        <a-icon type="step-backward" class="control-icon step" title="上一曲" @click="backward" />
+        <img src="./../assets/images/next_icon.png" title="上一曲" @click="backward" class="control-icon step" style="transform:rotate(180deg)"/>
+        <img src="./../assets/images/pause_icon.png" @click="togglePlay" class="control-icon" v-if='playing' />
+        <img src="./../assets/images/play_icon.png" @click="togglePlay" class="control-icon" v-else />
+        <img src="./../assets/images/next_icon.png" title="下一曲" @click="forward" class="control-icon step"/>
+        <!-- <a-icon type="step-backward" class="control-icon step" title="上一曲" @click="backward" />
         <a-icon :type="playIcon" theme="filled" class="control-icon" :title="playTitle" @click="togglePlay" />
-        <a-icon type="step-forward" class="control-icon step" title="下一曲" @click="forward" />
+        <a-icon type="step-forward" class="control-icon step" title="下一曲" @click="forward" /> -->
       </div>
 
       <div class="volume-box" :title="`音量:${isMuted ? 0 : volume*100}%`">
@@ -286,6 +290,9 @@ export default {
       margin-top: 20px;
       padding: 0 15px;
       .control-icon {
+        background: @primary-color;
+        width: 36px;
+        height: 36px;
         font-size: 44px;
         color: rgba(0, 0, 0, 0.7);
         cursor: pointer;
@@ -293,10 +300,9 @@ export default {
           color: rgba(0, 0, 0, 1);
         }
         &.step {
+          width: 32px;
+          height: 32px;
           font-size: 18px;
-          padding: 5px;
-          border: 1px solid #333;
-          border-radius: 50%;
         }
       }
     }

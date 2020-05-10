@@ -117,7 +117,7 @@ export default {
           color: white;
           background-image: linear-gradient(
             to right,
-            #c62f2f,
+            #5fa7e4,
             orange,
             yellow,
             green,
@@ -129,7 +129,7 @@ export default {
             green,
             yellow,
             orange,
-            #c62f2f
+            #5fa7e4
           );
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;

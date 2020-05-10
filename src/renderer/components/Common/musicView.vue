@@ -131,7 +131,7 @@ export default {
         this.height
       )
       this.gradient.addColorStop('0', '#860000')
-      this.gradient.addColorStop('1.0', '#c62f2f')
+      this.gradient.addColorStop('1.0', '#5fa7e4')
       let _this = this;
       (function draw () {
         _this.analyser.getByteFrequencyData(_this.dataArray)

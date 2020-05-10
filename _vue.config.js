@@ -90,8 +90,8 @@ module.exports = {
     loaderOptions: {
       less: {
         modifyVars: {
-          'primary-color': '#c62f2f',
-          'link-color': '#c62f2f',
+          'primary-color': '#5fa7e4',
+          'link-color': '#5fa7e4',
           'border-radius-base': '4px'
         },
         javascriptEnabled: true
@@ -129,7 +129,7 @@ module.exports = {
     electronBuilder: {
       builderOptions: {
         win: {
-          icon: 'build/electron-icon/icon.ico',
+          icon: 'build/electron-icon/logo.ico',
           // 图标路径 windows系统中icon需要256*256的ico格式图片，更换应用图标亦在此处
           target: [ {
             // 打包成一个独立的 exe 安装程序
@@ -173,11 +173,11 @@ module.exports = {
           // 允许修改安装目录，建议为 true，是否允许用户改变安装目录，默认是不允许
           allowToChangeInstallationDirectory: true,
           // 安装图标
-          installerIcon: 'build/electron-icon/icon.ico',
+          installerIcon: 'build/electron-icon/logo.ico',
           // 卸载图标
-          uninstallerIcon: 'build/electron-icon/icon.ico',
+          uninstallerIcon: 'build/electron-icon/logo.ico',
           // 安装时头部图标
-          installerHeaderIcon: 'build/electron-icon/icon.ico',
+          installerHeaderIcon: 'build/electron-icon/logo.ico',
           // 创建桌面图标
           createDesktopShortcut: true,
           // 创建开始菜单图标

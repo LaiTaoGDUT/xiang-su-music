@@ -3,7 +3,7 @@
     <a-icon
       type="heart"
       theme="filled"
-      style="color:#c62f2f"
+      style="color:#5fa7e4"
       @click.stop="handleClick(false)"
       v-if="isLiked"
     />

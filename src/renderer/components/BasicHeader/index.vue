@@ -1,7 +1,7 @@
 <template>
   <div class="top-bar">
     <div class="top-bar-logo">
-      <img src="../../assets/images/logo.svg" alt="LOGO">
+      <img src="../../assets/images/top_bar_logo.png" alt="LOGO">
     </div>
     <div class="top-bar-main">
       <div class="top-bar-control">
@@ -135,9 +135,9 @@ export default {
     align-items: center;
     width: 200px;
     flex: 0 0 200px;
-    padding-left: 15px;
+    padding-left: 5px;
     img {
-      width: 140px;
+      width: 180px;
     }
   }
   .top-bar-main {

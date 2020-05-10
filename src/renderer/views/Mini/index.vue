@@ -17,10 +17,10 @@
           </transition>
         </div>
         <div class="controls">
-          <a-icon type="step-backward" class="icon no-drag" @click="backward" />
+          <img src="./../../assets/images/next_icon.png" @click="backward" class="icon no-drag" style="transform:rotate(180deg)"/>
           <img src="./../../assets/images/pause_icon.png" @click="togglePlay" class="icon no-drag" v-if='playing' />
           <img src="./../../assets/images/play_icon.png" @click="togglePlay" class="icon no-drag" v-else />
-          <a-icon type="step-forward" class="icon no-drag" @click="forward" />
+          <img src="./../../assets/images/next_icon.png" @click="forward" class="icon no-drag"/>
         </div>
       </div>
       <song-heart

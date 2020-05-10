@@ -1,7 +1,7 @@
 const electron = require('electron')
 const createTray = function (Tray) {
   let { width: screenWidth } = electron.screen.getPrimaryDisplay().size
-  const trayIconPath = __static + '/images/tray.ico'
+  const trayIconPath = __static + '/images/logo.ico'
   const appTray = new Tray(trayIconPath)
   appTray.setToolTip('网易云音乐')
   appTray.on('right-click', (event, bounds) => {

@@ -1,4 +1,4 @@
-//搜索历史
+// 搜索历史
 const SAVE_MAX_LENGTH = 10
 let search = {
   namespaced: true,
@@ -17,7 +17,7 @@ let search = {
     saveKeyword ({ commit, state }, keyword) {
       let words = state.searchHistory
       words.unshift(keyword)
-      words = [...new Set(words)].slice(0, SAVE_MAX_LENGTH) //去重
+      words = [...new Set(words)].slice(0, SAVE_MAX_LENGTH) // 去重
       // console.log(words)
       commit('update', words)
       localStorage.setItem('__searchHistory__', JSON.stringify(words))
@@ -30,7 +30,6 @@ let search = {
       commit('update', words)
       localStorage.setItem('__searchHistory__', JSON.stringify(words))
     },
-    
     clearKeyword ({ commit }) {
       commit('update', [])
       localStorage.removeItem('__searchHistory__')

@@ -156,7 +156,7 @@ export default {
       this.banners = data.map(item => {
         return {
           src: item.pic,
-          titleColor: '#c62f2f',
+          titleColor: '#5fa7e4',
           typeTitle: item.typeTitle,
           url: item.url
         }

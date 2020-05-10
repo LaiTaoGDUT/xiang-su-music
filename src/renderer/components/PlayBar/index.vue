@@ -1,11 +1,10 @@
 <template>
   <div class="player">
     <div class="bar1" :class="disableCls">
-      <a-icon type="step-backward" class="step-icon" @click="backward"/>
+      <img src="./../../assets/images/next_icon.png" @click="backward" class="step-icon" style="transform:rotate(180deg)"/>
       <img src="./../../assets/images/pause_icon.png" @click="togglePlay" class="play-icon" v-if='playing' />
       <img src="./../../assets/images/play_icon.png" @click="togglePlay" class="play-icon" v-else />
-      <!-- <a-icon :type="playIcon" theme="filled" class="play-icon" @click="togglePlay"/> -->
-      <a-icon type="step-forward" class="step-icon" @click="forward"/>
+      <img src="./../../assets/images/next_icon.png" @click="forward" class="step-icon"/>
     </div>
     <div class="bar2">
       <time class="time">{{currentTime | duration}}</time>
@@ -739,11 +738,9 @@ export default {
       cursor: pointer;
     }
     .step-icon {
-      padding: 7px;
-      border-radius: 50%;
       background: @primary-color;
-      color: #fff;
-      font-size: 17px;
+      width: 32px;
+      height: 32px;
       cursor: pointer;
     }
   }

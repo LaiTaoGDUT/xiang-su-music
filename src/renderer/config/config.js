@@ -16,7 +16,7 @@ export const KEEP_STATE_KEY = '__KEEP_STATE__'
 
 export const colorList = [      // 皮肤列表
   {
-    key: '中国红', color: '#c62f2f'
+    key: '默认', color: '#5fa7e4'
   },
   {
     key: '火山', color: '#FA541C'

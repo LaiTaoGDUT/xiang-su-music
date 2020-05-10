@@ -19,7 +19,7 @@ let mainWindow = null
 protocol.registerSchemesAsPrivileged([
   { scheme: ACHEME, privileges: { secure: true, standard: true } }
 ])
-const previewIcon = process.env.NODE_ENV === 'development' ? 'public/images/tray.ico' : `${global.__images}/tray.ico`
+const previewIcon = process.env.NODE_ENV === 'development' ? 'public/images/logo.ico' : `${global.__images}/logo.ico`
 const prevIcon = process.env.NODE_ENV === 'development' ? 'public/images/prev.png' : `${global.__images}/prev.png`
 const nextIcon = process.env.NODE_ENV === 'development' ? 'public/images/next.png' : `${global.__images}/next.png`
 const playIcon = process.env.NODE_ENV === 'development' ? 'public/images/play.png' : `${global.__images}/play.png`

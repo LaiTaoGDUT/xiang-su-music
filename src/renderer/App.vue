@@ -31,14 +31,13 @@ export default {
       let networkNotification = new Notification(name, {
         title,
         body: message,
-        icon: 'public/images/icon.ico'
+        icon: 'public/images/logo.ico'
       })
       this.$store.commit('App/SET_ONLINE', status)
     }
   },
   created () {
     this.initDownload()
-
   },
   mounted () {
     this.$electron.ipcRenderer.on('will-close', () => {
