@@ -123,7 +123,7 @@ export default {
     color: #fff;
     text-shadow: 1px 1px 5px @primary-color, 1px -1px 3px @primary-color;
     text-align: center;
-    font-family: "Microsoft JhengHei", "明黑", Arial, Helvetica;
+    font-family: "Source Sans Pro", "明黑", Arial, Helvetica;
     // line-height: 60px;
     text-indent: 2px;
     white-space: nowrap;
@@ -134,7 +134,7 @@ export default {
     color: #fff;
     text-shadow: 1px 1px 5px @primary-color, 1px -1px 3px @primary-color;
     text-align: center;
-    font-family: "Microsoft JhengHei", "明黑", Arial, Helvetica;
+    font-family: "Source Sans Pro", "明黑", Arial, Helvetica;
     line-height: 60px;
     text-indent: 2px;
     white-space: nowrap;

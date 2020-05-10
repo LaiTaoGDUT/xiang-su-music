@@ -218,7 +218,7 @@ export default {
       a {
         flex: 1;
         text-align: left;
-        font-size: 13px;
+        font-size: 14px;
         color: #333;
         strong {
           font-size: 24px;

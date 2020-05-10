@@ -85,7 +85,7 @@ export default {
       padding: 15px;
       border-bottom: 1px solid #eee;
       color: #333;
-      font-size: 13px;
+      font-size: 14px;
       &:hover {
         background: #eee;
       }

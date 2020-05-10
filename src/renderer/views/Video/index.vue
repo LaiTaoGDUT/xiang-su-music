@@ -156,7 +156,7 @@ export default {
           }
         }
         .title {
-          font-size: 13px;
+          font-size: 14px;
           color: #333;
         }
       }

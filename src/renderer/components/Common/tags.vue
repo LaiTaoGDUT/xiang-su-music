@@ -43,7 +43,7 @@ export default {
     margin: 15px 0;
     dd, dt {
       display: inline-block;
-      font-size: 13px;
+      font-size: 14px;
     }
     dd {
       padding: 0 10px;

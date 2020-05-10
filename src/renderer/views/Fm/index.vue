@@ -307,7 +307,7 @@ export default {
       margin: 8px 0;
       line-height: 26px;
       color: #333;
-      font-size: 13px;
+      font-size: 14px;
       transition: all 0.3s;
       &:first-child {
         margin-top: 30px;

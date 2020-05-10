@@ -17,7 +17,7 @@
               <li class="item">
                 <a-button-group size="small">
                   <a-button type="primary" icon="play-circle" @click="play">播放全部</a-button>
-                  <a-button type="primary" icon="plus" title="添加所有到播放列表" @click="addToList" />
+                  <a-button type="primary" icon="plus" title="添加所有到播放列表" @click="addToList"></a-button>
                 </a-button-group>
               </li>
               <li class="item">
@@ -46,11 +46,11 @@
             </div>
             <div class="desc">
               <span>简介：</span>
-              <span v-html="playlist.description" v-if="playlist.description"></span>
+              <span v-if="playlist.description"> {{ playlist.description }}</span>
               <span v-else>无</span>
             </div>
           </div>
-          <img slot="avatar" width="200" height="200" v-lazy="`${playlist.coverImgUrl}?param=200y200`" :key="playlist.id" />
+          <img slot="avatar" width="200" height="200" v-lazy="`${playlist.coverImgUrl}?param=300y300`" :key="playlist.id" />
         </a-list-item-meta>
         <ul class="action">
           <li>
@@ -59,7 +59,7 @@
           </li>
           <li>
             <div>播放数</div>
-            <strong>{{playlist.playCount}}</strong>
+            <strong>{{playlist.playCount | toWan}}</strong>
           </li>
         </ul>
       </a-list-item>
@@ -204,7 +204,7 @@ export default {
       color: #333;
     }
     .time {
-      font-size: 13px;
+      font-size: 14px;
     }
   }
   .actions {
@@ -214,15 +214,15 @@ export default {
       margin-right: 10px;
     }
     button {
-      font-size: 13px;
+      font-size: 14px;
     }
   }
   .tags {
     display: flex;
     margin-bottom: 10px;
-    font-size: 13px;
+    font-size: 14px;
     a {
-      font-size: 13px;
+      font-size: 14px;
       color: #006fe3;
     }
   }

@@ -295,7 +295,7 @@ export default {
             overflow: hidden;
             white-space: nowrap;
             text-overflow: ellipsis;
-            font-size: 13px;
+            font-size: 14px;
           }
         }
         &:hover {
@@ -354,7 +354,7 @@ export default {
           width: 60px;
           flex: 0 0 60px;
           text-align: right;
-          font-size: 13px;
+          font-size: 14px;
           color: #999;
         }
       }

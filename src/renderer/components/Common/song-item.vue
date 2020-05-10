@@ -119,7 +119,7 @@ export default {
       overflow: hidden;
       padding-left: 10px;
       color: #000;
-      font-size: 13px;
+      font-size: 14px;
       .name {
         overflow: hidden;
         text-overflow: ellipsis;

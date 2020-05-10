@@ -213,7 +213,7 @@ export default {
     padding-top: 20px;
 
     a {
-      font-size: 13px;
+      font-size: 14px;
       color: #888;
     }
 

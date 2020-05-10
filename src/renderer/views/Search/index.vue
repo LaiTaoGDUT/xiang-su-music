@@ -212,7 +212,7 @@ export default {
       .name {
         flex: 1;
         padding: 0 5px;
-        font-size: 13px;
+        font-size: 14px;
       }
       .anticon {
         color: #999;

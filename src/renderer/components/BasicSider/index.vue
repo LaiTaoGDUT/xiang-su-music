@@ -130,7 +130,7 @@ export default {
       background-color: initial;
     }
     .ant-menu-item-group-title {
-      font-size: 13px;
+      font-size: 14px;
     }
     /deep/ .ant-menu-submenu {
       > .ant-menu {
@@ -157,7 +157,7 @@ export default {
         line-height: 33px;
         height: 33px;
         padding: 0 !important;
-        font-size: 13px;
+        font-size: 14px;
         .flex {
           display: flex;
           justify-content: space-between;
@@ -174,11 +174,11 @@ export default {
           text-overflow: ellipsis;
           padding-right: 5px;
           color: rgba(0, 0, 0, 0.85);
-          font-family: "Microsoft JhengHei", "\660E\9ED1", Arial, Helvetica;
+          font-family: "Source Sans Pro", "\660E\9ED1", Arial, Helvetica;
           a {
             color: inherit;
             text-decoration: none;
-            font-family: "Microsoft JhengHei", "\660E\9ED1", Arial, Helvetica;
+            font-family: "Source Sans Pro", "\660E\9ED1", Arial, Helvetica;
           }
           &:hover {
             color: rgba(0, 0, 0, 1);

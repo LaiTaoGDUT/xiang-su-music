@@ -36,7 +36,7 @@ export default {
     }
     .figcaption {
       line-height: 25px;
-      font-size: 13px;
+      font-size: 14px;
       color: #333;
       text-align: center;
     }

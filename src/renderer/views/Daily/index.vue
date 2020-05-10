@@ -160,7 +160,7 @@ export default {
       padding-left: 15px;
       .name {
         margin: 10px 0;
-        font-family: "Microsoft JhengHei", "明黑", Arial, Helvetica;
+        font-family: "Source Sans Pro", "明黑", Arial, Helvetica;
         font-size: 28px;
       }
     }

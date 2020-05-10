@@ -615,7 +615,7 @@ export default {
               padding: 4px 0;
               line-height: 26px;
               color: #333;
-              font-size: 13px;
+              font-size: 14px;
               transition: all 0.3s;
               &:first-child {
                 margin-top: 30px;
@@ -675,7 +675,7 @@ export default {
             font-size: 12px;
             .song-name {
               color: #000;
-              font-size: 13px;
+              font-size: 14px;
             }
             .playcount {
               color: #999;
@@ -687,7 +687,7 @@ export default {
           align-items: center;
           justify-content: center;
           margin: 10px 0;
-          font-size: 13px;
+          font-size: 14px;
           .user-info {
             flex: 1;
             display: flex;

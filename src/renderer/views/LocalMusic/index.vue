@@ -3,7 +3,7 @@
     <a-card :bordered="false">
       <div slot="title">
         <a-button icon="redo" size="small" type="primary" @click="refreshFolders" :disabled="matching">重新扫描</a-button>
-        <a-button icon="api" size="small" type="primary" :disabled="!localSongs.length || matching" @click="matchSongs">匹配音乐</a-button>
+        <a-button :icon="matching ? 'loading' : 'api'" size="small" type="primary" :disabled="!localSongs.length" @click="matchSongs">{{ matching ? '停止匹配' : '匹配音乐'}}</a-button>
         <small>{{ localSongs.length }}首歌曲,<span style="color:blue;cursor:pointer"   @click="visible = true">选择目录</span></small>
         <small style="margin-left: 10px" v-if="refreshing">
           <a-spin>
@@ -15,9 +15,13 @@
           <a-spin>
             <a-icon slot="indicator" type="loading" spin size="small" tip="Loading..." />
           </a-spin>
-          正在匹配 {{ matchSuccessNum + matchFailedNum + matchRepeatNum }}/{{localSongs.length - matchedSongs}}
-          <span style="width: 170px;display: inline-block; margin-left: 20px">
-            <a-progress size="small" status="active" :percent="Math.floor((matchSuccessNum + matchFailedNum + matchRepeatNum) / (localSongs.length - matchedSongs) * 100)"/>
+          正在匹配
+          <span style="width: 170px;display: inline-block; margin-left: 10px">
+            <a-progress
+              :format="percent => `${matchSuccessNum + matchFailedNum + matchRepeatNum}/${localSongs.length - matchedSongs}`"
+              size="small"
+              :percent="Math.floor((matchSuccessNum + matchFailedNum + matchRepeatNum) / (localSongs.length - matchedSongs) * 100)"
+            />
           </span>
         </small>
       </div>
@@ -99,7 +103,8 @@ export default {
       columns,
       defaultDownloadFolder,
       matching: false,
-      waitSelectFolder: [] // 用户已经选择但是没有确定的文件夹
+      waitSelectFolder: [], // 用户已经选择但是没有确定的文件夹
+      matchedSongs: 0 // has matched songs
     }
   },
   components: {
@@ -107,17 +112,12 @@ export default {
   },
   computed: {
     ...mapState('Localsong', ['exportFolders', 'needRefreshFolders']),
-    ...mapGetters('Localsong', ['localSongs', 'matchSuccessNum', 'matchFailedNum', 'matchRepeatNum']),
-    ...mapGetters('play', ['current_play_list']),
-    matchedSongs () {
-      return this.localSongs.filter( song => {
-        return song.matched
-      }).length
-    }
+    ...mapGetters('Localsong', ['localSongs', 'matchSuccessNum', 'matchFailedNum', 'matchRepeatNum', 'stopMatching']),
+    ...mapGetters('play', ['current_play_list'])
   },
   methods: {
     ...mapActions('Localsong', ['refresh', 'match']),
-    ...mapMutations('Localsong', ['setExportFolders', 'setneedRefreshFolders', 'clearMatchNum']),
+    ...mapMutations('Localsong', ['setExportFolders', 'setneedRefreshFolders', 'clearMatchNum', 'setStopMatching']),
     onChange () {
       console.log('value = ', this.selectedFolder)
     },
@@ -150,16 +150,32 @@ export default {
       if (changeNums == 0) Message.success('扫描本地音乐完成')
       else Message.success(`扫描本地音乐完成，${changeNums > 0 ? '新增' + changeNums : '减少' + -changeNums}首歌曲`)
     },
-    async matchSongs () {
+    matchSongs () {
+      if (this.matching) {
+        this.stopMatchSongs()
+      } else {
+        this.startMatchSongs()
+      }
+    },
+    async startMatchSongs () {
       this.matching = true
+      this.matchedSongs = this.getMatchedSongs()
       await this.match(false)
       this.matching = false
-      Message.success(`匹配完成！${this.matchSuccessNum ? '匹配成功' + this.matchSuccessNum + '首，' : ''}${this.matchFailedNum ? '匹配失败' + this.matchFailedNum + '首，' : ''}${this.matchRepeatNum ? this.matchRepeatNum + '首重复歌曲' : ''}`)
+      Message.success(`匹配完成！${this.matchSuccessNum ? '匹配成功' + (this.matchSuccessNum + this.matchRepeatNum) + '首 ' : ''}${this.matchFailedNum ? '匹配失败' + this.matchFailedNum + '首 ' : ''}${this.matchRepeatNum ? this.matchRepeatNum + '首重复歌曲已去除' : ''}`)
       this.clearMatchNum()
+    },
+    stopMatchSongs () {
+      this.setStopMatching(true)
     },
     clearWaitFolders () { // 用户点击关闭按钮时将清空已添加但未确认扫描过的文件夹
       this.waitSelectFolder.splice(0, this.waitSelectFolder.length) // 清空新增文件
       this.bufferFolder = this.selectedFolder.concat() // 将缓存文件夹更新
+    },
+    getMatchedSongs () {
+      return this.localSongs.filter( song => {
+        return song.matched
+      }).length
     }
   },
   created () {

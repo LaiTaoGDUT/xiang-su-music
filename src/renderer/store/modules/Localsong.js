@@ -21,11 +21,11 @@ async function searchMusicFile (folder, songs, localSongs) {
       const stat = fs.statSync(pathname)
       if (stat.isFile()) {
         if (item.endsWith('.mp3') || item.endsWith('.m4a') || item.endsWith('.flac')) { // 在未来增加更多可识别的格式
-          let localSong = localSongs.find(song => pathname == song.url)
-          if (localSong) { // the song is existed
-            songs.push(localSong)
-            continue
-          }
+          // let localSong = localSongs.find(song => pathname == song.url)
+          // if (localSong) { // the song is existed
+          //   songs.push(localSong)
+          //   continue
+          // }
           const metadata = await mm.parseFile(pathname, {
             duration: true
           })
@@ -71,13 +71,15 @@ export default {
     needRefreshFolders: [`${remote.app.getPath('music')}`], // 需要扫描的文件夹
     matchSuccessNum: 0, // the number of songs num which matching success
     matchFailedNum: 0, // the number of songs which matching failed
-    matchRepeatNum: 0 // the number of songs which repeated
+    matchRepeatNum: 0, // the number of songs which repeated
+    stopMatching: false // a tag which use to  stop songs matching
   },
   getters: {
     localSongs: state => state.localSongs,
     matchSuccessNum: state => state.matchSuccessNum,
     matchFailedNum: state => state.matchFailedNum,
-    matchRepeatNum: state => state.matchRepeatNum
+    matchRepeatNum: state => state.matchRepeatNum,
+    stopMatching: state => state.songMatching
   },
   mutations: {
     clear (state) {
@@ -88,12 +90,16 @@ export default {
       state.matchFailedNum = 0
       state.matchRepeatNum = 0
     },
+    setStopMatching (state, flag) {
+      state.stopMatching = flag
+    },
     set (state, songs) {
       state.localSongs = songs
     },
     replace (state, obj) {
-      console.log(obj.song)
-      state.localSongs[obj.index] = obj.song
+      let _song = state.localSongs.slice()
+      _song[obj.index] = obj.song
+      state.localSongs = _song
     },
     delete (state, songIndexs) {
       state.localSongs = state.localSongs.filter((song, index) => {
@@ -133,6 +139,9 @@ export default {
         console.log(localSongs)
         for (let i = 0; i < localSongs.length; i++) {
           let song = localSongs[i]
+          if (state.stopMatching) {
+            break
+          }
           if (!forceMatch && song.matched) {
             continue
           }
@@ -151,7 +160,8 @@ export default {
               commit('addFailedNum')
               continue
             }
-            if (localSongs.some(song => suggest.id == song.id && suggest.size == song.size)) { // 如果id和大小是一样的就无需重复添加
+            // if local song lists has this song and larger then it
+            if (state.localSongs.slice(0, i).some(song => (suggest.id == song.id && state.localSongs[i].size <= song.size))) {
               commit('addRepeatNum')
               repeatedSongs.push(i)
               continue
@@ -180,6 +190,7 @@ export default {
           }
         }
         commit('delete', repeatedSongs)
+        commit('setStopMatching', false)
       } catch (error) {
         console.log('match error:', error)
       }

@@ -475,7 +475,7 @@ export default {
     justify-content: space-between;
     color: rgba(255, 255, 255, 0.7);
     padding: 0 10px;
-    font-size: 13px;
+    font-size: 14px;
     .left {
       height: 100%;
       display: flex;
@@ -511,7 +511,7 @@ export default {
       margin-right: 10px;
     }
     button {
-      font-size: 13px;
+      font-size: 14px;
     }
   }
   .col-r {

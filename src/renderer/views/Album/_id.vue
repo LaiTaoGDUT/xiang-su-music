@@ -192,7 +192,7 @@ export default {
       margin-right: 10px;
     }
     button {
-      font-size: 13px;
+      font-size: 14px;
     }
   }
 }

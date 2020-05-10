@@ -76,7 +76,7 @@ export default {
     background: #eee;
   }
   .line {
-    font-size: 13px;
+    font-size: 14px;
     line-height: 22px;
   }
   .actions {

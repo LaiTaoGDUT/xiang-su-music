@@ -57,7 +57,7 @@ export default {
   display: flex;
   align-items: center;
   padding: 10px 40px;
-  font-size: 13px;
+  font-size: 14px;
   color: #333;
   img {
     display: block;

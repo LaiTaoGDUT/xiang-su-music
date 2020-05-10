@@ -215,7 +215,7 @@ export default {
             position: absolute;
             left: 25%;
             bottom: 10px;
-            font-size: 13px;
+            font-size: 14px;
             font-family: "宋体";
             color: rgba(255, 255, 255, .7);
           }
@@ -236,7 +236,7 @@ export default {
           background: #f5f5f7;
           margin: 0;
           padding: 0 10px;
-          font-size: 13px;
+          font-size: 14px;
           &:nth-child(2n) {
             background: #efefef;
           }
@@ -328,7 +328,7 @@ export default {
       }
       .name {
         line-height: 25px;
-        font-size: 13px;
+        font-size: 14px;
         text-align: center;
         color: initial;
       }

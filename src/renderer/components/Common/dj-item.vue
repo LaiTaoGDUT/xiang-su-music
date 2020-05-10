@@ -59,7 +59,7 @@ export default {
       width: 100%;
       margin: 0;
       color: #fff;
-      font-size: 13px;
+      font-size: 14px;
       .avatar {
         position: absolute;
         left: 50%;

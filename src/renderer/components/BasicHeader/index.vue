@@ -90,7 +90,7 @@ export default {
     margin: -12px -16px;
     dl {
       width: 50%;
-      font-size: 13px;
+      font-size: 14px;
       &:not(:last-child) {
         border-right: 1px solid #eee;
       }
@@ -210,7 +210,7 @@ export default {
     align-items: center;
   }
   span {
-    font-size: 13px;
+    font-size: 14px;
     letter-spacing: 2px;
   }
 }

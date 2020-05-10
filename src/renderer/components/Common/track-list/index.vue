@@ -426,7 +426,7 @@ export default {
   text-align: center;
 }
 .track-list {
-  font-family: "Microsoft JhengHei", "\660E\9ED1", Arial, Helvetica;
+  font-family: "Source Sans Pro", "\660E\9ED1", Arial, Helvetica;
   .col-item {
     flex: 2;
     padding: 0 5px;
@@ -434,7 +434,7 @@ export default {
   .col-index {
     justify-content: flex-end;
     flex: 0 0 40px !important;
-    font-size: 13px;
+    font-size: 14px;
   }
   .col-lyric {
     flex: 0 0 100%;

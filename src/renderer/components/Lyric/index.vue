@@ -90,9 +90,9 @@ export default {
         padding-bottom: 100px;
       }
       &.current {
-        color: @primary-color;
+        color: white;
         font-size: 18px;
-        text-shadow: 1px 1px rgba(0, 0, 0, 0.2), 1px 2px rgba(0, 0, 0, 0.1);
+        text-shadow: 1px 1px @primary-color, 1px 2px @primary-color;
       }
     }
   }
@@ -108,7 +108,7 @@ export default {
         justify-content: center;
       }
       .text {
-        font-family: "Microsoft JhengHei", "\660E\9ED1", Arial, Helvetica;
+        font-family: "Source Sans Pro", "\660E\9ED1", Arial, Helvetica;
         font-size: 18px;
         transition: all 0.25s;
         text-align: center;

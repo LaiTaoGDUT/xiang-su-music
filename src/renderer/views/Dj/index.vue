@@ -239,7 +239,7 @@ export default {
       .more {
         float: right;
         color: #666;
-        font-size: 13px;
+        font-size: 14px;
       }
     }
     .list {

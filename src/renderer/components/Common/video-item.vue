@@ -50,7 +50,7 @@ export default {
     width: 100%;
     margin: 0;
     color: #fff;
-    font-size: 13px;
+    font-size: 14px;
     &:hover {
       .play-icon {
         display: block;
@@ -98,7 +98,7 @@ export default {
   }
   .name {
     padding: 4px;
-    font-size: 13px;
+    font-size: 14px;
     color: #333;
   }
   .creator {

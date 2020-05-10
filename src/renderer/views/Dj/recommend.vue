@@ -97,7 +97,7 @@ export default {
   padding: 15px 0;
   border-bottom: 1px solid #eee;
   color: #333;
-  font-size: 13px;
+  font-size: 14px;
   .avatar {
     position: relative;
     width: 100px;

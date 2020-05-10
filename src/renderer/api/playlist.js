@@ -14,9 +14,11 @@ export function getUserPlaylist (uid) {
 
 // 传入歌单id, 获取对应歌单内的所有的音乐
 export function getPlaylistDetail (id) {
-  return request.post('/playlist/detail', {
-    id,
-    _: new Date().getTime()
+  return request.get('/playlist/detail', {
+    params: {
+      id,
+      _: new Date().getTime()
+    }
   })
 }
 
