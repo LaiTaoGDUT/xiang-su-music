@@ -139,16 +139,17 @@ export default {
       }
       this.refreshFolders()
     },
-    async refreshFolders () {
+    refreshFolders () {
       this.setneedRefreshFolders(this.selectedFolder)
       this.visible = false
       this.refreshing = true
       const curSongNums = this.localSongs.length
-      await this.refresh(this.selectedFolder)
-      this.refreshing = false
-      const changeNums = this.localSongs.length - curSongNums
-      if (changeNums == 0) Message.success('扫描本地音乐完成')
-      else Message.success(`扫描本地音乐完成，${changeNums > 0 ? '新增' + changeNums : '减少' + -changeNums}首歌曲`)
+      this.refresh(this.selectedFolder).then( () => {
+        this.refreshing = false
+        const changeNums = this.localSongs.length - curSongNums
+        if (changeNums == 0) Message.success('扫描本地音乐完成')
+        else Message.success(`扫描本地音乐完成，${changeNums > 0 ? '新增' + changeNums : '减少' + -changeNums}首歌曲`)
+      })
     },
     matchSongs () {
       if (this.matching) {

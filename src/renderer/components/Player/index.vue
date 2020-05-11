@@ -207,7 +207,6 @@ export default {
     },
     current_song (newSong, oldSong) {
       if (newSong.id === oldSong.id || !this.fullscreen) return
-      console.log(newSong.id, oldSong.id)
       this.delay = 0
       this.$refs.lyrics.scrollTo(0)
       this._getSimiPlaylist(newSong.id)

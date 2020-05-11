@@ -3,7 +3,7 @@ const createTray = function (Tray) {
   let { width: screenWidth } = electron.screen.getPrimaryDisplay().size
   const trayIconPath = __static + '/images/logo.ico'
   const appTray = new Tray(trayIconPath)
-  appTray.setToolTip('网易云音乐')
+  appTray.setToolTip('像素音乐')
   appTray.on('right-click', (event, bounds) => {
     const [trayMenuWidth, trayMenuHeight] = global.trayWindow.getSize()
     let { x, y } = electron.screen.getCursorScreenPoint()

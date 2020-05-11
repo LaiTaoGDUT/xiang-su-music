@@ -9,10 +9,6 @@ const path = require('path')
 const mm = require('music-metadata')
 const avatarIcon = 'images/default_album.jpg'
 
-function isSongInArray (song, arr) {
-  return arr.findIndex(item => item.id == song.id) >= 0
-}
-
 async function searchMusicFile (folder, songs, localSongs) {
   try {
     const dirs = fs.readdirSync(folder)
@@ -97,9 +93,7 @@ export default {
       state.localSongs = songs
     },
     replace (state, obj) {
-      let _song = state.localSongs.slice()
-      _song[obj.index] = obj.song
-      state.localSongs = _song
+      state.localSongs[obj.index] = obj.song
     },
     delete (state, songIndexs) {
       state.localSongs = state.localSongs.filter((song, index) => {
@@ -133,7 +127,6 @@ export default {
   actions: {
     async match ({ state, commit }, forceMatch = false) {
       let albumAvater = new Map() // 暂存专辑id以免相同专辑的歌曲重复请求
-      let repeatedSongs = [] // save the repeat songs and delete them when match finished
       try {
         let localSongs = state.localSongs.slice()
         console.log(localSongs)
@@ -161,11 +154,11 @@ export default {
               continue
             }
             // if local song lists has this song and larger then it
-            if (state.localSongs.slice(0, i).some(song => (suggest.id == song.id && state.localSongs[i].size <= song.size))) {
-              commit('addRepeatNum')
-              repeatedSongs.push(i)
-              continue
-            }
+            // if (state.localSongs.slice(0, i).some(song => (suggest.id == song.id && state.localSongs[i].size <= song.size))) {
+            //   commit('addRepeatNum')
+            //   repeatedSongs.push(i)
+            //   continue
+            // }
             let avatar
             if (suggest.album) {
               let albumId = suggest.album.id
@@ -189,7 +182,6 @@ export default {
             commit('addSuccessNum')
           }
         }
-        commit('delete', repeatedSongs)
         commit('setStopMatching', false)
       } catch (error) {
         console.log('match error:', error)

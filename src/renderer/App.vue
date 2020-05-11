@@ -52,8 +52,8 @@ export default {
     window.onoffline = () => {
       this.handleNetworkChange(
         {
-          name: '网易云音乐',
-          title: '网易云音乐',
+          name: '像素音乐',
+          title: '像素音乐',
           message: '请检查您的网络连接'
         },
         false
@@ -61,8 +61,8 @@ export default {
     }
     window.ononline = () => {
       this.handleNetworkChange({
-        name: '网易云音乐',
-        title: '网易云音乐',
+        name: '像素音乐',
+        title: '像素音乐',
         message: '网络连接成功'
       })
     }

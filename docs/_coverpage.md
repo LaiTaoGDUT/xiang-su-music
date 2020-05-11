@@ -1,8 +1,8 @@
 ![logo](images/logo.png)
 
-# electron仿网易云音乐
-> Electron+Vue+Ant Design Vue仿网易云音乐windows客户端实战项目
+# 像素音乐
+> Electron+Vue+Ant Design Vue 像素音乐桌面客户端项目
 
 
-[GitHub](https://github.com/xiaozhu188/electron-vue-cloud-music)
-[Get Started](#electron-vue-cloud-music)
+[GitHub](https://github.com/laitaogdut/xiang-su-music)
+[Get Started](#xiang-su-music)
