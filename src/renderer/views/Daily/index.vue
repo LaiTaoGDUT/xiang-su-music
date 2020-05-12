@@ -51,8 +51,7 @@ export default {
       'playing',
       'current_song',
       'history_play_list',
-      'fullscreen',
-      'current_lyric'
+      'fullscreen'
     ]),
     ...mapGetters('User', [
       'userCollectists', 'likedsongIds'

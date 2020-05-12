@@ -65,7 +65,7 @@ export default {
   },
   computed: {
     ...mapGetters('User', [ 'userId', 'userCollectists', 'subscribedList', 'createdList', 'likedsongIds' ]),
-    ...mapGetters('play', [ 'current_song', 'source', 'playing', 'fullscreen' ])
+    ...mapGetters('play', [ 'current_song', 'source', 'fullscreen' ])
   },
   watch: {
     userId (newVal) {

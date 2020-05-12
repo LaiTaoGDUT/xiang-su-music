@@ -18,9 +18,9 @@
           正在匹配
           <span style="width: 170px;display: inline-block; margin-left: 10px">
             <a-progress
-              :format="percent => `${matchSuccessNum + matchFailedNum + matchRepeatNum}/${localSongs.length - matchedSongs}`"
+              :format="percent => `${matchSuccessNum + matchFailedNum}/${localSongs.length - matchedSongs}`"
               size="small"
-              :percent="Math.floor((matchSuccessNum + matchFailedNum + matchRepeatNum) / (localSongs.length - matchedSongs) * 100)"
+              :percent="Math.floor((matchSuccessNum + matchFailedNum) / (localSongs.length - matchedSongs) * 100)"
             />
           </span>
         </small>
@@ -112,7 +112,7 @@ export default {
   },
   computed: {
     ...mapState('Localsong', ['exportFolders', 'needRefreshFolders']),
-    ...mapGetters('Localsong', ['localSongs', 'matchSuccessNum', 'matchFailedNum', 'matchRepeatNum', 'stopMatching']),
+    ...mapGetters('Localsong', ['localSongs', 'matchSuccessNum', 'matchFailedNum', 'stopMatching']),
     ...mapGetters('play', ['current_play_list'])
   },
   methods: {
@@ -163,7 +163,7 @@ export default {
       this.matchedSongs = this.getMatchedSongs()
       await this.match(false)
       this.matching = false
-      Message.success(`匹配完成！${this.matchSuccessNum ? '匹配成功' + (this.matchSuccessNum + this.matchRepeatNum) + '首 ' : ''}${this.matchFailedNum ? '匹配失败' + this.matchFailedNum + '首 ' : ''}${this.matchRepeatNum ? this.matchRepeatNum + '首重复歌曲已去除' : ''}`)
+      Message.success(`匹配完成！${this.matchSuccessNum ? '匹配成功' + this.matchSuccessNum + '首 ' : ''}${this.matchFailedNum ? '匹配失败' + this.matchFailedNum + '首 ' : ''}`)
       this.clearMatchNum()
     },
     stopMatchSongs () {

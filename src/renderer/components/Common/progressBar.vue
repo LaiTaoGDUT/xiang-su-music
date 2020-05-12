@@ -1,7 +1,7 @@
 <template>
   <div class="progress-bar" ref="progressBar" @click.prevent.stop="progressClick">
     <div class="progress" ref="progress" :style="{width : `${progressOffsetWidth}px`}"></div>
-    <div class="buffered" ref="buffered" :style="{width : `${bufferedOffsetWidth}px`}"></div>
+    <!-- <div class="buffered" ref="buffered" :style="{width : `${bufferedOffsetWidth}px`}"></div> -->
     <div :class="handleCls" @mousedown="onMouseDown" :style="{transform : `translateX(${progressbarTranslateX}px)`}">
       <img src="./../../assets/images/loading.gif" class="progress-waiting" v-if="waiting">
       <div class="progress-btn" v-else></div>
@@ -18,7 +18,7 @@ export default {
   data () {
     this.mouse = {} // 记录鼠标位置，是否按下等信息
     return {
-      bufferedOffsetWidth: 0,
+      // bufferedOffsetWidth: 0,
       progressOffsetWidth: 0,
       progressbarTranslateX: 0
     }
@@ -28,10 +28,10 @@ export default {
       type: Number,
       default: 0
     },
-    bufferedPercent: {
-      type: Number,
-      default: 0
-    },
+    // bufferedPercent: {
+    //   type: Number,
+    //   default: 0
+    // },
     size: {
       type: String,
       default: 'default',
@@ -75,14 +75,14 @@ export default {
       if ( newPercent >= 0 && !this.mouse.isDown ) {
         this.changeProgressbarWidth(newPercent)
       }
-    },
-    bufferedPercent (newPercent) {
-      this.changeBufferedWidth(newPercent)
     }
+    // bufferedPercent (newPercent) {
+    //   this.changeBufferedWidth(newPercent)
+    // }
   },
   methods: {
     handleResize () {
-      this.changeBufferedWidth(this.bufferedPercent)
+      // this.changeBufferedWidth(this.bufferedPercent)
       this.changeProgressbarWidth(this.percent)
     },
     onMouseDown (e) {
@@ -134,7 +134,7 @@ export default {
     changeBufferedWidth (percent) {
       const barWidth = this.$refs.progressBar.getBoundingClientRect().width
       const offsetWidth = percent * barWidth
-      this.bufferedOffsetWidth = offsetWidth
+      // this.bufferedOffsetWidth = offsetWidth
     }
   }
 }

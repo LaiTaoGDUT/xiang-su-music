@@ -8,6 +8,29 @@ let downloads = {}
 let updateWindow
 
 export default function () {
+
+  ipcMain.on('change-lyric', (event, params) => { // from mainWindow
+    // params : { lyric, trans }
+    global.lyricWindow.webContents.send('change-lyric', params)
+    global.miniWindow.webContents.send('change-lyric', params)
+    // global.trayWindow.webContents.send('change-lyric', params)
+  })
+
+  ipcMain.on('show-trans', (event, params) => { // from mainWindow
+    // params : { value: boolean }
+    global.lyricWindow.webContents.send('show-trans', params)
+    // global.lyricWindow.webContents.send('show-trans', params)
+    global.miniWindow.webContents.send('show-trans', params)
+    // global.trayWindow.webContents.send('show-trans', params)
+  })
+
+  ipcMain.on('console', (event, params) => { // from lyricWindow
+    let value = params.value
+    global.mainWindow.webContents.send('console', {
+      value
+    })
+  })
+
   ipcMain.on('change-color', (event, color) => {
     global.lyricWindow.webContents.send('change-color', {
       color
@@ -27,6 +50,12 @@ export default function () {
   ipcMain.on('toggle-play', (event, params) => {
     let value = params.value
     global.mainWindow.webContents.send('toggle-play', {
+      value
+    })
+    global.miniWindow.webContents.send('toggle-play', {
+      value
+    })
+    global.trayWindow.webContents.send('toggle-play', {
       value
     })
   })

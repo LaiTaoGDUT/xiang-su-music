@@ -10,7 +10,6 @@
       <time class="time">{{currentTime | duration}}</time>
       <progress-bar
         :percent="percent"
-        :bufferedPercent="bufferedPercent"
         :waiting="waiting"
         @percentChanged="onpercentChanged"
         @percentChanging="onpercentChanged"
@@ -26,6 +25,7 @@
         crossOrigin="anonymous"
         :id="source"
         ref="audio"
+        preload="auto"
         @play="onPlay"
         @pause="onPause"
         @ended="onEnd"
@@ -70,7 +70,6 @@ import { playMode } from '@/config/config'
 import { getUrl } from '@/utils/song'
 import { getLyric } from '@/api/song'
 import Lyric from '@/utils/class/Lyric.js'
-import { shuffle } from '@/utils/calculate.js'
 import ProgressBar from '@/components/Common/progressBar'
 import TrackList from '@/components/Common/track-list/index.js'
 import ZIcon from '@/components/ZIcon'
@@ -107,14 +106,12 @@ export default {
     ...mapState(['play']),
     ...mapGetters('play', [
       'mode',
-      'original_play_list',
       'current_song_index',
       'current_play_list',
       'playing',
       'current_song',
       'history_play_list',
       'fullscreen',
-      'current_lyric',
       'lyric',
       'trans',
       'source',
@@ -156,9 +153,9 @@ export default {
     percent () {
       return this.currentTime / this.current_song.duration
     },
-    bufferedPercent () {
-      return this.buffered / this.current_song.duration
-    },
+    // bufferedPercent () {
+    //   return this.buffered / this.current_song.duration
+    // },
     disableCls () {
       return this.isSongReady ? '' : 'disable'
     }
@@ -212,14 +209,13 @@ export default {
     current_song: 'handleSongChange'
   },
   mounted () {
+    // this.$db.lyric.remove( {}, { multi: true } )
     this.curVolume = this.volume
-    console.log(this.curVolume)
     this.$electron.ipcRenderer.on('toggle-play', (e, data) => {
       this.$store.commit('play/SET_PLAY_STATUS', data.value)
       this.lyricInstance && this.lyricInstance.togglePlay()
     })
     this.$electron.ipcRenderer.on('play-song', (e, data) => {
-      console.log(data.value)
       this.$store.dispatch('play/selectPlay', data.value)
     })
     this.$electron.ipcRenderer.on('prev-play', (e, data) => {
@@ -229,19 +225,23 @@ export default {
       this.forward()
     })
     if (Object.keys(this.current_song).length) {
-      this.isSongReady = true
       if (this.current_song.folder && this.current_song.url) { // local song
         this.$refs.audio.src = this.current_song.url
+        this.isSongReady = true
       } else {
         if (!this.isOnliline) return
         this.getOnlineSong(this.current_song).then(songUrl => {
           if (songUrl) {
             this.$store.commit('play/SET_SOURCE', songUrl)
             this.$refs.audio.src = songUrl
+            this.isSongReady = true
           } else {
             this.$message.error('暂无资源')
             this.$store.commit('play/SET_SOURCE', '')
             this.$store.commit('play/SET_PLAY_STATUS', false)
+            this.$electron.ipcRenderer.send('toggle-play', {
+              value: false
+            })
             this.isSongReady = true
             if (!this.lyricInstance) {
               if (this.current_song.folder) {
@@ -256,14 +256,10 @@ export default {
           this.$message.error('暂无资源')
           this.$store.commit('play/SET_SOURCE', '')
           this.$store.commit('play/SET_PLAY_STATUS', false)
+          this.$electron.ipcRenderer.send('toggle-play', {
+            value: false
+          })
           this.isSongReady = true
-          if (!this.lyricInstance) {
-            if (this.current_song.folder) {
-              this.getLocalLyric(this.current_song)
-            } else {
-              this.getOnlineLyric(this.current_song)
-            }
-          }
           this.lyricInstance && this.resetLyric()
         })
       }
@@ -275,43 +271,47 @@ export default {
       this.isSongReady = false
       if (newSong.folder) { // 如果是本地歌曲
         this.$store.commit('play/SET_SOURCE', newSong.url)
-        this.$refs.audio.src = ''
+        // this.$refs.audio.src = ''
         this.$refs.audio.src = newSong.url
-        setTimeout(() => {
-          this.$refs.audio.play()
-        }, 100)
+        this.$nextTick(() => {
+         this.$refs.audio.play()
+        })
         this.getLocalLyric(newSong)
       } else {
         this.$refs.audio.pause()
         this.getOnlineSong(newSong).then(songUrl => {
           if (songUrl) {
             this.$store.commit('play/SET_SOURCE', songUrl)
-            this.$refs.audio.src = ''
+            // this.$refs.audio.src = ''
             this.$refs.audio.src = songUrl
-            setTimeout(() => {
-              this.$refs.audio.play()
-            }, 100)
+            this.$nextTick(() => {
+            this.$refs.audio.play()
+            })
             this.getOnlineLyric(newSong)
           } else {
             this.$message.error('暂无资源')
             this.$store.commit('play/SET_SOURCE', '')
             this.$store.commit('play/SET_PLAY_STATUS', false)
+            this.$electron.ipcRenderer.send('toggle-play', {
+              value: false
+            })
             this.$store.commit('play/REMOVE_SONG', this.current_song_index)
             // this.$store.commit('play/SET_CURRENT_INDEX', this.current_song_index - 1)
             this.isSongReady = true
             this.lyricInstance && this.resetLyric()
-            // this.forward()
           }
         }).catch(error => {
           console.log(`获取歌曲播放链接失败:${error}`)
           this.$message.error('暂无资源')
           this.$store.commit('play/SET_SOURCE', '')
           this.$store.commit('play/SET_PLAY_STATUS', false)
+          this.$electron.ipcRenderer.send('toggle-play', {
+            value: false
+          })
           this.$store.commit('play/REMOVE_SONG', this.current_song_index)
           // this.$store.commit('play/SET_CURRENT_INDEX', this.current_song_index - 1)
           this.isSongReady = true
           this.lyricInstance && this.resetLyric()
-          // this.forward()
         })
       }
     },
@@ -389,8 +389,7 @@ export default {
               this.lyricInstance = null
               this.$store.commit('play/SET_LYRIC', null)
               this.$store.commit('play/SET_TRANS', null)
-              this.$store.commit('play/SET_CURRENT_LYRIC', null)
-              this.$store.commit('play/SET_CURRENT_TRANS', null)
+              this.$electron.ipcRenderer.send('change-lyric', { lyric: null, trans: null })
               this.$store.commit('play/SET_CURRENT_LYRIC_LINE', 0)
             }
             this.lyricInstance && this.resetLyric()
@@ -438,8 +437,7 @@ export default {
               this.lyricInstance = null
               this.$store.commit('play/SET_LYRIC', null)
               this.$store.commit('play/SET_TRANS', null)
-              this.$store.commit('play/SET_CURRENT_LYRIC', null)
-              this.$store.commit('play/SET_CURRENT_TRANS', null)
+              this.$electron.ipcRenderer.send('change-lyric', { lyric: null, trans: null })
               this.$store.commit('play/SET_CURRENT_LYRIC_LINE', 0)
             }
           } else {
@@ -457,22 +455,22 @@ export default {
     },
     handleLyric ({ lineNum, txt, trans }) {
       this.$store.commit('play/SET_CURRENT_LYRIC_LINE', lineNum)
-      this.$store.commit('play/SET_CURRENT_LYRIC', txt)
-      this.$store.commit('play/SET_CURRENT_TRANS', trans)
+      if (txt != null) {
+        this.$electron.ipcRenderer.send('change-lyric', { lyric: txt, trans: trans })
+      }
     },
     getLyricInstance (trans, lyric) {
       this.lyricInstance = new Lyric(trans, lyric, this.handleLyric)
       this.$store.commit('play/SET_LYRIC', this.lyricInstance)
-      this.$store.commit('play/SET_CURRENT_LYRIC', this.lyricInstance.lines[0].txt || null)
-      this.$store.commit('play/SET_CURRENT_TRANS', this.lyricInstance.lines[0].trans || null)
+      this.$electron.ipcRenderer.send('change-lyric', { lyric: this.lyricInstance.lines[0].txt, trans: this.lyricInstance.lines[0].trans })
     },
     resetLyric () {
       this.lyricInstance.stop()
       this.lyricInstance = null
       this.currentTime = 0
       this.$store.commit('play/SET_LYRIC', null)
-      this.$store.commit('play/SET_CURRENT_LYRIC', null)
-      this.$store.commit('play/SET_CURRENT_TRANS', null)
+      this.$store.commit('play/SET_TRANS', null)
+      this.$electron.ipcRenderer.send('change-lyric', { lyric: null, trans: null })
       this.$store.commit('play/SET_CURRENT_LYRIC_LINE', 0)
     },
     closeDrawer () {
@@ -480,18 +478,19 @@ export default {
     },
     updateTime (e) {
       const audio = this.$refs.audio
-      this.currentTime = e.target.currentTime
-      const timeRanges = audio.buffered
-      if (timeRanges.length != 0) {
-        this.buffered = timeRanges.end(timeRanges.length - 1)
+      if (this.currentTime == Math.floor(e.target.currentTime)) {
+        return
       }
+      this.currentTime = Math.floor(e.target.currentTime)
     },
     onPlay () {
       this.isSongReady = true
       let artistStr = this.current_song.artist.length ? this.current_song.artist.map(item => item.name).join(',') : ''
       document.title = `${this.current_song.name} - ${artistStr}` // tray title
       this.$store.commit('play/SET_PLAY_STATUS', true)
-
+      this.$electron.ipcRenderer.send('toggle-play', {
+        value: true
+      })
       if (this.lyricInstance) {
         this.lyricInstance.seek(this.currentTime * 1000)
       }
@@ -510,6 +509,9 @@ export default {
     },
     onPause () {
       this.$store.commit('play/SET_PLAY_STATUS', false)
+      this.$electron.ipcRenderer.send('toggle-play', {
+        value: false
+      })
     },
     onEnd () {
       this.currentTime = 0
@@ -546,20 +548,6 @@ export default {
       let mode = this.mode
       mode = ++mode % (Object.keys(playMode).length - 1)
       this.$store.commit('play/SET_MODE', mode)
-      let list = []
-      if (mode === playMode.random) {
-        list = shuffle(this.original_play_list)
-      } else {
-        list = this.original_play_list
-      }
-      this.resetCurrentIndex(list)
-      this.$store.commit('play/SET_CURRENT_PLAY_LIST', list)
-    },
-    resetCurrentIndex (list) {
-      let index = list.findIndex(item => {
-        return item.id === this.current_song.id
-      })
-      this.$store.commit('play/SET_CURRENT_INDEX', index)
     },
     getRandomInt (min, max) {
       return Math.floor(Math.random() * (max - min + 1) + min) // min,max之间的随机数（包含min,max）
@@ -568,8 +556,7 @@ export default {
       this.$refs.audio.currentTime = 0
       this.$refs.audio.play()
       if (this.lyricInstance) {
-        this.$store.commit('play/SET_CURRENT_LYRIC', this.lyricInstance.lines[0].txt || null)
-        this.$store.commit('play/SET_CURRENT_TRANS', this.lyricInstance.lines[0].trans || null)
+        this.$electron.ipcRenderer.send('change-lyric', { lyric: this.lyricInstance.lines[0].txt, trans: this.lyricInstance.lines[0].trans })
       }
     },
     forward () {
@@ -577,14 +564,27 @@ export default {
         return
       }
       let list_len = this.current_play_list.length
-      let { current_song_index } = this
-      current_song_index++
-      if (current_song_index > list_len - 1) {
-        current_song_index = 0
+      let current_song_index = this.current_song_index
+      if (this.mode === playMode.random) {
+        while (true) {
+          let _index = this.getRandomInt(0, list_len - 1)
+          if (current_song_index != _index) {
+            current_song_index = this.getRandomInt(0, list_len - 1)
+            break
+          }
+        }
+      } else {
+        current_song_index++
+        if (current_song_index > list_len - 1) {
+          current_song_index = 0
+        }
       }
       this.$store.commit('play/SET_CURRENT_INDEX', current_song_index)
       if (!this.playing) {
         this.$store.commit('play/SET_PLAY_STATUS', true)
+        this.$electron.ipcRenderer.send('toggle-play', {
+          value: true
+        })
       }
     },
     backward () {
@@ -592,9 +592,15 @@ export default {
         return
       }
       let list_len = this.current_play_list.length
-      let { current_song_index } = this
+      let current_song_index = this.current_song_index
       if (this.mode === playMode.random) {
-        current_song_index = this.getRandomInt(0, list_len - 1)
+        while (true) {
+          let _index = this.getRandomInt(0, list_len - 1)
+          if (current_song_index != _index) {
+            current_song_index = this.getRandomInt(0, list_len - 1)
+            break
+          }
+        }
       } else {
         current_song_index--
         if (current_song_index < 0) current_song_index = list_len - 1
@@ -602,6 +608,9 @@ export default {
       this.$store.commit('play/SET_CURRENT_INDEX', current_song_index)
       if (!this.playing) {
         this.$store.commit('play/SET_PLAY_STATUS', true)
+        this.$electron.ipcRenderer.send('toggle-play', {
+          value: true
+        })
       }
     },
     togglePlay () {
@@ -614,14 +623,18 @@ export default {
           this.forward()
         }
       } else {
-        this.$store.commit('play/SET_PLAY_STATUS', !this.playing)
+        const play_status = this.playing
+        this.$store.commit('play/SET_PLAY_STATUS', !play_status)
+        this.$electron.ipcRenderer.send('toggle-play', {
+          value: !play_status
+        })
       }
     },
     onpercentChanged (percent) {
       if (!this.isSongReady) {
         return
       }
-      this.currentTime = this.$refs.audio.currentTime = this.current_song.duration * percent
+      this.currentTime = this.$refs.audio.currentTime = Math.floor(this.current_song.duration * percent)
       if (!this.playing) {
         this.lyricInstance && this.lyricInstance.stop()
       } else {
@@ -676,7 +689,9 @@ export default {
       this.$store.commit('App/SHOW_VIEW', true)
     },
     toggleTransShow () {
-      this.$store.commit('play/SET_SHOW_TRANS', !this.show_trans)
+      let trans = this.show_trans
+      this.$store.commit('play/SET_SHOW_TRANS', !trans)
+      this.$electron.ipcRenderer.send('show-trans', { value: !trans })
     }
   }
 }

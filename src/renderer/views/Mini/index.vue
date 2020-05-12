@@ -64,7 +64,10 @@ export default {
   name: 'mini',
   data () {
     return {
-      isShowList: false
+      isShowList: false,
+      current_lyric: null,
+      current_trans: null,
+      playing: false
     }
   },
   components: {
@@ -92,13 +95,19 @@ export default {
     }
   },
   mounted () {
+    this.$electron.ipcRenderer.on('change-lyric', (e, data) => {
+      this.current_lyric = data.lyric || null
+      this.current_trans = data.trans || null
+    })
     this.$electron.ipcRenderer.on('change-color', (e, data) => {
       this.updateTheme(data.color)
     })
+    this.$electron.ipcRenderer.on('toggle-play', (e, data) => {
+      this.playing = data.value
+    })
   },
   computed: {
-    ...mapState('play', [ 'current_lyric', 'playing' ]),
-    ...mapGetters('play', [ 'current_play_list', 'original_play_list', 'current_song_index', 'current_song' ]),
+    ...mapGetters('play', [ 'current_play_list', 'current_song_index' ]),
     ...mapGetters('User', [ 'likedsongIds' ]),
     current_song () {
       return this.current_play_list[ this.current_song_index ] || {}

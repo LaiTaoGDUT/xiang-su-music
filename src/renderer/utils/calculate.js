@@ -5,14 +5,16 @@ function getRandomInt (min, max) {
 
 export function shuffle (arr) {
   // 新建一个arr的副本,保留arr数据不变
-  let _arr = arr.slice()
-  for (let i = 0; i < _arr.length; i++) {
-    let j = getRandomInt(0, i)
-    let t = _arr[i]
-    _arr[i] = _arr[j]
-    _arr[j] = t
-  }
-  return _arr
+  return new Promise((resolve, reject) => {
+    let _arr = arr.slice()
+    for (let i = 0; i < _arr.length; i++) {
+      let j = getRandomInt(0, i)
+      let t = _arr[i]
+      _arr[i] = _arr[j]
+      _arr[j] = t
+    }
+    resolve(_arr)
+  })
 }
 
 export const uniq = arr => [...new Set(arr)]

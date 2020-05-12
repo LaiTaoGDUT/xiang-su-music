@@ -85,7 +85,7 @@ export default {
               })
               setTimeout(() => {
                 if (this.$route.name === 'home') {
-                  eventBus.$emit('refresh')
+                  // do nothing
                 } else {
                   let redirect = this.redirect || '/home'
                   this.$router.push({ path: redirect })

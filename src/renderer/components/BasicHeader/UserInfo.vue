@@ -110,7 +110,7 @@ export default {
       this.$store.dispatch('User/logout').then(() => {
         this.$message.success('退出成功')
         if (this.$route.name === 'home') {
-          eventBus.$emit('refresh')
+          // do nothing
         } else {
           this.$router.push({ path: '/home' })
         }

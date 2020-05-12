@@ -30,7 +30,6 @@ export default class Lyric {
     const lines = _this.lrc.split('\n')
     const transArr = _this._initTrans()
     const lyricsArr = []
-    console.log(transArr)
     for (let i = 0; i < lines.length; i++) {
       let line = lines[i]
       line.replace(TIME_REG_WY, function (item) {
@@ -53,9 +52,14 @@ export default class Lyric {
     }
     const indexCorrection = lyricsArr.length - transArr.length
     if (transArr.length) {
-      for (let i = lyricsArr.length - 1; i >= 0; i--) {
-        if (i >= indexCorrection) {
-          _this.lines.unshift(Object.assign(lyricsArr[i], transArr[i - indexCorrection]))
+      let j = lyricsArr.length - 1 - indexCorrection
+      for (let i = lyricsArr.length - 1; i >= 0; i--, j--) {
+        if (j >= 0) {
+          while (transArr[j].time != lyricsArr[i].time) {
+            _this.lines.unshift(lyricsArr[i])
+            i--
+          }
+          _this.lines.unshift(Object.assign(lyricsArr[i], transArr[j]))
         } else {
           _this.lines.unshift(lyricsArr[i])
         }

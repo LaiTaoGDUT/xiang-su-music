@@ -30,7 +30,6 @@ function findIndex (list, song) {
 
 const state = () => ({
   current_play_list: [], // 当前播放列表
-  original_play_list: [], // 原始列表
   current_song_index: -1, // 当前播放歌曲索引
   history_play_list: [], // 历史播放列表
   playing: false, // 音频是否播放
@@ -40,8 +39,6 @@ const state = () => ({
   fullscreen: false, // 音频大屏
   lyric: null, // 歌词
   trans: null, // lyric translation
-  current_lyric: null, // 当前播放歌词
-  current_trans: null, // current playing lyric translation
   show_trans: true, // decide whether to show lyric translation
   current_lyric_line: 0, // 当前播放歌词索引
   isMuted: false,
@@ -53,13 +50,10 @@ const getters = {
   mode: state => state.mode,
   source: state => state.source,
   playing: state => state.playing,
-  original_play_list: state => state.original_play_list,
   history_play_list: state => state.history_play_list,
   current_play_list: state => state.current_play_list,
   current_song_index: state => state.current_song_index,
   fullscreen: state => state.fullscreen,
-  current_lyric: state => state.current_lyric,
-  current_trans: state => state.current_trans,
   show_trans: state => state.show_trans,
   lyric: state => state.lyric,
   trans: state => state.trans,
@@ -75,9 +69,6 @@ const mutations = {
   },
   SET_CURRENT_PLAY_LIST (state, list) {
     state.current_play_list = list
-  },
-  SET_ORIGINAL_PLAY_LIST (state, list) {
-    state.original_play_list = list
   },
   SET_CURRENT_SONG (state, song) {
     let index = state.current_play_list.findIndex(item => item.id == song.id)
@@ -106,7 +97,6 @@ const mutations = {
   },
   SET_MODE (state, mode) {
     state.mode = mode
-    // ls.set('__PLAY_MODE__', mode)
   },
   SET_FULLSCREEN (state, val) {
     state.fullscreen = val
@@ -184,14 +174,7 @@ const actions = {
   // 双击的播放
   async selectPlay ({ commit, state }, { tracks, index }) {
     if ( tracks.length < 1 ) return
-    commit('SET_ORIGINAL_PLAY_LIST', tracks)
-    if ( state.mode === playMode.random ) {
-      let randomList = shuffle(tracks)
-      commit('SET_CURRENT_PLAY_LIST', randomList)
-      index = findIndex(randomList, tracks[ index ])
-    } else {
-      commit('SET_CURRENT_PLAY_LIST', tracks)
-    }
+    commit('SET_CURRENT_PLAY_LIST', tracks)
     commit('SET_CURRENT_INDEX', index)
     // commit('SET_PLAY_STATUS', true)
   },

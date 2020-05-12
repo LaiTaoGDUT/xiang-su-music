@@ -13,10 +13,17 @@
 import { mapGetters } from 'vuex'
 import ls from 'store'
 import config from '@/config/defaultSettings'
+import { KEEP_SHORT_KEY } from '@/config/config'
 export default {
   name: 'DesktopLyric',
+  data () {
+    return {
+      current_lyric: null,
+      current_trans: null,
+      show_trans: true
+    }
+  },
   computed: {
-    ...mapGetters('play', ['current_lyric', 'current_trans', 'show_trans']),
     ...mapGetters('App', ['primaryColor'])
   },
   created () {
@@ -36,11 +43,19 @@ export default {
         this.updateTheme(this.primaryColor)
       }
     }
+  },
+  mounted () {
     this.$electron.ipcRenderer.on('change-color', (e, data) => {
       this.updateTheme(data.color)
     })
+    this.$electron.ipcRenderer.on('change-lyric', (e, data) => {
+      this.current_lyric = data.lyric || null
+      this.current_trans = data.trans || null
+    })
+    this.$electron.ipcRenderer.on('show-trans', (e, data) => {
+      this.show_trans = data.value
+    })
   },
-
   methods: {
     updateTheme (primaryColor) {
       if ( !primaryColor ) {

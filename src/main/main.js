@@ -90,6 +90,11 @@ function createWindow () {
     mainWindow.webContents.send('will-close')
   })
 
+  mainWindow.on('session-end', (event) => {
+    event.preventDefault()
+    mainWindow.webContents.send('will-close')
+  })
+
   mainWindow.on('closed', () => {
     mainWindow = null
   })

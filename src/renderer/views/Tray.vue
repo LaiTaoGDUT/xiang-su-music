@@ -72,7 +72,8 @@ export default {
   data () {
     return {
       isFixed: false,
-      curVolume: 0   // 暂存当前音量，用于从静音开启时的初始音量
+      curVolume: 0,   // 暂存当前音量，用于从静音开启时的初始音量
+      playing: false
     }
   },
   components: { ZIcon, ProgressBar },
@@ -80,6 +81,9 @@ export default {
     this.curVolume = this.volume
     this.$electron.ipcRenderer.on('change-color', (e, data) => {
       this.updateTheme(data.color)
+    })
+    this.$electron.ipcRenderer.on('toggle-play', (e, data) => {
+      this.playing = data.value
     })
   },
   created () {
@@ -104,16 +108,14 @@ export default {
     ...mapGetters('play', [
       'current_play_list',
       'current_song_index',
-      'current_song',
-      'playing',
       'mode',
       'volume',
       'isMuted',
       'showDesktoplyric'
     ]),
-    ...mapState('play', [
-      'lyric'
-    ]),
+    current_song () {
+      return this.current_play_list[ this.current_song_index ] || {}
+    },
     playIcon () {
       return this.playing ? 'pause-circle' : 'play-circle'
     },

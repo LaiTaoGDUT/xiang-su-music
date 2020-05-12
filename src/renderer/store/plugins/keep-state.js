@@ -3,6 +3,7 @@ import deepmerge from 'deepmerge'
 
 /**
  * modules 需要持久化的模块  , 不会因为页面的刷新导致store丢失
+ * 为了提高性能，现在已经移除页面刷新功能
  */
 export default (modules = [], storeKey = KEEP_STATE_KEY) => store => {
   let STOREKEY = storeKey
@@ -34,9 +35,8 @@ export default (modules = [], storeKey = KEEP_STATE_KEY) => store => {
   store.subscribe((mutation, state) => {
     // 每次 mutation 之后调用
     // mutation 的格式为 { type, payload }
-    let mutationNamespace = mutation.type.split('/')[0]
-    let mutationType = mutation.type.split('/')[1]
-    localStorage.setItem(STOREKEY, JSON.stringify(getState(state)))
+    // localStorage.setItem(STOREKEY, JSON.stringify(getState(state)))
+    changeStorage(STOREKEY, state)
   })
 
   function getState (state) {
@@ -46,5 +46,12 @@ export default (modules = [], storeKey = KEEP_STATE_KEY) => store => {
       map[module] = state[module] || {}
     })
     return map
+  }
+
+  function changeStorage (key, state) {
+    return new Promise((resolve, reject) => {
+      localStorage.setItem(key, JSON.stringify(getState(state)))
+      resolve()
+    })
   }
 }

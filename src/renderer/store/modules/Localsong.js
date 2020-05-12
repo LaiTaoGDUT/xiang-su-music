@@ -67,7 +67,6 @@ export default {
     needRefreshFolders: [`${remote.app.getPath('music')}`], // 需要扫描的文件夹
     matchSuccessNum: 0, // the number of songs num which matching success
     matchFailedNum: 0, // the number of songs which matching failed
-    matchRepeatNum: 0, // the number of songs which repeated
     stopMatching: false // a tag which use to  stop songs matching
   },
   getters: {
@@ -84,7 +83,6 @@ export default {
     clearMatchNum (state) {
       state.matchSuccessNum = 0
       state.matchFailedNum = 0
-      state.matchRepeatNum = 0
     },
     setStopMatching (state, flag) {
       state.stopMatching = flag
@@ -115,9 +113,6 @@ export default {
     addFailedNum (state) {
       state.matchFailedNum += 1
     },
-    addRepeatNum (state) {
-      state.matchRepeatNum += 1
-    },
     mutateState (state, payload) {
       for (let k in payload) {
         state[k] = payload[k]
@@ -129,10 +124,11 @@ export default {
       let albumAvater = new Map() // 暂存专辑id以免相同专辑的歌曲重复请求
       try {
         let localSongs = state.localSongs.slice()
-        console.log(localSongs)
         for (let i = 0; i < localSongs.length; i++) {
           let song = localSongs[i]
           if (state.stopMatching) {
+            const _localSongsCopy = state.localSongs.slice()
+            commit('mutateState', { localSongs: _localSongsCopy })
             break
           }
           if (!forceMatch && song.matched) {
@@ -183,6 +179,8 @@ export default {
           }
         }
         commit('setStopMatching', false)
+        const _localSongsCopy = state.localSongs.slice()
+        commit('mutateState', { localSongs: _localSongsCopy })
       } catch (error) {
         console.log('match error:', error)
       }

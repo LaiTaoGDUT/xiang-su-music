@@ -13,6 +13,7 @@ export const brsMap = {   // mv清晰度
 }
 
 export const KEEP_STATE_KEY = '__KEEP_STATE__'
+export const KEEP_SHORT_KEY = '__KEEP_SHORT__'
 
 export const colorList = [      // 皮肤列表
   {

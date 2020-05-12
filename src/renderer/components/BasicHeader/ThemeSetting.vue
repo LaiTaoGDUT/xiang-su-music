@@ -53,7 +53,6 @@ export default {
     ...mapGetters('App', [ 'primaryColor' ])
   },
   created () {
-    console.log('__dirname', __dirname)
     let key = process.env.NODE_ENV === 'development'
       ? `${window.location.origin}/less/color.less`
       : Object.keys(localStorage).find(item => item.endsWith('color.less')) || `app://./less/color.less`

@@ -10,6 +10,8 @@
 <script>
 import { mapActions } from 'vuex'
 import MusicViewer from '@/views/MusicViewer.vue'
+import { KEEP_SHORT_KEY } from '@/config/config'
+import deepmerge from 'deepmerge'
 
 export default {
   name: 'app',
@@ -34,14 +36,45 @@ export default {
         icon: 'public/images/logo.ico'
       })
       this.$store.commit('App/SET_ONLINE', status)
+    },
+    getState (state) {
+      const modules = ['User', 'Localsong', 'Setting', 'Update']
+      if (!modules.length) return state
+      let map = {}
+      modules.forEach(module => {
+        map[module] = state[module] || {}
+      })
+      return map
+    },
+    initState () {
+      const modules = ['User', 'play', 'Localsong', 'Setting', 'Update']
+      let state = JSON.parse(localStorage.getItem(KEEP_SHORT_KEY)) || {}
+      let map = {}
+      if (modules.length) {
+        modules.forEach(module => {
+          map[module] = state[module] || {}
+        })
+      }
+      this.$store.replaceState(deepmerge(this.$store.state, map, {   // 用新状态替换根状态
+        arrayMerge: function (store, saved) { return saved },
+        clone: false
+      }))
+      // init other window's data
+      this.$electron.ipcRenderer.send('show-trans', { value: this.$store.getters['play/show_trans'] })
+      // this.$electron.ipcRenderer.send('toggle-play', { value: this.$store.getters['play/playing'] })
     }
   },
   created () {
     this.initDownload()
+    this.initState()
   },
   mounted () {
+    this.$electron.ipcRenderer.on('console', (e, data) => {
+      console.log(data.value)
+    })
     this.$electron.ipcRenderer.on('will-close', () => {
       this.handleAppWillClose()
+      localStorage.setItem(KEEP_SHORT_KEY, JSON.stringify(this.getState(this.$store.state)))
       this.$electron.ipcRenderer.send('app-exit')
     })
 
