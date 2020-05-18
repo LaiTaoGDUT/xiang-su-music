@@ -50,8 +50,11 @@ let mutations = {
   SET_USER_PLAYLISTS (state, list) {
     state.userCollectists = list
   },
-  SET_LIKEDSONG_IDS (state, ids) {
-    state.likedsongIds = ids
+  SET_LIKEDSONG_IDS (state, payload) {
+    state.likedsongIds = payload.ids
+    payload.self.$electron.ipcRenderer.send('set-like-song-ids', {
+      value: payload.ids
+    })
   },
   SET_USER_DETAIL (state, val) {
     state.userDetail = val
@@ -65,12 +68,12 @@ let actions = {
   async refreshUser () {
     await login_refresh()
   },
-  async logout ({ commit }) {
+  async logout ({ commit }, payload) {
     let { code } = await logout()
     if (code === 200) {
       localStorage.removeItem('userId')
       commit('SET_USER_PLAYLISTS', [])
-      commit('SET_LIKEDSONG_IDS', [])
+      commit('SET_LIKEDSONG_IDS', { ids: [], self: payload.self })
       commit('SET_USER_INFO', {})
     }
   },
@@ -79,10 +82,10 @@ let actions = {
     commit('SET_USER_PLAYLISTS', playlist)
     // return playlist
   },
-  async getUserLikedSongs ({ commit, getters }) {
+  async getUserLikedSongs ({ commit, getters }, payload) {
     if (getters.userId) {
       let { ids } = await getUserLikeSongs(getters.userId)
-      commit('SET_LIKEDSONG_IDS', ids)
+      commit('SET_LIKEDSONG_IDS', { ids, self: payload.self })
     }
   },
   // 收藏/取消收藏歌单
@@ -143,7 +146,7 @@ let actions = {
       }
     })
   },
-  handleLikeSong ({ commit, state }, { songId, isLike }) {
+  handleLikeSong ({ commit, state }, { songId, isLike, self }) {
     return new Promise(async (resolve, reject) => {
       try {
         let { code } = await likeMusic(songId, isLike)
@@ -151,12 +154,12 @@ let actions = {
           let likedsongIds = [...state.likedsongIds]
           if (isLike) {
             likedsongIds.unshift(songId)
-            commit('SET_LIKEDSONG_IDS', likedsongIds)
+            commit('SET_LIKEDSONG_IDS', { ids: likedsongIds, self })
             Message.success('喜欢歌曲成功!')
           } else {
             let index = likedsongIds.findIndex(id => id === songId)
             likedsongIds.splice(index, 1)
-            commit('SET_LIKEDSONG_IDS', likedsongIds)
+            commit('SET_LIKEDSONG_IDS', { ids: likedsongIds, self })
             Message.success('取消喜欢成功!')
           }
           resolve()

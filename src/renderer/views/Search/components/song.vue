@@ -35,6 +35,12 @@ export default {
       console.log(song.id)
       song.avatar = await this.getAvatar(song)
       this.$store.dispatch('play/selectPlay', { tracks, index })
+      this.$electron.ipcRenderer.send('change-play-index', {
+        index: index
+      })
+      this.$electron.ipcRenderer.send('set-play-list', {
+        value: tracks
+      })
     },
     async getAvatar (song) {
       let avatar

@@ -1,19 +1,27 @@
 <template>
   <div class="tracks">
-    <track-list :tracks="tracks" @dblclick="play" @download="download" />
+    <loading v-show="loading" />
+    <track-list @reloading="reloading" @reloaded="reloaded" :limit="limit" :tracks="tracks" @dblclick="play" @download="download" />
   </div>
 </template>
 
 <script>
 import TrackList from '@/components/Common/track-list/index.js'
 import playMixin from '@/mixins/Play'
+import Loading from '@/components/Common/loading'
 export default {
   name: 'playlist_id_tracks',
   mixins: [
     playMixin
   ],
   components: {
-    TrackList
+    TrackList, Loading
+  },
+  data () {
+    return {
+      limit: 100,
+      loading: false
+    }
   },
   props: {
     tracks: {
@@ -21,6 +29,14 @@ export default {
       default () {
         return []
       }
+    }
+  },
+  methods: {
+    reloaded () {
+      this.loading = false
+    },
+    reloading () {
+      this.loading = true
     }
   }
 }

@@ -15,10 +15,10 @@ export function getSearchHot () {
 }
 
 // 获取搜索建议
-export function getSearchSuggest (keywords) {
+export function getSearchSuggest ({ keyword }) {
   return request.get('/search/suggest', {
     params: {
-      keywords
+      keywords: keyword
     }
   })
 }

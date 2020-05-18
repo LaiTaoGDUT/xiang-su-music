@@ -5,6 +5,7 @@ import initIpcEvent from './modules/ipcEvent'
 import createTray from './modules/tray'
 import createTrayWindow from './windows/trayWindow'
 import createLyricWindow from './windows/desktopLyricWindow'
+import createViewWindow from './windows/desktopViewWindow'
 import createMiniWindow from './windows/miniWindow'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import { ACHEME, LOAD_URL } from './config'
@@ -39,6 +40,12 @@ const setThumbarButtons = function (mainWindow, playing) {
       icon: playing ? pauseIcon : playIcon,
       click () {
         mainWindow.webContents.send('toggle-play', {
+          value: !playing
+        })
+        global.miniWindow.webContents.send('toggle-play2', {
+          value: !playing
+        })
+        global.trayWindow.webContents.send('toggle-play2', {
           value: !playing
         })
       }
@@ -103,11 +110,12 @@ function createWindow () {
     mainWindow.show()
     // 设置任务栏操作和缩略图
     if ( process.platform === 'win32' ) {
+      global.lyricWindow = createLyricWindow(BrowserWindow)
+      global.miniWindow = createMiniWindow(BrowserWindow)
+      global.viewWindow = createViewWindow(BrowserWindow)
       setThumbarButtons(mainWindow, false)
       mainWindow.setThumbnailClip({ x: 0, y: 0, width: 180, height: 50 })
     }
-    global.lyricWindow = createLyricWindow(BrowserWindow)
-    global.miniWindow = createMiniWindow(BrowserWindow)
   })
 
   if ( isDevelopment ) {
@@ -177,3 +185,4 @@ if ( isDevelopment ) {
     })
   }
 }
+

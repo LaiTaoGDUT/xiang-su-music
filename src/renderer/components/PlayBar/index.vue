@@ -2,8 +2,8 @@
   <div class="player">
     <div class="bar1" :class="disableCls">
       <img src="./../../assets/images/next_icon.png" @click="backward" class="step-icon" style="transform:rotate(180deg)"/>
-      <img src="./../../assets/images/pause_icon.png" @click="togglePlay" class="play-icon" v-if='playing' />
-      <img src="./../../assets/images/play_icon.png" @click="togglePlay" class="play-icon" v-else />
+      <img src="./../../assets/images/pause_icon.png" @click="togglePlay" class="play-icon" v-show='playing' />
+      <img src="./../../assets/images/play_icon.png" @click="togglePlay" class="play-icon" v-show='!playing' />
       <img src="./../../assets/images/next_icon.png" @click="forward" class="step-icon"/>
     </div>
     <div class="bar2">
@@ -48,6 +48,7 @@
         <span class="count">{{ current_play_list.length }}</span>
       </span>
       <span @click="toggleTransShow">译</span>
+      <span @click="toggleDesktopView">View</span>
     </div>
 
     <span class="resize"></span>
@@ -91,7 +92,8 @@ export default {
       isSongReady: false,
       isFirstPlay: false,
       waiting: false,
-      curVolume: 0
+      curVolume: 0,
+      needSync: true // 标识是否需要同步播放器状态，当状态改变的来源是其他窗口时不能同步，否则会造成死循环
     }
   },
   components: {
@@ -117,12 +119,11 @@ export default {
       'source',
       'volume',
       'isMuted',
-      'show_trans'
+      'show_trans',
+      'showDesktoplyric',
+      'showDesktopView'
     ]),
     ...mapGetters('App', ['isOnliline']),
-    ...mapGetters('play', [
-      'showDesktoplyric'
-    ]),
     playIcon () {
       return this.playing ? './../../assets/images/pause_icon.png' : './../../assets/images/play_icon.png'
     },
@@ -168,7 +169,6 @@ export default {
       this.$electron.ipcRenderer.send('thumbar-buttons', {
         playing: newVal
       })
-
       if (newVal) {
         this.$nextTick(() => {
           audio.play()
@@ -191,6 +191,9 @@ export default {
       newVal = Number(newVal)
       if (newVal == 0) {
         this.$store.commit('play/SET_MUTED', true)
+        this.$electron.ipcRenderer.send('set-muted', {
+          value: true
+        })
       }
       this.$nextTick(() => {
         audio.volume = newVal
@@ -206,12 +209,16 @@ export default {
         }
       })
     },
+    source (newVal) {
+      this.$electron.ipcRenderer.send('change-source', { value: newVal })
+    },
     current_song: 'handleSongChange'
   },
   mounted () {
     // this.$db.lyric.remove( {}, { multi: true } )
     this.curVolume = this.volume
     this.$electron.ipcRenderer.on('toggle-play', (e, data) => {
+      this.needSync = false
       this.$store.commit('play/SET_PLAY_STATUS', data.value)
       this.lyricInstance && this.lyricInstance.togglePlay()
     })
@@ -223,6 +230,32 @@ export default {
     })
     this.$electron.ipcRenderer.on('next-play', (e, data) => {
       this.forward()
+    })
+    this.$electron.ipcRenderer.on('set-muted', (e, data) => {
+      this.$store.commit('play/SET_MUTED', data.value)
+    })
+    this.$electron.ipcRenderer.on('set-volume', (e, data) => {
+      this.$store.commit('play/SET_VOLUME', data.value)
+    })
+    this.$electron.ipcRenderer.on('set-mode', (e, data) => {
+      this.$store.commit('play/SET_MODE', data.value)
+    })
+    this.$electron.ipcRenderer.on('like-song', (e, data) => {
+      this.$store.dispatch('User/handleLikeSong', { songId: data.songUrl, isLike: data.isLike, self: this })
+    })
+      // init other window's data
+    this.$electron.ipcRenderer.on('view-ready', (e, data) => {
+      this.$electron.ipcRenderer.send('toggle-desktop-view', this.$store.getters['play/showDesktopView'])
+      this.$electron.ipcRenderer.send('change-color2', this.$store.getters['App/primaryColor'])
+      this.$electron.ipcRenderer.send('change-source', { value: this.$store.getters['play/source'] })
+      this.$electron.ipcRenderer.send('show-trans', { value: this.$store.getters['play/show_trans'] })
+      this.$electron.ipcRenderer.send('change-play-index', { index: this.$store.getters['play/current_song_index'] })
+      this.$electron.ipcRenderer.send('set-muted', { value: this.$store.getters['play/isMuted'] })
+      this.$electron.ipcRenderer.send('set-volume', { value: this.$store.getters['play/volume'] })
+      this.$electron.ipcRenderer.send('set-mode', { value: this.$store.getters['play/mode'] })
+      this.$electron.ipcRenderer.send('set-play-list', { value: this.$store.getters['play/current_play_list'] })
+      this.$electron.ipcRenderer.send('set-like-song-ids', { value: this.$store.getters['User/likedsongIds'] })
+      this.$electron.ipcRenderer.send('toggle-desktop-lyric', this.showDesktoplyric)
     })
     if (Object.keys(this.current_song).length) {
       if (this.current_song.folder && this.current_song.url) { // local song
@@ -239,9 +272,6 @@ export default {
             this.$message.error('暂无资源')
             this.$store.commit('play/SET_SOURCE', '')
             this.$store.commit('play/SET_PLAY_STATUS', false)
-            this.$electron.ipcRenderer.send('toggle-play', {
-              value: false
-            })
             this.isSongReady = true
             if (!this.lyricInstance) {
               if (this.current_song.folder) {
@@ -256,9 +286,6 @@ export default {
           this.$message.error('暂无资源')
           this.$store.commit('play/SET_SOURCE', '')
           this.$store.commit('play/SET_PLAY_STATUS', false)
-          this.$electron.ipcRenderer.send('toggle-play', {
-            value: false
-          })
           this.isSongReady = true
           this.lyricInstance && this.resetLyric()
         })
@@ -273,8 +300,12 @@ export default {
         this.$store.commit('play/SET_SOURCE', newSong.url)
         // this.$refs.audio.src = ''
         this.$refs.audio.src = newSong.url
+        this.$electron.ipcRenderer.send('toggle-play2', {
+          value: true
+        })
+        this.$store.commit('play/SET_PLAY_STATUS', true)
         this.$nextTick(() => {
-         this.$refs.audio.play()
+          this.$refs.audio.play()
         })
         this.getLocalLyric(newSong)
       } else {
@@ -284,17 +315,25 @@ export default {
             this.$store.commit('play/SET_SOURCE', songUrl)
             // this.$refs.audio.src = ''
             this.$refs.audio.src = songUrl
+            this.$electron.ipcRenderer.send('toggle-play2', {
+              value: true
+            })
+            this.$store.commit('play/SET_PLAY_STATUS', true)
             this.$nextTick(() => {
-            this.$refs.audio.play()
+              this.$refs.audio.play()
             })
             this.getOnlineLyric(newSong)
           } else {
             this.$message.error('暂无资源')
             this.$store.commit('play/SET_SOURCE', '')
             this.$store.commit('play/SET_PLAY_STATUS', false)
-            this.$electron.ipcRenderer.send('toggle-play', {
-              value: false
-            })
+            if (this.needSync) {
+              this.$electron.ipcRenderer.send('toggle-play2', {
+                value: false
+              })
+            } else {
+              this.needSync = true
+            }
             this.$store.commit('play/REMOVE_SONG', this.current_song_index)
             // this.$store.commit('play/SET_CURRENT_INDEX', this.current_song_index - 1)
             this.isSongReady = true
@@ -305,9 +344,13 @@ export default {
           this.$message.error('暂无资源')
           this.$store.commit('play/SET_SOURCE', '')
           this.$store.commit('play/SET_PLAY_STATUS', false)
-          this.$electron.ipcRenderer.send('toggle-play', {
-            value: false
-          })
+          if (this.needSync) {
+            this.$electron.ipcRenderer.send('toggle-play2', {
+              value: false
+            })
+          } else {
+            this.needSync = true
+          }
           this.$store.commit('play/REMOVE_SONG', this.current_song_index)
           // this.$store.commit('play/SET_CURRENT_INDEX', this.current_song_index - 1)
           this.isSongReady = true
@@ -478,6 +521,7 @@ export default {
     },
     updateTime (e) {
       const audio = this.$refs.audio
+      this.$electron.ipcRenderer.send('change-media-time', { value: e.target.currentTime })
       if (this.currentTime == Math.floor(e.target.currentTime)) {
         return
       }
@@ -488,9 +532,13 @@ export default {
       let artistStr = this.current_song.artist.length ? this.current_song.artist.map(item => item.name).join(',') : ''
       document.title = `${this.current_song.name} - ${artistStr}` // tray title
       this.$store.commit('play/SET_PLAY_STATUS', true)
-      this.$electron.ipcRenderer.send('toggle-play', {
-        value: true
-      })
+      if (this.needSync) {
+        this.$electron.ipcRenderer.send('toggle-play2', {
+          value: true
+        })
+      } else {
+        this.needSync = true
+      }
       if (this.lyricInstance) {
         this.lyricInstance.seek(this.currentTime * 1000)
       }
@@ -509,13 +557,17 @@ export default {
     },
     onPause () {
       this.$store.commit('play/SET_PLAY_STATUS', false)
-      this.$electron.ipcRenderer.send('toggle-play', {
-        value: false
-      })
+      if (this.needSync) {
+        this.$electron.ipcRenderer.send('toggle-play2', {
+          value: false
+        })
+      } else {
+        this.needSync = true
+      }
     },
     onEnd () {
       this.currentTime = 0
-      this.buffered = 0
+      // this.buffered = 0
       if (this.mode === playMode.loop) {
         this.loop()
       } else {
@@ -541,13 +593,23 @@ export default {
       this.waiting = false
     },
     onMuted () {
-      this.$store.commit('play/SET_VOLUME', !this.isMuted ? 0 : this.curVolume)
+      const _volume = !this.isMuted ? 0 : this.curVolume
+      this.$store.commit('play/SET_VOLUME', _volume)
+      this.$electron.ipcRenderer.send('set-volume', {
+        value: _volume
+      })
+      this.$electron.ipcRenderer.send('set-muted', {
+        value: !this.isMuted
+      })
       this.$store.commit('play/SET_MUTED', !this.isMuted)
     },
     changeMode () {
       let mode = this.mode
       mode = ++mode % (Object.keys(playMode).length - 1)
       this.$store.commit('play/SET_MODE', mode)
+      this.$electron.ipcRenderer.send('set-mode', {
+        value: mode
+      })
     },
     getRandomInt (min, max) {
       return Math.floor(Math.random() * (max - min + 1) + min) // min,max之间的随机数（包含min,max）
@@ -563,6 +625,7 @@ export default {
       if (!this.isSongReady) {
         return
       }
+      this.currentTime = 0
       let list_len = this.current_play_list.length
       let current_song_index = this.current_song_index
       if (this.mode === playMode.random) {
@@ -580,17 +643,15 @@ export default {
         }
       }
       this.$store.commit('play/SET_CURRENT_INDEX', current_song_index)
-      if (!this.playing) {
-        this.$store.commit('play/SET_PLAY_STATUS', true)
-        this.$electron.ipcRenderer.send('toggle-play', {
-          value: true
-        })
-      }
+      this.$electron.ipcRenderer.send('change-play-index', {
+        index: current_song_index
+      })
     },
     backward () {
       if (!this.isSongReady) {
         return
       }
+      this.currentTime = 0
       let list_len = this.current_play_list.length
       let current_song_index = this.current_song_index
       if (this.mode === playMode.random) {
@@ -606,12 +667,9 @@ export default {
         if (current_song_index < 0) current_song_index = list_len - 1
       }
       this.$store.commit('play/SET_CURRENT_INDEX', current_song_index)
-      if (!this.playing) {
-        this.$store.commit('play/SET_PLAY_STATUS', true)
-        this.$electron.ipcRenderer.send('toggle-play', {
-          value: true
-        })
-      }
+      this.$electron.ipcRenderer.send('change-play-index', {
+        index: current_song_index
+      })
     },
     togglePlay () {
       if (!this.isSongReady) {
@@ -625,7 +683,7 @@ export default {
       } else {
         const play_status = this.playing
         this.$store.commit('play/SET_PLAY_STATUS', !play_status)
-        this.$electron.ipcRenderer.send('toggle-play', {
+        this.$electron.ipcRenderer.send('toggle-play2', {
           value: !play_status
         })
       }
@@ -635,6 +693,7 @@ export default {
         return
       }
       this.currentTime = this.$refs.audio.currentTime = Math.floor(this.current_song.duration * percent)
+      this.$electron.ipcRenderer.send('change-media-time', { value: this.currentTime })
       if (!this.playing) {
         this.lyricInstance && this.lyricInstance.stop()
       } else {
@@ -645,12 +704,21 @@ export default {
       if (persent <= 0) { // 音量调整至0或以下时
         persent = 0
         this.$store.commit('play/SET_MUTED', true) // 改变静音状态为true
+        this.$electron.ipcRenderer.send('set-muted', {
+          value: true
+        })
       } else { // 音量调整至0以上时
         if (persent > 1) persent = 1
         this.curVolume = Number(persent)
         this.$store.commit('play/SET_MUTED', false) // 改变静音状态为false
+        this.$electron.ipcRenderer.send('set-muted', {
+          value: false
+        })
       }
       this.$store.commit('play/SET_VOLUME', Number(persent))
+      this.$electron.ipcRenderer.send('set-volume', {
+        value: Number(persent)
+      })
     },
     onVirtualBarMove ({ pageX, percent }) {
       if (!this.lyricInstance) return
@@ -681,9 +749,13 @@ export default {
     },
     toggleCurrentLyric () {
       let flag = !this.showDesktoplyric
-      console.log(flag)
       this.$electron.ipcRenderer.send('toggle-desktop-lyric', flag)
       this.$store.commit('play/SET_SHOW_DESKTOP_LYRIC', flag)
+    },
+    toggleDesktopView () {
+      let flag = !this.showDesktopView
+      this.$electron.ipcRenderer.send('toggle-desktop-view', flag)
+      this.$store.commit('play/SET_SHOW_DESKTOP_VIEW', flag)
     },
     showMusicView () {
       this.$store.commit('App/SHOW_VIEW', true)

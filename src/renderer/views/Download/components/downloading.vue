@@ -6,8 +6,8 @@
 
         <span>存储目录:{{ defaultDownloadFolder }} <a href="#" @click="openDownloadFolder">打开目录</a></span>
       </div>
-
-      <track-list :columns="columns" :tracks="downloading" :isShowActions="false">
+      <loading v-show="loading" />
+      <track-list @reloading="reloading" @reloaded="reloaded" :limit="limit" :columns="columns" :tracks="downloading" :isShowActions="false">
         <template slot="downloadPercent" slot-scope="{ row }">
           <div style="width:170px;line-height: 1;">
             <a-progress size="small" :percent="parseInt(row.downloadPercent)" />
@@ -40,6 +40,7 @@ import { mapState, mapGetters, mapActions, mapMutations } from 'vuex'
 import { shell, remote, ipcRenderer } from 'electron'
 import { uniq } from '@/utils/calculate'
 import TrackList from '@/components/Common/track-list/index.js'
+import Loading from '@/components/Common/loading'
 const columns = [
   {
     title: '音乐标题',
@@ -65,11 +66,12 @@ export default {
   data () {
     return {
       loading: false,
-      columns
+      columns,
+      limit: 100
     }
   },
   components: {
-    TrackList
+    TrackList, Loading
   },
   computed: {
     ...mapState('Download', ['downloading', 'queue']),
@@ -80,6 +82,12 @@ export default {
     }
   },
   methods: {
+    reloaded () {
+      this.loading = false
+    },
+    reloading () {
+      this.loading = true
+    },
     openDownloadFolder () {
       shell.showItemInFolder(this.defaultDownloadFolder)
     },

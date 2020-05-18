@@ -92,7 +92,7 @@ export default {
         if (code === 200) {
           let likedsongIds = this.likedsongIds.slice()
           likedsongIds.unshift(...trackIds)
-          this.$store.commit('User/SET_LIKEDSONG_IDS', likedsongIds)
+          this.$store.commit('User/SET_LIKEDSONG_IDS', { ids: likedsongIds, self: this })
           this.$message.success(`收藏到歌单 ${playlist.name} 成功!`)
           this.collect_playlist_visible = false
         }

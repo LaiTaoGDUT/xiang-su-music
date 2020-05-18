@@ -3,7 +3,7 @@ import deepmerge from 'deepmerge'
 
 /**
  * modules 需要持久化的模块  , 不会因为页面的刷新导致store丢失
- * 为了提高性能，现在已经移除页面刷新功能
+ * 为了提高性能，现在已经移除页面刷新功能，不再使用该模块
  */
 export default (modules = [], storeKey = KEEP_STATE_KEY) => store => {
   let STOREKEY = storeKey

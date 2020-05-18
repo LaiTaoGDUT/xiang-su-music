@@ -107,12 +107,21 @@ export default {
     },
     play (tracks, index) {
       this.$store.dispatch('play/selectPlay', { tracks, index })
+      this.$electron.ipcRenderer.send('change-play-index', {
+        index: index
+      })
+      this.$electron.ipcRenderer.send('set-play-list', {
+        value: tracks
+      })
     },
     addToList () {
       let current_play_list = this.current_play_list.slice()
       let list = current_play_list.concat(this.songs)
       list = uniqueData(list)
       this.$store.commit('play/SET_CURRENT_PLAY_LIST', list)
+      this.$electron.ipcRenderer.send('set-play-list', {
+        value: list
+      })
     },
     download (song) {
       this.$store.dispatch('Download/download', song)

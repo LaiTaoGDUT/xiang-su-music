@@ -23,7 +23,7 @@ export default {
   name: 'download',
   data () {
     return {
-      value: 'downloading'
+      value: 'downloaded'
     }
   },
   components: {

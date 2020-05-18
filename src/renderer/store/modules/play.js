@@ -43,7 +43,8 @@ const state = () => ({
   current_lyric_line: 0, // 当前播放歌词索引
   isMuted: false,
   volume: 0.9,
-  showDesktoplyric: false
+  showDesktoplyric: false,
+  showDesktopView: false
 })
 const getters = {
   current_song: state => state.current_play_list[ state.current_song_index ] || {},
@@ -61,11 +62,15 @@ const getters = {
   videoPlaying: state => state.videoPlaying,
   isMuted: state => state.isMuted,
   volume: state => state.volume,
-  showDesktoplyric: state => state.showDesktoplyric
+  showDesktoplyric: state => state.showDesktoplyric,
+  showDesktopView: state => state.showDesktopView
 }
 const mutations = {
   SET_SHOW_DESKTOP_LYRIC (state, flag) {
     state.showDesktoplyric = flag
+  },
+  SET_SHOW_DESKTOP_VIEW (state, flag) {
+    state.showDesktopView = flag
   },
   SET_CURRENT_PLAY_LIST (state, list) {
     state.current_play_list = list
@@ -132,30 +137,36 @@ const actions = {
     commit('SET_LYRIC', lyric)
   },
   // 追加播放,用于搜索建议单曲播放,相似歌曲播放,动态歌曲播放等
-  async appendPlay ({ commit, state }, song) {
+  async appendPlay ({ commit, state }, payload) {
     let index = state.current_play_list.findIndex(item => {
-      return item.id === song.id
+      return item.id === payload.song.id
     })
     if ( index >= 0 ) {
       commit('SET_CURRENT_INDEX', index)
+      payload.self.$electron.ipcRenderer.send('change-play-index', {
+        index
+      })
       return
     }
     let list = state.current_play_list.slice()
-    list.push(song)
+    list.push(payload.song)
     commit('SET_CURRENT_PLAY_LIST', list)
     commit('SET_CURRENT_INDEX', list.length - 1)
+    payload.self.$electron.ipcRenderer.send('change-play-index', {
+      index: list.length - 1
+    })
   },
   // 右键菜单的下一首播放
-  async nextPlay ({ commit, state }, song) {
+  async nextPlay ({ commit, state }, payload) {
     let index = state.current_play_list.findIndex(item => {
-      return item.id === song.id
+      return item.id === payload.song.id
     })
     let current_song_index = state.current_song_index
     if ( index === current_song_index ) return
 
     let current_play_list = state.current_play_list.slice()
     if ( index < 0 ) { // 下一首播放的歌曲,不在当前歌单
-      current_play_list.splice(current_song_index + 1, 0, song)
+      current_play_list.splice(current_song_index + 1, 0, payload.song)
     } else {
       let removeItem = current_play_list.splice(index, 1)
       if ( index < current_song_index ) {
@@ -169,6 +180,9 @@ const actions = {
       return state.current_play_list[ state.current_song_index ].id === item.id
     })
     commit('SET_CURRENT_INDEX', newIndex)
+    payload.self.$electron.ipcRenderer.send('change-play-index', {
+      index: newIndex
+    })
     commit('SET_CURRENT_PLAY_LIST', current_play_list)
   },
   // 双击的播放

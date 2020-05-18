@@ -14,6 +14,7 @@ import { mapGetters } from 'vuex'
 import ls from 'store'
 import config from '@/config/defaultSettings'
 import { KEEP_SHORT_KEY } from '@/config/config'
+import { remote } from 'electron'
 export default {
   name: 'DesktopLyric',
   data () {
@@ -24,7 +25,10 @@ export default {
     }
   },
   computed: {
-    ...mapGetters('App', ['primaryColor'])
+    ...mapGetters('App', ['primaryColor']),
+    _show_lock () {
+      return this.show_lock ? 'show-lock' : 'hide-lock'
+    }
   },
   created () {
     let key = process.env.NODE_ENV === 'development'
@@ -55,6 +59,7 @@ export default {
     this.$electron.ipcRenderer.on('show-trans', (e, data) => {
       this.show_trans = data.value
     })
+    this.$electron.ipcRenderer.send('lyric-ready')
   },
   methods: {
     updateTheme (primaryColor) {
@@ -134,6 +139,7 @@ export default {
 <style lang='less' scoped>
 .desktop-lyric {
   .playing-lyric {
+    // margin-top: 32px;
     font-size: 40px;
     color: #fff;
     text-shadow: 1px 1px 5px @primary-color, 1px -1px 3px @primary-color;

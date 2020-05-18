@@ -104,6 +104,12 @@ export default {
     },
     play () {
       this.$store.dispatch('play/selectPlay', { tracks: this.tracks, index: 0 })
+      this.$electron.ipcRenderer.send('change-play-index', {
+        index: 0
+      })
+      this.$electron.ipcRenderer.send('set-play-list', {
+        value: this.tracks
+      })
     },
     subscribe (t, dj) {
       this.$store.dispatch('User/subscribeDj', { t, dj })

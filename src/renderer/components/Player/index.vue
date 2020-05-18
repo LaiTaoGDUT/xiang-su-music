@@ -343,14 +343,14 @@ export default {
       }
     },
     _handleLikeSong () {
-      this.$store.dispatch('User/handleLikeSong', { songId: this.current_song.id, isLike: !this.isLiked })
+      this.$store.dispatch('User/handleLikeSong', { songId: this.current_song.id, isLike: !this.isLiked, self: this })
     },
     download (song) {
       // if (this.downloaded.findIndex(item => item.id === this.current_song.id) >= 0) return
       this.$store.dispatch('Download/adddownloadQueue', [song])
     },
     play (tracks, index) {
-      this.$store.dispatch('play/appendPlay', tracks[index])
+      this.$store.dispatch('play/appendPlay', { song: tracks[index], self: this })
     },
     goRoute (playlist) {
       this.shrinkScreen()

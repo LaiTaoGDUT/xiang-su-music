@@ -72,7 +72,7 @@ export default {
       if ( newVal !== '' ) {
         if ( this.$store.state.App.isOnliline ) {
           this._getUserPlaylist(newVal)
-          this.$store.dispatch('User/getUserLikedSongs')
+          this.$store.dispatch('User/getUserLikedSongs', { self: this })
         }
       } else {
         this.$store.commit('User/SET_USER_PLAYLISTS', [])

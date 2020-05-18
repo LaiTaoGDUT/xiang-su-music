@@ -55,7 +55,7 @@ export default {
       this.$store.commit('play/SET_FULLSCREEN', true)
     },
     handleLikeSong ({ songId, isLike }) {
-      this.$store.dispatch('User/handleLikeSong', { songId, isLike })
+      this.$store.dispatch('User/handleLikeSong', { songId, isLike, self: this })
     },
     showShareWindow () {
       let url = `https://music.163.com/#/song?id=${this.current_song.id}`

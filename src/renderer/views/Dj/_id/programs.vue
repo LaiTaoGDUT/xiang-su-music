@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="title">共 {{ total }} 期</div>
-    <track-list :columns="columns" :tracks="programs" :isShowHead="false" :isShowActions="false" @dblclick="play" >
+    <track-list :limit="limit" :columns="columns" :tracks="programs" :isShowHead="false" :isShowActions="false" @dblclick="play" >
       <template slot="name" slot-scope="{ row }">
         <div class="program">
           <img v-lazy="`${row.avatar}?param=40y40`" class="avatar" />
@@ -91,6 +91,12 @@ export default {
     },
     play (tracks, index) {
       this.$store.dispatch('play/selectPlay', { tracks, index })
+      this.$electron.ipcRenderer.send('change-play-index', {
+        index: index
+      })
+      this.$electron.ipcRenderer.send('set-play-list', {
+        value: tracks
+      })
     }
   }
 }

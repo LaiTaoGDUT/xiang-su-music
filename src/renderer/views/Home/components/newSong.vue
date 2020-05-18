@@ -30,7 +30,7 @@ export default {
   components: { SongItem },
   methods: {
     play (tracks, index) {
-      this.$store.dispatch('play/appendPlay', tracks[index])
+      this.$store.dispatch('play/appendPlay', { song: tracks[index], self: this })
     }
   }
 }

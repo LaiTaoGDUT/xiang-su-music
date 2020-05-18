@@ -10,8 +10,11 @@
           <a href="#" @click="openDownloadFolder">打开目录</a>
         </span>
       </div>
-
+      <loading v-show="loading" />
       <track-list
+        @reloading="reloading"
+        @reloaded="reloaded"
+        :limit="limit"
         :columns="columns"
         :tracks="downloaded"
         :isShowActions="false"
@@ -90,41 +93,57 @@ export default {
     return {
       selectedFolder: [],
       columns,
-      moment
+      moment,
+      limit: 100,
+      loading: false
     }
   },
   components: {
     TrackList,
     Loading
   },
+  watch: {
+    downloaded (newVal) {
+      console.log('检测到新的歌曲')
+      this.add(newVal[newVal.length - 1])
+    }
+  },
   computed: {
-    ...mapState('Localsong', ['localSongs']),
-    ...mapState('Download', ['downloaded']),
+    ...mapGetters('Download', ['downloaded']),
     ...mapGetters('Setting', ['downloadSongsFolders']),
     defaultDownloadFolder () {
       return this.downloadSongsFolders[0]
     }
   },
   methods: {
-    ...mapActions('Localsong', ['refresh', 'match']),
+    ...mapActions('Localsong', ['refresh', 'match', 'add']),
     ...mapMutations('Localsong', ['setExportFolders']),
+    reloaded () {
+      this.loading = false
+    },
+    reloading () {
+      this.loading = true
+    },
     openDownloadFolder () {
       shell.showItemInFolder(this.defaultDownloadFolder)
     },
     play (tracks, index) {
       this.$store.dispatch('play/selectPlay', { tracks, index })
+      this.$electron.ipcRenderer.send('change-play-index', {
+        index: index
+      })
+      this.$electron.ipcRenderer.send('set-play-list', {
+        value: tracks
+      })
     },
     openFileInFolder (song) {
-      let path = `${this.defaultDownloadFolder}\\${generateName(song)}`
+      let path = song.url
       if (!fs.existsSync(path)) { // 文件不存在
         this.$message.error(`文件${path}不存在`)
         return
       }
       shell.showItemInFolder(path) // 打开文件所在文件夹
     }
-  },
-  mounted () {
-    this.refresh(this.downloadSongsFolders)
   }
 }
 </script>

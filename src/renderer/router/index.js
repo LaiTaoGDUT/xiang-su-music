@@ -68,6 +68,13 @@ const router = new Router({
       }
     },
     {
+      name: 'desktopView',
+      path: '/desktop-view',
+      component: function (resolve) {
+        require(['@/views/DesktopView/index.vue'], resolve)
+      }
+    },
+    {
       name: 'fullscreen',
       path: '/fullscreen',
       component: function (resolve) {

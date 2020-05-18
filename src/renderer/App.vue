@@ -27,7 +27,7 @@ export default {
       if ( this.$route.name !== 'mini' ) {
         this.$store.commit('play/SET_PLAY_STATUS', false)
       }
-      this.$store.commit('play/SET_SHOW_DESKTOP_LYRIC', false)
+      // this.$store.commit('play/SET_SHOW_DESKTOP_LYRIC', false)
     },
     handleNetworkChange ({ name, title, message }, status = true) {
       let networkNotification = new Notification(name, {
@@ -38,7 +38,7 @@ export default {
       this.$store.commit('App/SET_ONLINE', status)
     },
     getState (state) {
-      const modules = ['User', 'Localsong', 'Setting', 'Update']
+      const modules = ['User', 'play', 'Localsong', 'Setting', 'Update']
       if (!modules.length) return state
       let map = {}
       modules.forEach(module => {
@@ -59,21 +59,19 @@ export default {
         arrayMerge: function (store, saved) { return saved },
         clone: false
       }))
-      // init other window's data
-      this.$electron.ipcRenderer.send('show-trans', { value: this.$store.getters['play/show_trans'] })
-      // this.$electron.ipcRenderer.send('toggle-play', { value: this.$store.getters['play/playing'] })
     }
   },
   created () {
     this.initDownload()
-    this.initState()
   },
   mounted () {
-    this.$electron.ipcRenderer.on('console', (e, data) => {
-      console.log(data.value)
-    })
+    // this.$electron.ipcRenderer.on('console', (e, data) => {
+    //   console.log(data.value)
+    // })
+    this.initState()
     this.$electron.ipcRenderer.on('will-close', () => {
       this.handleAppWillClose()
+      this.$store.commit('App/SET_REDIRECT', '/home')
       localStorage.setItem(KEEP_SHORT_KEY, JSON.stringify(this.getState(this.$store.state)))
       this.$electron.ipcRenderer.send('app-exit')
     })

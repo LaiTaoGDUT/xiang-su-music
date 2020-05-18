@@ -60,7 +60,7 @@ export default {
   },
   methods: {
     logout () {
-      this.$store.dispatch('User/logout').then(() => {
+      this.$store.dispatch('User/logout', { self: this }).then(() => {
         this.$message.success('退出成功')
         if (this.$route.name === 'home') {
           // do nothing

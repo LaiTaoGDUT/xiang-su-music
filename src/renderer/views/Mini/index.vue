@@ -67,7 +67,10 @@ export default {
       isShowList: false,
       current_lyric: null,
       current_trans: null,
-      playing: false
+      playing: false,
+      current_song_index: 0,
+      current_play_list: [],
+      likedsongIds: []
     }
   },
   components: {
@@ -102,13 +105,21 @@ export default {
     this.$electron.ipcRenderer.on('change-color', (e, data) => {
       this.updateTheme(data.color)
     })
-    this.$electron.ipcRenderer.on('toggle-play', (e, data) => {
+    this.$electron.ipcRenderer.on('toggle-play2', (e, data) => {
       this.playing = data.value
     })
+    this.$electron.ipcRenderer.on('change-play-index', (e, data) => {
+      this.current_song_index = data.index
+    })
+    this.$electron.ipcRenderer.on('set-play-list', (e, data) => {
+      this.current_play_list = data.value
+    })
+    this.$electron.ipcRenderer.on('set-like-song-ids', (e, data) => {
+      this.likedsongIds = data.value
+    })
+    this.$electron.ipcRenderer.send('mini-ready')
   },
   computed: {
-    ...mapGetters('play', [ 'current_play_list', 'current_song_index' ]),
-    ...mapGetters('User', [ 'likedsongIds' ]),
     current_song () {
       return this.current_play_list[ this.current_song_index ] || {}
     },
@@ -135,6 +146,7 @@ export default {
       this.$electron.ipcRenderer.send('toggle-play', {
         value: !this.playing
       })
+      this.playing = !this.playing
     },
     backward () {
       this.$electron.ipcRenderer.send('prev-play', {
@@ -164,7 +176,9 @@ export default {
       })
     },
     _handleLikeSong ({ songId, isLike }) {
-      this.$store.dispatch('User/handleLikeSong', { songId, isLike })
+      this.$electron.ipcRenderer.send('like-song', {
+        songId, isLike
+      })
     },
     updateTheme (primaryColor) {
       if ( !primaryColor ) {

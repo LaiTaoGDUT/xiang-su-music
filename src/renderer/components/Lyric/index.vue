@@ -112,6 +112,12 @@ export default {
         font-size: 18px;
         transition: all 0.25s;
         text-align: center;
+        &:first-child {
+          margin-top: 200px;
+        }
+        &:last-child {
+          padding-bottom: 200px;
+        }
         &.current {
           font-size: 36px;
           color: white;

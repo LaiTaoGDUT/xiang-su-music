@@ -108,6 +108,12 @@ export default {
       this._getFm().then(tracks => {
         this.tracks = tracks
         this.$store.dispatch('play/selectPlay', { tracks: tracks, index: 0 })
+        this.$electron.ipcRenderer.send('change-play-index', {
+          index: 0
+        })
+        this.$electron.ipcRenderer.send('set-play-list', {
+          value: tracks
+        })
         this.loading = false
       }).catch(() => {
         this.disabled = false
@@ -126,6 +132,9 @@ export default {
           let list = this.current_play_list
           list = list.concat(tracks)
           this.$store.commit('play/SET_CURRENT_PLAY_LIST', list)
+          this.$electron.ipcRenderer.send('set-play-list', {
+            value: list
+          })
         }).catch(err => {
           console.log(err)
         })
@@ -133,6 +142,12 @@ export default {
     },
     play () {
       this.$store.dispatch('play/selectPlay', { tracks: this.tracks, index: 0 })
+      this.$electron.ipcRenderer.send('change-play-index', {
+        index: 0
+      })
+      this.$electron.ipcRenderer.send('set-play-list', {
+        value: this.tracks
+      })
     },
     togglePlay () {
       this.$store.commit('play/SET_PLAY_STATUS', !this.playing)
@@ -160,6 +175,9 @@ export default {
       }
 
       this.$store.commit('play/SET_CURRENT_INDEX', current_song_index)
+      this.$electron.ipcRenderer.send('change-play-index', {
+        index: current_song_index
+      })
       setTimeout(() => {
         this.disabled = false
       }, 1000)
@@ -171,6 +189,9 @@ export default {
       current_song_index++
 
       this.$store.commit('play/SET_CURRENT_INDEX', current_song_index)
+      this.$electron.ipcRenderer.send('change-play-index', {
+        index: current_song_index
+      })
       setTimeout(() => {
         this.disabled = false
       }, 1000)

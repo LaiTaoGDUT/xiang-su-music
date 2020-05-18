@@ -19,6 +19,7 @@ const createMiniWindow = function (BrowserWindow) {
       nodeIntegration: true,
       nodeIntegrationInWorker: true,
       backgroundThrottling: false,
+      devTools: false,
       webSecurity: false
     }
   }

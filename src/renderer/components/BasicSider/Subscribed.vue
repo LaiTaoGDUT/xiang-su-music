@@ -58,6 +58,12 @@ export default {
           return normalSong(track)
         })
         this.$store.dispatch('play/selectPlay', { tracks, index: 0 })
+        this.$electron.ipcRenderer.send('change-play-index', {
+          index: 0
+        })
+        this.$electron.ipcRenderer.send('set-play-list', {
+          value: tracks
+        })
       })
     }
   }

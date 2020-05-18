@@ -33,7 +33,7 @@ export default {
     play () {
       this.$emit('click')
       let song = normalSong(this.event.song)
-      this.$store.dispatch('play/appendPlay', song)
+      this.$store.dispatch('play/appendPlay', { song, self: this })
     }
   }
 }

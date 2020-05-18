@@ -2,6 +2,16 @@
   <div>
     <transition name="track-list">
       <div class="track-list" v-if="songs.length">
+        <div :class="pagination">
+          <a-pagination
+            v-show="offset >= limit"
+            :defaultCurrent="1"
+            :pageSize="limit"
+            :total="songs.length"
+            @change="onPageChange"
+            :current="(offset / limit) + 1"
+          />
+        </div>
         <div v-if="isShowHead">
           <slot name="header" v-if="$slots && $slots.header"></slot>
           <div class="track-list-header" v-else>
@@ -27,20 +37,19 @@
             </div>
           </div>
         </div>
-
         <div class="track-list-body">
           <ul class="song-list">
             <li
-              v-for="(row, rowIndex) in songs"
+              v-for="(row, rowIndex) in currentShowSongs"
               :key="rowIndex"
               :class="{'gray' : row.matched === false}"
-              @dblclick="onRowdblclick(songs, rowIndex)"
+              @dblclick="onRowdblclick(songs, rowIndex + offset)"
             >
               <a-dropdown :trigger="['contextmenu']" overlayClassName="sider-right-menu">
                 <div class="song-item">
                   <div class="col-item col-index" v-if="isShowPlaying">
                     <playing :playing="playing" v-if="current_song.id === row.id && source" />
-                    <span v-else>{{ rowIndex > 8 ? rowIndex + 1 : '0' + (rowIndex + 1) }}</span>
+                    <span v-else>{{ rowIndex + offset > 8 ? rowIndex + offset + 1 : '0' + (rowIndex + offset + 1) }}</span>
                   </div>
                   <div class="col-item col-actions" v-if="isShowActions">
                     <song-heart
@@ -84,7 +93,7 @@
                         :row="row"
                         :column="col"
                         :ke="col.key"
-                        :index="rowIndex"
+                        :index="rowIndex + offset"
                         :name="col.slot"
                         v-if="'slot' in col"
                       >
@@ -105,7 +114,7 @@
                 </div>
                 <a-menu slot="overlay">
                   <a-menu-item key="0">
-                    <div @click="play(rowIndex)">
+                    <div @click="play(rowIndex + offset)">
                       <a-icon type="play-circle" />
                       <span>播放</span>
                     </div>
@@ -138,6 +147,16 @@
               </a-dropdown>
             </li>
           </ul>
+          <div class="page">
+            <a-pagination
+              v-show="tracks.length > limit"
+              :defaultCurrent="1"
+              :pageSize="limit"
+              :total="songs.length"
+              @change="onPageChange"
+              :current="(offset / limit) + 1"
+            />
+          </div>
         </div>
       </div>
     </transition>
@@ -225,6 +244,12 @@ export default {
         return []
       }
     },
+    limit: {
+      type: Number,
+      default () {
+        return 100
+      }
+    },
     isShowHead: {
       type: Boolean,
       default: true
@@ -252,7 +277,8 @@ export default {
       formData: {
         name: '',
         privacy: false
-      }
+      },
+      offset: 0
     }
   },
   components: {
@@ -280,7 +306,13 @@ export default {
       'current_song_index',
       'source'
     ]),
-    ...mapGetters('User', ['userId', 'likedsongIds', 'createdList'])
+    ...mapGetters('User', ['userId', 'likedsongIds', 'createdList']),
+    currentShowSongs () {
+      return this.songs.slice(this.offset, this.offset + this.limit)
+    },
+    pagination () {
+      return this.offset >= this.limit ? 'page' : 'pageHide'
+    }
   },
   watch: {
     tracks (newTranck) {
@@ -289,6 +321,8 @@ export default {
         this.songs = JSON.parse(JSON.stringify(newTranck))
         this.cacheSongs = JSON.parse(JSON.stringify(newTranck))
       }
+      this.offset = 0
+      this.$emit('reloading')
     },
     songs (newVal) {
       let _tracks = JSON.parse(JSON.stringify(this.tracks))
@@ -312,8 +346,15 @@ export default {
       }, 1000, { trailing: true })
     )
   },
+  updated () {
+    this.$emit('reloaded')
+  },
   methods: {
     ...mapActions('User', ['getUserLikedSongs', 'handleLikeSong']),
+    onPageChange (page, pageSize) {
+      this.offset = (page - 1) * pageSize
+      this.$emit('reloading')
+    },
     sortSongs (col) {
       const songs = this.cacheSongs.slice()
       col.num = col.num || 0
@@ -326,13 +367,14 @@ export default {
         this.songs = sortSongs({ songs, col, rule })
       }
       col.num++
+      this.$emit('reloading')
     },
-    resetCurrentIndex (list, current_song) {
-      let index = list.findIndex(item => {
-        return item.id === current_song.id
-      })
-      this.$store.commit('play/SET_CURRENT_INDEX', index)
-    },
+    // resetCurrentIndex (list, current_song) {
+    //   let index = list.findIndex(item => {
+    //     return item.id === current_song.id
+    //   })
+    //   this.$store.commit('play/SET_CURRENT_INDEX', index)
+    // },
     onRowdblclick (songs, rowIndex) {
       this.$emit('dblclick', songs, rowIndex)
     },
@@ -341,9 +383,15 @@ export default {
         tracks: this.songs,
         index: rowIndex
       })
+      this.$electron.ipcRenderer.send('change-play-index', {
+        index: rowIndex
+      })
+      this.$electron.ipcRenderer.send('set-play-list', {
+          value: this.songs
+      })
     },
     nextPlay (song) {
-      this.$store.dispatch('play/nextPlay', song)
+      this.$store.dispatch('play/nextPlay', { song, self: this })
     },
     async collectToPlaylist (playlist, song) {
       let options = {
@@ -357,7 +405,7 @@ export default {
         this.$message.success('添加成功!')
         let likedsongIds = this.likedsongIds.slice()
         likedsongIds.unshift(...trackIds)
-        this.$store.commit('User/SET_LIKEDSONG_IDS', likedsongIds)
+        this.$store.commit('User/SET_LIKEDSONG_IDS', { ids: likedsongIds, self: this })
       }
     },
     createAndAddToPlaylist () {
@@ -380,11 +428,11 @@ export default {
       this.targetSong = row
     },
     _getUserLikelist (userId) {
-      this.getUserLikedSongs()
+      this.getUserLikedSongs({ self: this })
     },
     _handleLikeSong (row, { songId, isLike }) {
       this.$set(row, 'songHeartDisable', true)
-      this.handleLikeSong({ songId, isLike }).then(() => {
+      this.handleLikeSong({ songId, isLike, self: this }).then(() => {
         this.$set(row, 'songHeartDisable', false)
       })
     },
@@ -397,6 +445,12 @@ export default {
 </script>
 
 <style lang='less' scoped>
+.track-list-enter-active, .track-list-leave-active {
+  transition: opacity .5s;
+}
+.track-list-enter, .track-list-leave-to /* .fade-leave-active below version 2.1.8 */ {
+  opacity: 0;
+}
 .col-sorter {
   position: absolute;
   right: 0;
@@ -427,6 +481,13 @@ export default {
 }
 .track-list {
   font-family: "Source Sans Pro", "\660E\9ED1", Arial, Helvetica;
+  .page {
+    margin: 20px 0;
+    text-align: center;
+  }
+  .pageHide {
+    margin: 0;
+  }
   .col-item {
     flex: 2;
     padding: 0 5px;
@@ -536,6 +597,10 @@ export default {
           }
         }
       }
+    }
+    .page {
+      margin: 20px 0;
+      text-align: center;
     }
   }
 }

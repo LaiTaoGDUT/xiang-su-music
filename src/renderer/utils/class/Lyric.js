@@ -28,7 +28,7 @@ export default class Lyric {
   _initLines () {
     const _this = this
     const lines = _this.lrc.split('\n')
-    const transArr = _this._initTrans()
+    const transArr = _this._initTrans().sort((a, b) => a.time - b.time)
     const lyricsArr = []
     for (let i = 0; i < lines.length; i++) {
       let line = lines[i]
@@ -50,6 +50,7 @@ export default class Lyric {
         }
       })
     }
+    lyricsArr.sort((a, b) => a.time - b.time)
     const indexCorrection = lyricsArr.length - transArr.length
     if (transArr.length) {
       let j = lyricsArr.length - 1 - indexCorrection

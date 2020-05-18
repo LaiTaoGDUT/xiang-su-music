@@ -119,6 +119,12 @@ export default {
           return normalSong(track)
         })
         this.$store.dispatch('play/selectPlay', { tracks, index: 0 })
+        this.$electron.ipcRenderer.send('change-play-index', {
+          index: 0
+        })
+        this.$electron.ipcRenderer.send('set-play-list', {
+          value: tracks
+        })
       })
     },
     async xindong (pid) {
@@ -138,8 +144,17 @@ export default {
             return normalSong(song.songInfo)
           })
           this.$store.dispatch('play/selectPlay', { tracks, index: 0 })
+          this.$electron.ipcRenderer.send('change-play-index', {
+            index: 0
+          })
+          this.$electron.ipcRenderer.send('set-play-list', {
+            value: tracks
+          })
         }
         this.$store.commit('play/SET_MODE', playMode.xindong)
+        this.$electron.ipcRenderer.send('set-mode', {
+          value: playMode.xindong
+        })
         this.hideLoading()
         this.hideLoading = null
       } catch (e) {

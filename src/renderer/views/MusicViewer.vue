@@ -125,7 +125,7 @@ export default {
     background-repeat: no-repeat;
     background-size: cover;
     background-position: 50%;
-    filter: blur(30px) brightness(0.24);
+    filter: blur(15px) brightness(0.40);
   }
   .icon {
     position: absolute;

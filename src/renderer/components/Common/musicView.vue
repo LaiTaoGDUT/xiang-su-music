@@ -65,11 +65,9 @@ export default {
         this.$nextTick(() => {
           this.audioDom = document.getElementById(this.source)
           this.canvas.width = window.innerWidth
-          this.canvas.height =
-            this.canvasHeight === 0 ? window.innerHeight : this.canvasHeight
+          this.canvas.height = this.canvasHeight === 0 ? window.innerHeight : this.canvasHeight
           this.width = window.innerWidth
-          this.height =
-            this.canvasHeight === 0 ? window.innerHeight : this.canvasHeight
+          this.height = this.canvasHeight === 0 ? window.innerHeight : this.canvasHeight
 
           if (this.showGlow) {
             this.initGlow()
@@ -126,11 +124,12 @@ export default {
       this.context = this.canvas.getContext('2d')
       this.gradient = this.context.createLinearGradient(
         0,
-        0,
-        0,
+        this.height,
+        this.width,
         this.height
       )
       this.gradient.addColorStop('0', '#860000')
+      this.gradient.addColorStop('0.5', 'yellow')
       this.gradient.addColorStop('1.0', '#5fa7e4')
       let _this = this;
       (function draw () {
@@ -162,8 +161,7 @@ export default {
           _this.context.moveTo(0, _this.height)
           let x2 = 0
           for (let j = 1; j <= length; j++) {
-            let lineHeight2 =
-                  ((_this.dataArray[j] / 256) * _this.height) / 5
+            let lineHeight2 = ((_this.dataArray[j] / 256) * _this.height) / 5
             let diffH = Math.floor(Math.random() * 20 + 1)
             if (j < length / 10) {
               _this.context.lineTo(
@@ -218,7 +216,7 @@ export default {
           )
           _this.gradient2.addColorStop(0, 'rgba(226, 225, 0, .4)')
           _this.gradient2.addColorStop(0.3, 'rgba(226, 225, 0, .4)')
-          _this.gradient2.addColorStop(0.3, 'rgba(226, 225, 0, .4)')
+          _this.gradient2.addColorStop(0.7, 'rgba(226, 225, 0, .2)')
           _this.gradient2.addColorStop(1, 'rgba(226, 225, 0, 0)')
           if (i < 360 / du) {
             cxt.moveTo(

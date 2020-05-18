@@ -14,7 +14,7 @@ let mutations = {
   },
   SET_FOLDERS (state, folders) {
     // console.log(folders)
-    state.downloadSongsFolders = state.downloadSongsFolders.concat(folders)
+    state.downloadSongsFolders = folders
   },
   mutateState (state, payload) {
     for (let k in payload) {

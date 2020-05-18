@@ -5,7 +5,15 @@ let myMusicRoutes = [
     name: 'music_local',
     meta: {
       title: '本地音乐', icon: 'yinle'
-    }
+    },
+    redirect: '/music_local/home',
+    children: [
+      {
+        path: '/music_local/home',
+        component: () => import(/* webpackChunkName: "playlist-id-tracks" */ '@/views/LocalMusic/_localMusic.vue'),
+        name: 'music_local-home'
+      }
+    ]
   },
   {
     path: '/music_download',

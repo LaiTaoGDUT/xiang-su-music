@@ -3,8 +3,8 @@
     <div class="tray-box">
       <div class="control-box">
         <img src="./../assets/images/next_icon.png" title="上一曲" @click="backward" class="control-icon step" style="transform:rotate(180deg)"/>
-        <img src="./../assets/images/pause_icon.png" @click="togglePlay" class="control-icon" v-if='playing' />
-        <img src="./../assets/images/play_icon.png" @click="togglePlay" class="control-icon" v-else />
+        <img src="./../assets/images/pause_icon.png" @click="togglePlay" class="control-icon" v-show='playing' />
+        <img src="./../assets/images/play_icon.png" @click="togglePlay" class="control-icon" v-show='!playing' />
         <img src="./../assets/images/next_icon.png" title="下一曲" @click="forward" class="control-icon step"/>
         <!-- <a-icon type="step-backward" class="control-icon step" title="上一曲" @click="backward" />
         <a-icon :type="playIcon" theme="filled" class="control-icon" :title="playTitle" @click="togglePlay" />
@@ -47,13 +47,21 @@
           <z-icon type="geci" />
           <span>锁定桌面歌词</span>
         </li>
+        <li class="menu-item" :class="{'disabled' : !showDesktopView}" @click="doView(false)" v-if="viewIsFixed">
+          <z-icon type="geci" />
+          <span>解锁桌面动效</span>
+        </li>
+        <li class="menu-item" :class="{'disabled' : !showDesktopView}" @click="doView(true)" v-else>
+          <z-icon type="geci" />
+          <span>锁定桌面动效</span>
+        </li>
         <li class="menu-item" @click="restart">
           <a-icon type="sync" />
           <span>重启</span>
         </li>
         <li class="menu-item quit" @click="quit">
           <a-icon type="poweroff" />
-          <span>退出网易云</span>
+          <span>退出像素音乐</span>
         </li>
       </ul>
     </div>
@@ -73,7 +81,15 @@ export default {
     return {
       isFixed: false,
       curVolume: 0,   // 暂存当前音量，用于从静音开启时的初始音量
-      playing: false
+      playing: false,
+      current_song_index: 0,
+      isMuted: false,
+      showDesktoplyric: false,
+      volume: 1,
+      mode: playMode.sequence,
+      current_play_list: [],
+      viewIsFixed: false,
+      showDesktopView: false
     }
   },
   components: { ZIcon, ProgressBar },
@@ -82,9 +98,37 @@ export default {
     this.$electron.ipcRenderer.on('change-color', (e, data) => {
       this.updateTheme(data.color)
     })
-    this.$electron.ipcRenderer.on('toggle-play', (e, data) => {
+    this.$electron.ipcRenderer.on('toggle-play2', (e, data) => {
       this.playing = data.value
     })
+    this.$electron.ipcRenderer.on('change-play-index', (e, data) => {
+      this.current_song_index = data.index
+    })
+    this.$electron.ipcRenderer.on('set-muted', (e, data) => {
+      this.isMuted = data.value
+    })
+    this.$electron.ipcRenderer.on('toggle-desktop-lyric', (e, data) => {
+      this.showDesktoplyric = data.value
+    })
+    this.$electron.ipcRenderer.on('toggle-desktop-view', (e, data) => {
+      this.showDesktopView = data.value
+    })
+    this.$electron.ipcRenderer.on('set-volume', (e, data) => {
+      this.volume = data.value
+    })
+    this.$electron.ipcRenderer.on('set-mode', (e, data) => {
+      this.mode = data.value
+    })
+    this.$electron.ipcRenderer.on('set-play-list', (e, data) => {
+      this.current_play_list = data.value
+    })
+    this.$electron.ipcRenderer.on('fix-desktop-view', (e, data) => {
+      this.viewIsFixed = data
+    })
+    this.$electron.ipcRenderer.on('fix-desktop-lyric', (e, data) => {
+      this.isFixed = data
+    })
+    this.$electron.ipcRenderer.send('tray-ready')
   },
   created () {
     let key = process.env.NODE_ENV === 'development'
@@ -105,14 +149,6 @@ export default {
     }
   },
   computed: {
-    ...mapGetters('play', [
-      'current_play_list',
-      'current_song_index',
-      'mode',
-      'volume',
-      'isMuted',
-      'showDesktoplyric'
-    ]),
     current_song () {
       return this.current_play_list[ this.current_song_index ] || {}
     },
@@ -146,19 +182,36 @@ export default {
   },
   methods: {
     onMuted () {
-      this.$store.commit('play/SET_VOLUME', !this.isMuted ? 0 : this.curVolume)
-      this.$store.commit('play/SET_MUTED', !this.isMuted)
+      this.volume = !this.isMuted ? 0 : this.curVolume
+      this.$electron.ipcRenderer.send('set-volume', {
+        value: this.volume
+      })
+      this.$electron.ipcRenderer.send('set-muted', {
+        value: !this.isMuted
+      })
+      this.isMuted = !this.isMuted
     },
     onvolumeChanged (persent) {
       if (persent <= 0) { // 音量调整至0或以下时
         persent = 0
-        this.$store.commit('play/SET_MUTED', true) // 改变静音状态为true
+        // 改变静音状态为true
+        this.isMuted = true
+        this.$electron.ipcRenderer.send('set-muted', {
+          value: true
+        })
       } else { // 音量调整至0以上时
         if (persent > 1) persent = 1
         this.curVolume = Number(persent)
-        this.$store.commit('play/SET_MUTED', false) // 改变静音状态为false
+        // 改变静音状态为false
+        this.isMuted = false
+        this.$electron.ipcRenderer.send('set-muted', {
+          value: false
+        })
       }
-      this.$store.commit('play/SET_VOLUME', Number(persent))
+      this.volume = Number(persent)
+      this.$electron.ipcRenderer.send('set-volume', {
+        value: Number(persent)
+      })
     },
     backward () {
       this.$electron.ipcRenderer.send('prev-play', {
@@ -174,6 +227,7 @@ export default {
       this.$electron.ipcRenderer.send('toggle-play', {
         value: !this.playing
       })
+      this.playing = !this.playing
     },
     restart () {
       this.$electron.ipcRenderer.send('restart')
@@ -187,12 +241,20 @@ export default {
     changeMode () {
       let mode = this.mode
       mode = ++mode % (Object.keys(playMode).length - 1)
-      this.$store.commit('play/SET_MODE', mode)
+      this.mode = mode
+      this.$electron.ipcRenderer.send('set-mode', {
+        value: mode
+      })
     },
     doLyric (flag) {
       if (!this.showDesktoplyric) return
       this.isFixed = flag
       this.$electron.ipcRenderer.send('fix-desktop-lyric', this.isFixed)
+    },
+    doView (flag) {
+      if (!this.showDesktopView) return
+      this.viewIsFixed = flag
+      this.$electron.ipcRenderer.send('fix-desktop-view', this.viewIsFixed)
     },
     updateTheme (primaryColor) {
       if ( !primaryColor ) {

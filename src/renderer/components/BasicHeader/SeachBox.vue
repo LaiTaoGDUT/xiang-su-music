@@ -127,7 +127,7 @@ export default {
         this.suggests = null
         return
       }
-      let { result } = await getSearchSuggest(newQuery)
+      let { result } = await getSearchSuggest({ keyword: newQuery })
       this.suggests = result
     },
     setKeyword (keyword) {
@@ -173,7 +173,7 @@ export default {
           // console.log(item)
           let song = normalSong(item)
           if (song.id === this.current_song.id) return
-          this.$store.dispatch('play/appendPlay', song)
+          this.$store.dispatch('play/appendPlay', { song, self: this })
           break
       }
     }

@@ -1,5 +1,6 @@
 <template>
   <div class="tracks">
+    <loading v-show="loading" />
     <track-list :tracks="tracks" @dblclick="play" @download="download" />
     <!-- <infinite-loading forceUseInfiniteWrapper=".ant-layout-content" :identifier="infiniteId" @infinite="loadmore" /> -->
   </div>
@@ -12,6 +13,7 @@ import { getArtistSongs } from '@/api/artist'
 import TrackList from '@/components/Common/track-list/index.js'
 import Artists from '@/components/Common/artists'
 import { setTimeout } from 'timers'
+import Loading from '@/components/Common/loading'
 export default {
   name: 'artist_id_comment',
   data () {
@@ -19,11 +21,11 @@ export default {
       songUrl: '',
       currentTime: 0,
       buffered: 0,
-
       songs: [],
-      limit: 10,
       offset: 10,
-      infiniteId: +new Date()
+      infiniteId: +new Date(),
+      limit: 20,
+      loading: false
     }
   },
   components: {
@@ -47,6 +49,12 @@ export default {
   //   })
   // },
   methods: {
+    reloaded () {
+      this.loading = false
+    },
+    reloading () {
+      this.loading = true
+    },
     async loadmore ($state) {
       let params = {
         id: this.$route.params.id,
@@ -73,6 +81,12 @@ export default {
     },
     play (tracks, index) {
       this.$store.dispatch('play/selectPlay', { tracks, index })
+      this.$electron.ipcRenderer.send('change-play-index', {
+        index: index
+      })
+      this.$electron.ipcRenderer.send('set-play-list', {
+        value: tracks
+      })
     },
     download (song) {
       this.$store.dispatch('Download/download', song)

@@ -91,15 +91,19 @@ export default {
       state.localSongs = songs
     },
     replace (state, obj) {
-      state.localSongs[obj.index] = obj.song
+      state.localSongs.splice(obj.index, 1, obj.song)
+    },
+    add (state, song) {
+      console.log('insert into localSongs')
+      if (state.localSongs.findIndex(_song => _song.url == song.url && _song.size == song.size) < 0) {
+        state.localSongs.splice(state.localSongs.length, 0, song)
+        console.log('insert success')
+      }
     },
     delete (state, songIndexs) {
       state.localSongs = state.localSongs.filter((song, index) => {
         return !songIndexs.includes(index)
       })
-    },
-    add (state, song) {
-      state.localSongs.push(song)
     },
     setExportFolders (state, arr) {
       state.exportFolders = arr
@@ -122,8 +126,8 @@ export default {
   actions: {
     async match ({ state, commit }, forceMatch = false) {
       let albumAvater = new Map() // 暂存专辑id以免相同专辑的歌曲重复请求
+      let localSongs = state.localSongs.slice()
       try {
-        let localSongs = state.localSongs.slice()
         for (let i = 0; i < localSongs.length; i++) {
           let song = localSongs[i]
           if (state.stopMatching) {
@@ -134,16 +138,21 @@ export default {
           if (!forceMatch && song.matched) {
             continue
           }
-          let res = await getSearch({ keyword: `${song.name} ${song.artist.length ? song.artist[0].name : ''}`, limit: 5 })
+          let res = await getSearchSuggest({ keyword: `${song.name} ${song.artist.length ? song.artist[0].name : ''}`, limit: 5 })
           if (!res.result || !res.result.songs) {
-            commit('addFailedNum')
-            continue
+            res = await getSearchSuggest({ keyword: `${song.name}`, limit: 5 })
+            if (!res.result || !res.result.songs) {
+              commit('addFailedNum')
+              continue
+            }
           }
           let matchSongs = res.result.songs
           if (matchSongs && matchSongs.length) {
             let suggest = matchSongs.find(item => {
-              let artistArr = song.artist.map(artist => artist.name.trim())
-              return item.artists.some(artist => artistArr.includes(artist.name))
+              let artistArr = song.artist.map(art => art.name).join('')
+              console.log(artistArr)
+              console.log(item.artists)
+              return item.artists.some(artist => artistArr.indexOf(artist.name) >= 0)
             })
             if (!suggest) {
               commit('addFailedNum')
@@ -162,8 +171,12 @@ export default {
                 avatar = albumAvater.get(albumId)
               } else {
                 avatar = await getAlbum(albumId)
-                avatar = avatar.songs[0].al.picUrl
-                albumAvater.set(albumId, avatar)
+                if (avatar.songs) {
+                  avatar = avatar.songs[0].al.picUrl
+                  albumAvater.set(albumId, avatar)
+                } else {
+                  avatar = ''
+                }
               }
               suggest.avatar = avatar
             }
@@ -183,6 +196,8 @@ export default {
         commit('mutateState', { localSongs: _localSongsCopy })
       } catch (error) {
         console.log('match error:', error)
+        const _localSongsCopy = state.localSongs.slice()
+        commit('mutateState', { localSongs: _localSongsCopy })
       }
     },
     async refresh ({ state, commit, dispatch, rootState }, selectedFolders) {
@@ -194,6 +209,21 @@ export default {
       // console.log('localSongs:', songs)
       commit('mutateState', { localSongs: songs })
       // dispatch('match')
+    },
+    async add ({ state, commit, dispatch, rootState }, song) {
+      let avatar
+      if (song.album) {
+        let albumId = song.album.id
+        avatar = await getAlbum(albumId)
+        if (avatar.songs) {
+          avatar = avatar.songs[0].al.picUrl
+        } else {
+          avatar = ''
+        }
+      }
+      song.avatar = avatar
+      song.matched = true
+      commit('add', song)
     }
   }
 }

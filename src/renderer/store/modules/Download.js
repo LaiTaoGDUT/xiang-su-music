@@ -13,7 +13,8 @@ let state = {
 }
 
 let getters = {
-  queueIds: state => state.queue.map(item => item.id)
+  queueIds: state => state.queue.map(item => item.id),
+  downloaded: state => state.downloaded
 }
 
 let mutations = {
@@ -38,15 +39,11 @@ let mutations = {
     let index = state.downloading.findIndex(item => item.id === id)
     state.downloading[index] && (state.downloading[index].downloadPercent = progress)
   },
-  CHANGE_TO_DOWNLOADED (state, { id, song, downloadFolder }) {
-    let index = state.downloading.findIndex(item => item.id === id)
-    let filename = generateName(song)
-    song.url = `${downloadFolder}\\${filename}`
-    song.folder = downloadFolder
-    state.downloaded.push(song)
+  CHANGE_TO_DOWNLOADED (state, { song, index } ) {
+    state.downloaded.splice(state.downloaded.length, 0, song)
     state.downloaded = uniqueData(state.downloaded)
     state.downloading.splice(index, 1)
-    db.download.findOne({ id: id }, (err, doc) => {
+    db.download.findOne({ id: song.id }, (err, doc) => {
       if (err) {
         console.log('保存下载歌曲失败:', err)
         return
@@ -65,7 +62,7 @@ let mutations = {
 }
 
 let actions = {
-  init ({ dispatch, commit, state }) {
+  init ({ dispatch, commit, state, rootState }) {
     db.download.find({}, (err, docs) => {
       if (!err) {
         commit('SET_DOWNLOADED', docs)
@@ -91,7 +88,12 @@ let actions = {
 
     ipcRenderer.on('download-success', (event, data) => {
       let { id, song, downloadFolder } = data
-      commit('CHANGE_TO_DOWNLOADED', { id, song, downloadFolder })
+      let index = state.downloading.findIndex(item => item.id === id)
+      let filename = generateName(song)
+      song.url = `${downloadFolder}\\${filename}`
+      song.folder = downloadFolder
+      song.size = state.downloading[index].totalBytes
+      commit('CHANGE_TO_DOWNLOADED', { song, index })
       commit('REMOVE_QUEUE', song)
       dispatch('download')
       // 歌曲下载成功尝试下载歌词

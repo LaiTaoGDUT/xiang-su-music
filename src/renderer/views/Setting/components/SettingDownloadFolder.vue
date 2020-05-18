@@ -10,23 +10,25 @@
 </template>
 <script>
 import SettingItem from './SettingItem.vue'
-import { mapGetters, mapMutations } from 'vuex'
+import { mapState, mapGetters, mapMutations } from 'vuex'
 import { remote } from 'electron'
+import { uniq } from '@/utils/calculate'
 
 const { dialog } = remote
-
 export default {
   components: {
     SettingItem
   },
   computed: {
+    ...mapState('Localsong', [ 'exportFolders', 'needRefreshFolders' ]),
     ...mapGetters('Setting', [ 'downloadSongsFolders' ]),
     defaultDownloadFolder () {
       return this.downloadSongsFolders[ 0 ]
     }
   },
   methods: {
-    ...mapMutations('Setting', [ 'mutateState' ]),
+    ...mapMutations('Setting', [ 'SET_FOLDERS' ]),
+    ...mapMutations('Localsong', [ 'setExportFolders', 'setneedRefreshFolders' ]),
     select () {
       dialog.showOpenDialog(
         {
@@ -34,18 +36,18 @@ export default {
         },
         filePaths => {
           if ( filePaths && filePaths.length ) {
-            this.mutateState({
-              downloadSongsFolders: filePaths
-            })
+            this.SET_FOLDERS(filePaths)
+            this.setExportFolders(uniq(this.exportFolders.concat(filePaths)))
+            this.setneedRefreshFolders(uniq(this.needRefreshFolders.concat(filePaths)))
           }
         }
       )
     },
     reset () {
       let folder = [ `${remote.app.getPath('music')}` ]
-      this.mutateState({
-        downloadSongsFolders: folder
-      })
+      this.SET_FOLDERS(folder)
+      this.setExportFolders(uniq(this.exportFolders.concat(folder)))
+      this.setneedRefreshFolders(uniq(this.needRefreshFolders.concat(folder)))
     }
   }
 }

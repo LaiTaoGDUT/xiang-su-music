@@ -103,6 +103,12 @@ export default function Initializer () {
       }
       if (songs.length) {
         store.dispatch('play/selectPlay', { tracks: songs, index: 0 })
+        this.$electron.ipcRenderer.send('change-play-index', {
+          index: 0
+        })
+        this.$electron.ipcRenderer.send('set-play-list', {
+          value: songs
+        })
       }
     } catch (error) {
       console.log(error)
@@ -132,6 +138,12 @@ async function handleWillOpenFiles (argv) {
   }
   if (songs.length) {
     store.dispatch('play/selectPlay', { tracks: songs, index: 0 })
+    this.$electron.ipcRenderer.send('change-play-index', {
+      index: 0
+    })
+    this.$electron.ipcRenderer.send('set-play-list', {
+      value: songs
+    })
   }
 }
 

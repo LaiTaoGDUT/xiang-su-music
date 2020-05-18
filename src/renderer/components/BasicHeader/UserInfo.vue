@@ -107,7 +107,7 @@ export default {
       this.$store.commit('User/SET_SHOW_LOGIN', true)
     },
     logout () {
-      this.$store.dispatch('User/logout').then(() => {
+      this.$store.dispatch('User/logout', { self: this }).then(() => {
         this.$message.success('退出成功')
         if (this.$route.name === 'home') {
           // do nothing
