@@ -31,12 +31,16 @@
 </p> -->
 
 ## 特点
-* 拖拽播放
-* 桌面歌词与可视化
+* 歌词滚动，翻译切换
+![player](https://github.com/LaiTaoGDUT/xiang-su-music/blob/master/screenshot/player.png)
+* 桌面歌词与音乐可视化
+![desktop](https://github.com/LaiTaoGDUT/xiang-su-music/blob/master/screenshot/desktopLyric.png)
 * mini模式
-* 自定义托盘右键菜单
+![mini](https://github.com/LaiTaoGDUT/xiang-su-music/blob/master/screenshot/mini.png)
+![mini2](https://github.com/LaiTaoGDUT/xiang-su-music/blob/master/screenshot/mini2.png)
+* 托盘菜单
+![tray](https://github.com/LaiTaoGDUT/xiang-su-music/blob/master/screenshot/tray.png)
 * 任务栏缩略图，歌曲操作
-* 音频可视化
 * 自动/手动检查更新
 * Nedb数据库持久化
 * 自定义安装路径，安装界面美化
@@ -57,7 +61,9 @@
 点击[下载应用](https://github.com/xiaozhu188/electron-vue-cloud-music/releases/latest)。 -->
 
 > 项目当前依赖[NeteaseCloudMusicApi](https://github.com/Binaryify/NeteaseCloudMusicApi),感谢NeteaseCloudMusicApi的作者。
+
 > 项目当前依赖[QQMusicApi](https://github.com/jsososo/QQMusicApi),感谢QQMusicApi的作者。
+
 >开发灵感来自[electron-vue-cloud-music](https://github.com/xiaozhu188/electron-vue-cloud-music),感谢electron-vue-cloud-music的作者。
 
 <!-- ## 部分界面预览
@@ -73,7 +79,7 @@
 
 ![video](https://github.com/xiaozhu188/electron-vue-cloud-music/blob/master/screenshot/video.png)
 
-![player](https://github.com/xiaozhu188/electron-vue-cloud-music/blob/master/screenshot/player.png)
+
 
 ![playlist](https://github.com/xiaozhu188/electron-vue-cloud-music/blob/master/screenshot/playlist.png)
 
