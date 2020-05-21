@@ -334,7 +334,7 @@ export default {
 .tray {
   position: relative;
   width: 200px;
-  height: 350px;
+  height: 390px;
   z-index: 9999999;
   opacity: .97;
   .tray-box {

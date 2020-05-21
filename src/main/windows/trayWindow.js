@@ -6,10 +6,10 @@ let trayWindow = null
 const createTrayWindow = function (BrowserWindow, bounds) {
   if (trayWindow) return
   const obj = {
-    height: 350,
+    height: 390,
     width: 200,
     x: bounds.x,
-    y: bounds.y - 310,
+    y: bounds.y - 350,
     show: false,
     frame: false,
     fullscreenable: false,

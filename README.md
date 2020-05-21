@@ -32,7 +32,7 @@
 
 ## 特点
 * 拖拽播放
-* 桌面歌词
+* 桌面歌词与可视化
 * mini模式
 * 自定义托盘右键菜单
 * 任务栏缩略图，歌曲操作
@@ -41,7 +41,6 @@
 * Nedb数据库持久化
 * 自定义安装路径，安装界面美化
 * 浏览器中启动客户端
-* Travis CL，AppVeyor自动构建
 * 换肤，下载，本地歌曲匹配，网络变化桌面通知，分享歌曲/歌单/MV/视频等到QQ空间
 * 登录，私人Fm，歌单，专辑，歌手，排行榜，MV，视频，评论，搜索，用户，动态，粉丝，关注，云盘，收藏...
 * 心动模式，歌词微调，下一首播放，追加播放，单曲循环，随机播放，列表循环
@@ -57,9 +56,9 @@
 <!-- ## 下载 && 运行
 点击[下载应用](https://github.com/xiaozhu188/electron-vue-cloud-music/releases/latest)。 -->
 
-
-<!-- > macOS用户请下载dmg文件，windows用户请下载exe文件，linux用户请下载AppImage文件。
-> 项目当前依赖[NeteaseCloudMusicApi](https://github.com/Binaryify/NeteaseCloudMusicApi),感谢NeteaseCloudMusicApi的作者。 -->
+> 项目当前依赖[NeteaseCloudMusicApi](https://github.com/Binaryify/NeteaseCloudMusicApi),感谢NeteaseCloudMusicApi的作者。
+> 项目当前依赖[QQMusicApi](https://github.com/jsososo/QQMusicApi),感谢QQMusicApi的作者。
+>开发灵感来自[electron-vue-cloud-music](https://github.com/xiaozhu188/electron-vue-cloud-music),感谢electron-vue-cloud-music的作者。
 
 <!-- ## 部分界面预览
 ![mini](https://user-images.githubusercontent.com/20502995/64253818-b014d780-cf50-11e9-8cea-1cccf98fc712.gif)
