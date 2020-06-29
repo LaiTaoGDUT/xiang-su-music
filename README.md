@@ -8,6 +8,11 @@
 
 > 像素音乐
 
+<!-- <p align="center">
+  <img src="https://github.com/xiaozhu188/electron-vue-cloud-music/blob/master/docs/images/logo.png" width="120">
+</p> -->
+
+
 ## 特点
 * 歌词滚动，翻译切换
 ![player](https://github.com/LaiTaoGDUT/xiang-su-music/blob/master/screenshot/player.png)
