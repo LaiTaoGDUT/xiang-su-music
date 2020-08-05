@@ -24,9 +24,17 @@
             />
           </span>
         </small>
+        <small style="width: 170px; float: right">
+          <a-input-search
+            placeholder="搜索本地音乐..."
+            v-model="keyword"
+            class="header-search"
+            @search="onSearch"
+          />
+        </small>
       </div>
       <loading v-show="!show" />
-      <track-list v-if="show" @reloading="reloading" @reloaded="reloaded" :columns="columns" :tracks="localSongs" :isShowActions="false" @dblclick="play" :limit="limit" >
+      <track-list v-if="show" @reloading="reloading" @reloaded="reloaded" :columns="columns" :tracks="currentShowSongs" :isShowActions="false" @dblclick="play" :limit="limit" >
         <template slot="size" slot-scope="{ row }">
           <span>{{ row.size | normalSize }}</span>
         </template>
@@ -101,14 +109,15 @@ export default {
       refreshing: false,
       selectedFolder: [],
       bufferFolder: [], // 缓存数组，暂存选中状态已更改但未确定的文件夹
-      columns,
+      columns: columns,
       currentShowSongs: [], // 当前显示的歌曲
-      defaultDownloadFolder,
+      defaultDownloadFolder: defaultDownloadFolder,
       matching: false,
       waitSelectFolder: [], // 用户已经选择但是没有确定的文件夹
       matchedSongs: 0, // has matched songs
       limit: 100, // 单页展示的歌曲数量
-      show: false
+      show: false,
+      keyword: ''
     }
   },
   components: {
@@ -118,6 +127,14 @@ export default {
     ...mapState('Localsong', ['exportFolders', 'needRefreshFolders']),
     ...mapGetters('Localsong', ['localSongs', 'matchSuccessNum', 'matchFailedNum', 'stopMatching']),
     ...mapGetters('play', ['current_play_list'])
+  },
+  watch: {
+    localSongs (newVal) {
+      this.currentShowSongs = JSON.parse(JSON.stringify(newVal))
+      this.$emit('reloading')
+      this.filterSongs()
+      this.$emit('loaded')
+    }
   },
   methods: {
     ...mapActions('Localsong', ['refresh', 'match']),
@@ -157,7 +174,7 @@ export default {
       this.visible = false
       this.refreshing = true
       const curSongNums = this.localSongs.length
-      this.refresh(this.selectedFolder).then( () => {
+      this.refresh(this.selectedFolder).then(() => {
         this.refreshing = false
         const changeNums = this.localSongs.length - curSongNums
         if (changeNums == 0) Message.success('扫描本地音乐完成')
@@ -190,21 +207,52 @@ export default {
       return this.localSongs.filter( song => {
         return song.matched
       }).length
+    },
+    onSearch (keyword) {
+      this.keyword = keyword.toLowerCase()
+      this.$emit('reloading')
+      this.filterSongs()
+      this.$emit('loaded')
+    },
+    filterSongs () {
+      this.currentShowSongs = this.localSongs.filter(song => {
+        if (song.name && song.name.toLowerCase().includes(this.keyword)) {
+          return true
+        }
+        if (song.artist.length > 0) {
+          for (let i = 0; i < song.artist.length; i++) {
+            if (song.artist[i].name && song.artist[i].name.toLowerCase().includes(this.keyword)) {
+              return true
+            }
+          }
+        }
+        if (song.album.name && song.album.name.toLowerCase().includes(this.keyword)) {
+          return true
+        }
+        return false
+      })
     }
   },
   created () {
     this.selectedFolder = this.needRefreshFolders.concat()
     this.bufferFolder = this.needRefreshFolders.concat()
-    this.refresh(this.selectedFolder)
     ipcRenderer.on('selectedItem', (event, path) => {
       // this.setExportFolders(uniq(this.exportFolders.concat(path)))
       this.bufferFolder = uniq(this.bufferFolder.concat(path))
       this.waitSelectFolder = uniq(this.waitSelectFolder.concat(path))
     })
-    const self = this
     setTimeout( () => {
-      self.show = true
-    }, 100)
+      this.visible = false
+      this.refreshing = true
+      const curSongNums = this.localSongs.length
+      this.refresh(this.selectedFolder).then(() => {
+        this.refreshing = false
+        const changeNums = this.localSongs.length - curSongNums
+        if (changeNums == 0) Message.success('扫描本地音乐完成')
+        else Message.success(`扫描本地音乐完成，${changeNums > 0 ? '新增' + changeNums : '减少' + -changeNums}首歌曲`)
+      })
+      this.show = true
+    }, 0)
   },
   activated () {
     this.selectedFolder = this.needRefreshFolders.concat()
@@ -220,6 +268,16 @@ export default {
   }
   .ant-btn {
     margin-right: 4px;
+  }
+  .header-search {
+    /deep/ .ant-input {
+      height: 24px;
+      border-radius: 12px;
+      border: 1px solid #bfbfbf;
+      box-shadow: none;
+      font-size: 12px;
+    }
+
   }
 }
 .bodyStyle .ant-modal-body {

@@ -47,8 +47,8 @@
         <z-icon type="yinleliebiaokuai" />
         <span class="count">{{ current_play_list.length }}</span>
       </span>
-      <span @click="toggleTransShow">译</span>
-      <span @click="toggleDesktopView">View</span>
+      <span @click="toggleTransShow" style="cursor: pointer">译</span>
+      <span @click="toggleDesktopView" style="cursor: pointer">View</span>
     </div>
 
     <span class="resize"></span>
@@ -215,7 +215,6 @@ export default {
     current_song: 'handleSongChange'
   },
   mounted () {
-    // this.$db.lyric.remove( {}, { multi: true } )
     this.curVolume = this.volume
     this.$electron.ipcRenderer.on('toggle-play', (e, data) => {
       this.needSync = false
@@ -245,7 +244,12 @@ export default {
     })
       // init other window's data
     this.$electron.ipcRenderer.on('view-ready', (e, data) => {
-      this.$electron.ipcRenderer.send('toggle-desktop-view', this.$store.getters['play/showDesktopView'])
+      if (this.$store.getters['play/showDesktopView']) {
+        this.$electron.ipcRenderer.send('toggle-desktop-view', this.$store.getters['play/showDesktopView'])
+      }
+      if (this.showDesktoplyric) {
+        this.$electron.ipcRenderer.send('toggle-desktop-lyric', this.showDesktoplyric)
+      }
       this.$electron.ipcRenderer.send('change-color2', this.$store.getters['App/primaryColor'])
       this.$electron.ipcRenderer.send('change-source', { value: this.$store.getters['play/source'] })
       this.$electron.ipcRenderer.send('show-trans', { value: this.$store.getters['play/show_trans'] })
@@ -255,7 +259,6 @@ export default {
       this.$electron.ipcRenderer.send('set-mode', { value: this.$store.getters['play/mode'] })
       this.$electron.ipcRenderer.send('set-play-list', { value: this.$store.getters['play/current_play_list'] })
       this.$electron.ipcRenderer.send('set-like-song-ids', { value: this.$store.getters['User/likedsongIds'] })
-      this.$electron.ipcRenderer.send('toggle-desktop-lyric', this.showDesktoplyric)
     })
     if (Object.keys(this.current_song).length) {
       if (this.current_song.folder && this.current_song.url) { // local song

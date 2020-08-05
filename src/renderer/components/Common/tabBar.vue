@@ -101,7 +101,7 @@ export default {
       color: #333;
       text-decoration: none;
       &.router-link-exact-active,&.router-link-active {
-        border-bottom: 3px solid @primary-color;
+        // border-bottom: 3px solid @primary-color;
         color: @primary-color;
       }
     }

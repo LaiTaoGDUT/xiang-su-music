@@ -53,7 +53,6 @@ export default {
           this.timer && cancelAnimationFrame(this.timer)
         })
       } else {
-        console.log(this.timer2)
         this.$nextTick(() => {
           this.init()
           this.timer2 && cancelAnimationFrame(this.timer2)

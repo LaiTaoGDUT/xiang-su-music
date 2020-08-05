@@ -153,17 +153,14 @@ export default {
       let path = ''
       switch (key) {
         case 'albums':
-          console.log(`/album/${item.id}`)
           path = `/album/${item.id}`
           this.$router.push({ path })
           break
         case 'artists':
-          console.log(`/artist/${item.id}`)
           path = `/artist/${item.id}`
           this.$router.push({ path })
           break
         case 'playlists':
-          console.log(`/playlist/${item.id}`)
           path = `/playlist/${item.id}`
           this.$router.push({ path })
           break

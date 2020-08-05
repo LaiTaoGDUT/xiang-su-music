@@ -20,10 +20,11 @@ module.exports = {
       }
     },
     module: {
-      rules: [ {
-        test: /\.(html)(\?.*)?$/,
-        use: 'vue-html-loader'
-      }
+      rules: [
+        {
+          test: /\.(html)(\?.*)?$/,
+          use: 'vue-html-loader'
+        }
       ]
     },
     // 公共资源合并
@@ -78,9 +79,7 @@ module.exports = {
   },
   // 打包输出路径
   outputDir: 'dist/web',
-  productionSourceMap: false,
-  // 构建时开启多进程处理 babel 编译
-  //   parallel: require('os').cpus().length > 1,
+  parallel: false,
   css: {
     // 是否使用css分离插件 ExtractTextPlugin
     extract: isProd,
@@ -106,7 +105,7 @@ module.exports = {
     host: 'localhost',
     port: 9080,
     https: false,
-    hotOnly: false,
+    hotOnly: false
   //   proxy: {
   //     '/api': {
   //       target: 'http://localhost:9999/',

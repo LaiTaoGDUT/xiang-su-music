@@ -78,7 +78,6 @@ module.exports = {
   },
   // 打包输出路径
   outputDir: 'dist/web',
-  productionSourceMap: false,
   // 构建时开启多进程处理 babel 编译
   //   parallel: require('os').cpus().length > 1,
   css: {

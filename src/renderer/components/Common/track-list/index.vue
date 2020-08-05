@@ -266,6 +266,7 @@ export default {
   data () {
     return {
       songs: JSON.parse(JSON.stringify(this.tracks)),
+      cacheSongs: JSON.parse(JSON.stringify(this.tracks)),
       componentNames: {
         artist: 'Artist',
         album: 'Album',

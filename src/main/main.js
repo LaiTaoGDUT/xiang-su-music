@@ -113,6 +113,7 @@ function createWindow () {
       global.lyricWindow = createLyricWindow(BrowserWindow)
       global.miniWindow = createMiniWindow(BrowserWindow)
       global.viewWindow = createViewWindow(BrowserWindow)
+      // global.viewWindow.webContents.openDevTools()
       setThumbarButtons(mainWindow, false)
       mainWindow.setThumbnailClip({ x: 0, y: 0, width: 180, height: 50 })
     }
@@ -185,4 +186,3 @@ if ( isDevelopment ) {
     })
   }
 }
-

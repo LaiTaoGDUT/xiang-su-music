@@ -150,8 +150,6 @@ export default {
           if (matchSongs && matchSongs.length) {
             let suggest = matchSongs.find(item => {
               let artistArr = song.artist.map(art => art.name).join('')
-              console.log(artistArr)
-              console.log(item.artists)
               return item.artists.some(artist => artistArr.indexOf(artist.name) >= 0)
             })
             if (!suggest) {
@@ -203,12 +201,11 @@ export default {
     async refresh ({ state, commit, dispatch, rootState }, selectedFolders) {
       let folders = selectedFolders && selectedFolders.length ? selectedFolders : state.exportFolders
       let songs = []
+
       for (let folder of folders) {
         await searchMusicFile(folder, songs, state.localSongs)
       }
-      // console.log('localSongs:', songs)
       commit('mutateState', { localSongs: songs })
-      // dispatch('match')
     },
     async add ({ state, commit, dispatch, rootState }, song) {
       let avatar

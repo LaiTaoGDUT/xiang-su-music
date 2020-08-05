@@ -74,7 +74,7 @@ function resErrorHandle (error) {
             Message.warn(res.data.msg || '请先登录')
             break
           case 400:
-            Message.warn(res.data.message || res.data.msg || '资源不在收藏列表中')
+            Message.warn(res.data.message || res.data.msg || '资源下载失败了')
             break
           case 401:
             store.commit('User/SET_SHOW_LOGIN', true)
