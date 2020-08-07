@@ -28,7 +28,9 @@ export function getRelatedVideo (id) {
 
 // 收藏视频 t : 1 为收藏,其他为取消收藏
 export function subVideo (id, t) {
-  return request.post('/video/sub', {
-    id, t
+  return request.get('/video/sub', {
+    params: {
+      id, t
+    }
   })
 }

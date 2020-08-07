@@ -1,7 +1,7 @@
 <template>
   <div>
     <a-popover
-      trigger="focus"
+      trigger="click"
       placement="bottomLeft"
       overlayClassName="search-wrapper"
       :overlayStyle="overlayStyle"
@@ -12,6 +12,7 @@
         v-model="keyword"
         class="header-search"
         @search="onSearch"
+        allow-clear
       />
       <template slot="content">
 
@@ -135,6 +136,7 @@ export default {
       this.$router.push({ path: '/search', query: { keyword } })
     },
     onSearch (keyword, event) {
+      this.$store.commit('play/SET_FULLSCREEN', false)
       if (!this.keyword) return
       event.preventDefault()
       this.searchVisible = false
@@ -150,6 +152,7 @@ export default {
       this.$store.dispatch('Search/clearKeyword')
     },
     suggestClick (suggest, item, key) {
+      this.$store.commit('play/SET_FULLSCREEN', false)
       let path = ''
       switch (key) {
         case 'albums':

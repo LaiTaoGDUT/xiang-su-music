@@ -64,6 +64,7 @@
                         theme="filled"
                         class="icon-downloaded"
                         title="已下载"
+                        :style="{ color: $store.getters['App/primaryColor'] }"
                       />
                     </template>
                     <template v-else>

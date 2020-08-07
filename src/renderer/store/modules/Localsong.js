@@ -93,6 +93,10 @@ export default {
     replace (state, obj) {
       state.localSongs.splice(obj.index, 1, obj.song)
     },
+    updateSongInfo (state, obj) {
+      state.localSongs[obj.index].size = obj.size
+      state.localSongs[obj.index].url = obj.url
+    },
     add (state, song) {
       console.log('insert into localSongs')
       if (state.localSongs.findIndex(_song => _song.url == song.url && _song.size == song.size) < 0) {
@@ -100,10 +104,8 @@ export default {
         console.log('insert success')
       }
     },
-    delete (state, songIndexs) {
-      state.localSongs = state.localSongs.filter((song, index) => {
-        return !songIndexs.includes(index)
-      })
+    delete (state, songIndex) {
+      state.localSongs.splice(songIndex, 1)
     },
     setExportFolders (state, arr) {
       state.exportFolders = arr
@@ -131,8 +133,7 @@ export default {
         for (let i = 0; i < localSongs.length; i++) {
           let song = localSongs[i]
           if (state.stopMatching) {
-            const _localSongsCopy = state.localSongs.slice()
-            commit('mutateState', { localSongs: _localSongsCopy })
+            commit('mutateState', { localSongs: localSongs })
             break
           }
           if (!forceMatch && song.matched) {
@@ -153,15 +154,33 @@ export default {
               return item.artists.some(artist => artistArr.indexOf(artist.name) >= 0)
             })
             if (!suggest) {
-              commit('addFailedNum')
-              continue
+              suggest = matchSongs.find(item => {
+                return item.album.name == song.album
+              })
+              if (!suggest) {
+                suggest = matchSongs.find(item => {
+                  return item.name == song.name
+                })
+                if (!suggest) {
+                  commit('addFailedNum')
+                  continue
+                }
+              }
             }
             // if local song lists has this song and larger then it
-            // if (state.localSongs.slice(0, i).some(song => (suggest.id == song.id && state.localSongs[i].size <= song.size))) {
-            //   commit('addRepeatNum')
-            //   repeatedSongs.push(i)
-            //   continue
-            // }
+            let repeatIndex = localSongs.slice(0, i).findIndex(song => (suggest.id == song.id))
+            if (repeatIndex != -1) {
+              console.log(repeatIndex)
+              if (localSongs[repeatIndex].size <= song.size) {
+                localSongs[repeatIndex].size = song.size
+                localSongs[repeatIndex].url = song.url
+                // commit('updateSongInfo', { index: repeatIndex, size: song.size, url: song.url })
+              }
+              // commit('delete', i)
+              localSongs.splice(i, 1)
+              i--
+              continue
+            }
             let avatar
             if (suggest.album) {
               let albumId = suggest.album.id
@@ -185,13 +204,14 @@ export default {
               url: song.url,
               matched: true
             }
-            commit('replace', { index: i, song: _song })
+            // commit('replace', { index: i, song: _song })
+            localSongs.splice(i, 1, _song)
             commit('addSuccessNum')
           }
         }
         commit('setStopMatching', false)
-        const _localSongsCopy = state.localSongs.slice()
-        commit('mutateState', { localSongs: _localSongsCopy })
+        // const _localSongsCopy = state.localSongs.slice()
+        commit('mutateState', { localSongs: localSongs })
       } catch (error) {
         console.log('match error:', error)
         const _localSongsCopy = state.localSongs.slice()

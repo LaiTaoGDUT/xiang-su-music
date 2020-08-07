@@ -1,10 +1,14 @@
 import { uInstance as uRequest } from '../utils/_request.js'
 
 export function login_cellphone (data) {
-  return uRequest.post('/login/cellphone', data)
+  return uRequest.get('/login/cellphone', {
+    params: data
+  })
 }
 export function login_email (data) {
-  return uRequest.post('/login/email', data)
+  return uRequest.get('/login/email', {
+    params: data
+  })
 }
 export function login_refresh () {
   return uRequest.get('/login/refresh')

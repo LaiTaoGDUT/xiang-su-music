@@ -8,16 +8,20 @@
       <span>分享</span>
       <span>回复</span>
     </template>
-    <router-link :to="`/user?id=${comment.user.userId}`" slot="author">{{comment.user.nickname}}:</router-link>
-    <router-link :to="`/user?id=${comment.user.userId}`" slot="avatar">
-      <img v-lazy="`${comment.user.avatarUrl}?param=32y32`" class="avatar" />
-    </router-link>
-
+    <div slot="author" @click="$emit('shrink-screen')">
+      <router-link :to="`/user?id=${comment.user.userId}`">{{comment.user.nickname}}:</router-link>
+    </div>
+    <div slot="avatar" @click="$emit('shrink-screen')">
+      <router-link :to="`/user?id=${comment.user.userId}`">
+        <img v-lazy="`${comment.user.avatarUrl}?param=32y32`" class="avatar" />
+      </router-link>
+    </div>
     <span slot="datetime">{{moment(comment.time).format('YYYY年MM月DD日 HH:mm')}}</span>
     <div slot="content">
       <p>{{comment.content}}</p>
       <template v-if="comment.beReplied && comment.beReplied.length">
         <div
+          @click="$emit('shrink-screen')"
           class="beReplied"
           v-for="(reply, index) in comment.beReplied"
           :key="`${reply.beRepliedCommentId}_${index}`"
@@ -64,9 +68,6 @@ export default {
   margin: 0;
 }
 
-.comment a {
-  color: #006fe3;
-}
 .beReplied {
   background: rgba(232, 232, 232, 0.5);
   padding: 3px 6px;

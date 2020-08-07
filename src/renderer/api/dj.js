@@ -51,8 +51,10 @@ export function getDjHot () {
 }
 // 电台详情
 export function getDjDetail (rid) {
-  return request.post('/dj/detail', {
-    rid
+  return request.get('/dj/detail', {
+    params: {
+      rid
+    }
   })
 }
 // 获取电台的节目

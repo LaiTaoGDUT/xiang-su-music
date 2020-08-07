@@ -4,7 +4,7 @@
       <div slot="title">
         <a-button icon="redo" size="small" type="primary" @click="refreshFolders" :disabled="matching">重新扫描</a-button>
         <a-button :icon="matching ? 'loading' : 'api'" size="small" type="primary" :disabled="!localSongs.length" @click="matchSongs">{{ matching ? '停止匹配' : '匹配音乐'}}</a-button>
-        <small>{{ localSongs.length }}首歌曲,<span style="color:blue;cursor:pointer"   @click="visible = true">选择目录</span></small>
+        <small>{{ localSongs.length }}首歌曲,<a href="#" @click="visible = true">选择目录</a></small>
         <small style="margin-left: 10px" v-if="refreshing">
           <a-spin>
             <a-icon slot="indicator" type="loading" spin size="small" tip="Loading..." />
@@ -30,6 +30,7 @@
             v-model="keyword"
             class="header-search"
             @search="onSearch"
+            allow-clear
           />
         </small>
       </div>
@@ -234,6 +235,7 @@ export default {
     }
   },
   created () {
+    this.currentShowSongs = JSON.parse(JSON.stringify(this.localSongs))
     this.selectedFolder = this.needRefreshFolders.concat()
     this.bufferFolder = this.needRefreshFolders.concat()
     ipcRenderer.on('selectedItem', (event, path) => {

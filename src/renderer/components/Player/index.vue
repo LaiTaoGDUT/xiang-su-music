@@ -34,7 +34,7 @@
               <span v-for="(item ,index) in current_song.alia" :key="index">{{item.name}}</span>
             </div>
             <div class="info">
-              <div class="album" :title="current_song.album.name" v-if="current_song.album">
+              <div class="album" :title="current_song.album.name" v-if="current_song.album" @click="shrinkScreen">
                 专辑：
                 <router-link :to="`/album/${current_song.album.id}`" class="value">{{current_song.album.name}}</router-link>
               </div>
@@ -67,7 +67,7 @@
         </div>
         <div class="main-bottom">
           <div class="left" v-if="!refresh && !(current_song.folder && !current_song.matched)">
-            <comment :commentData="comment" v-if="!(current_song.folder && !current_song.matched)"></comment>
+            <comment @shrink-screen="shrinkScreen" :commentData="comment" v-if="!(current_song.folder && !current_song.matched)"></comment>
             <infinite-loading :identifier="infiniteId" @infinite="loadmore" />
           </div>
           <div class="right">
@@ -630,10 +630,6 @@ export default {
               }
             }
           }
-        }
-
-        .value {
-          color: #215eb9;
         }
       }
     }

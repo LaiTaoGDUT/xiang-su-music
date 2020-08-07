@@ -1,10 +1,10 @@
 <template>
   <div class="desktop-lyric">
     <div class="playing-lyric" ref="lrc">
-      {{current_lyric ? current_lyric : '听见好时光'}}
+      {{current_lyric ? current_lyric : 'PIXEL MUSIC' }}
     </div>
     <div class="playing-trans" ref="lrc" v-show='show_trans'>
-      {{current_trans ? current_trans : ''}}
+      {{current_trans ? current_trans : '像素音乐'}}
     </div>
   </div>
 </template>

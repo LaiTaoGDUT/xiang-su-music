@@ -18,7 +18,7 @@
           <div class="item">
             <theme-setting />
           </div>
-          <div class="item" @click="$router.push({path:'/setting'})">
+          <div class="item" @click="clickSetting">
             <a-icon type="setting" class="icon"/>
           </div>
         </div>
@@ -68,6 +68,10 @@ export default {
           this.$router.push({ path: '/home' })
         }
       })
+    },
+    clickSetting () {
+      this.$router.push( { path: '/setting' } )
+      this.$store.commit('play/SET_FULLSCREEN', false)
     }
   }
 }

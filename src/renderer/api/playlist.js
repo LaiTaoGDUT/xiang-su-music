@@ -7,8 +7,10 @@ export function getPlaylistTags () {
 
 // 传入用户id, 获取用户歌单
 export function getUserPlaylist (uid) {
-  return request.post('/user/playlist', {
-    uid
+  return request.get('/user/playlist', {
+    params: {
+      uid
+    }
   })
 }
 
@@ -57,8 +59,10 @@ export function getHighPlaylist ({ cat = '全部', limit = 20, before = '' }) {
 
 // 传入歌单id获取相关歌单
 export function getRelatedPlaylist (id) {
-  return request.post('/related/playlist', {
-    id
+  return request.get('/related/playlist', {
+    params: {
+      id
+    }
   })
 }
 
@@ -69,9 +73,11 @@ export function getRecommendPlaylist () {
 
 // 传入歌单id, 获取歌单的所有收藏者
 export function getPlaylistSubscribers ({ limit = 20, offset = 0, id }) {
-  return request.post('/playlist/subscribers', {
-    id,
-    limit,
-    offset
+  return request.get('/playlist/subscribers', {
+    params: {
+      id,
+      limit,
+      offset
+    }
   })
 }

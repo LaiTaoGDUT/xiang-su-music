@@ -83,6 +83,7 @@ export default {
                 account,
                 ...detail
               })
+              console.log('哈哈出发了' + id)
               setTimeout(() => {
                 if (this.$route.name === 'home') {
                   // do nothing

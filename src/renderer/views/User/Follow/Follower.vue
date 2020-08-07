@@ -1,7 +1,7 @@
 <template>
   <div class="follow">
     <header class="follow-header">
-      <span>我的关注</span>
+      <span>关注列表</span>
     </header>
     <main class="follow-main">
       <a-row type="flex" :gutter="16">
@@ -25,6 +25,11 @@
           </router-link>
         </a-col>
       </a-row>
+      <infinite-loading
+        :identifier="infiniteId"
+        forceUseInfiniteWrapper=".ant-layout-content"
+        @infinite="loadmore"
+      />
     </main>
   </div>
 </template>
@@ -37,27 +42,41 @@ export default {
     return {
       followers: [],
       limit: 30,
-      offset: 0
+      offset: -this.limit,
+      infiniteId: +new Date()
     }
   },
-  computed: {
-    ...mapGetters('User', ['userId'])
+  beforeRouteEnter (to, from, next) {
+    next(vm => {
+      vm.infiniteId += 1
+      vm.followers = []
+      vm.offset = -vm.limit
+    })
   },
-  created () {
-    this.getData()
+  beforeRouteUpdate (to, from, next) {
+    next()
+    this.infiniteId += 1
+    this.offset = -this.limit
+    this.followers = []
   },
   methods: {
-    getData () {
-      let { limit, offset, userId } = this
+    async loadmore ($state) {
+      let uid = this.$route.query.uid
+      this.offset += this.limit
+      let { limit, offset } = this
       let options = {
         limit,
         offset,
-        uid: userId
+        uid
       }
-      user_follower(options).then(res => {
-        console.log(res)
-        this.followers = res.follow
-      })
+      let res = await user_follower(options)
+      if ( res.follow.length ) {
+        this.followers.push(...res.follow)
+      }
+      $state.loaded()
+      if ( !res.more ) {
+        $state.complete()
+      }
     }
   }
 }
@@ -76,6 +95,7 @@ export default {
     font-size: 17px;
     color: #555;
     margin: 0 20px;
+    background: #f5f5f7;
     border-bottom: 1px solid #eae9e9;
   }
   .follow-main {

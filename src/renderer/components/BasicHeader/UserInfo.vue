@@ -37,13 +37,13 @@
                   </router-link>
                 </a-col>
                 <a-col :span="12">
-                  <router-link to="/follower" class="list2-item">
+                  <router-link :to="`/follower?uid=${userInfo.userId}`" class="list2-item">
                     <strong>{{ userInfo.profile.follows }}</strong>
                     <div>关注</div>
                   </router-link>
                 </a-col>
                 <a-col :span="6">
-                  <router-link to="/followed" class="list2-item">
+                  <router-link :to="`/followed?uid=${userInfo.userId}`" class="list2-item">
                     <strong>{{ userInfo.profile.followeds }}</strong>
                     <div>粉丝</div>
                   </router-link>

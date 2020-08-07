@@ -1,7 +1,7 @@
 <template>
-  <div class="play-table">
+  <div class="play-his-table">
     <loading v-show="loading" />
-    <track-list @reloading="reloading" @reloaded="reloaded" :limit="limit" :isShowHead="false" :isShowActions="false" :tracks="play_list" @dblclick="play" />
+    <track-list @reloading="reloading" @reloaded="reloaded" :limit="limit" :isShowHead="false" :isShowActions="false" :tracks="history_play_list" @dblclick="play" />
   </div>
 </template>
 
@@ -18,19 +18,9 @@ export default {
   },
   data () {
     return {
-      play_list: this.history_play_list,
       limit: 100,
       loading: false
     }
-  },
-  watch: {
-    history_play_list: function (newVal) {
-      this.play_list = newVal
-    }
-  },
-  activated () {
-    this.$message.success('历史已激活')
-    this.play_list = this.history_play_list
   },
   methods: {
     reloaded () {

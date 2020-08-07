@@ -28,7 +28,7 @@
 
       <div class="song-box">
         <span class="song-name" v-if="current_song && current_song.name">{{ current_song.name }}</span>
-        <span class="song-name" v-else>听见好时光</span>
+        <span class="song-name" v-else>PIXEL MUSIC</span>
         <span class="play-mode" :title="modeTitle" @click="changeMode">
           <z-icon :type="modeIcon" />
         </span>

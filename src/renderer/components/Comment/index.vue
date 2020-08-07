@@ -8,19 +8,19 @@
       <dl v-if="commentData.hotComments.length">
         <dt>热门评论</dt>
         <dd v-for="(comment, index) in commentData.hotComments" :key="`hot_${comment.commentId}_${index}`">
-          <comment-item :comment="comment" />
+          <comment-item :comment="comment" @shrink-screen="$emit('shrink-screen')" />
         </dd>
       </dl>
       <dl v-if="commentData.topComments.length">
         <dt>精彩评论</dt>
         <dd v-for="(comment, index) in commentData.topComments" :key="`top_${comment.commentId}_${index}`">
-          <comment-item :comment="comment" />
+          <comment-item :comment="comment" @shrink-screen="$emit('shrink-screen')" />
         </dd>
       </dl>
       <dl v-if="commentData.comments.length">
         <dt>全部评论</dt>
         <dd v-for="(comment, index) in commentData.comments" :key="`all_${comment.commentId}_${index}`">
-          <comment-item :comment="comment" />
+          <comment-item :comment="comment" @shrink-screen="$emit('shrink-screen')" />
         </dd>
       </dl>
     </div>

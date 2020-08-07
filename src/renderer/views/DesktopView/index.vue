@@ -148,6 +148,7 @@ export default {
       }
       this.context = this.canvas.getContext('2d')
       this.context.fillStyle = this.primaryColor
+      this.context.lineCap = 'round'
       let _this = this;
       (function draw () {
         _this.analyser.getByteFrequencyData(_this.dataArray)
@@ -158,7 +159,7 @@ export default {
         let step = 10
         let length = Math.ceil(_this.width / step)
         // _this.context.fillStyle = _this.gradient
-        for (let i = 1; i <= length; i++) {
+        for (let i = 0; i < length; i++) {
           let lineHeight = ((_this.dataArray[i] / 256) * _this.height)
           _this.context.beginPath()
           _this.context.arc(step / 4 + x, _this.height - step / 4, step / 4, 0, 2 * Math.PI)

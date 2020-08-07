@@ -47,8 +47,8 @@
         <z-icon type="yinleliebiaokuai" />
         <span class="count">{{ current_play_list.length }}</span>
       </span>
-      <span @click="toggleTransShow" style="cursor: pointer">译</span>
-      <span @click="toggleDesktopView" style="cursor: pointer">View</span>
+      <span @click="toggleTransShow" class="tran" style="cursor: pointer;" :class="{'active' : show_trans}">译</span>
+      <span @click="toggleDesktopView" class="view" style="cursor: pointer;" :class="{'active' : showDesktopView}">View</span>
     </div>
 
     <span class="resize"></span>
@@ -859,6 +859,16 @@ export default {
           color: @primary-color;
         }
       }
+      &.tran {
+        &.active {
+          color: @primary-color;
+        }
+      }
+      &.view {
+        &.active {
+          color: @primary-color;
+        }
+      }
     }
   }
   .bar3 {
@@ -867,7 +877,7 @@ export default {
     flex: 0 0 150px;
   }
   .bar4 {
-    flex: 0 0 180px;
+    flex: 0 0 200px;
     display: flex;
     justify-content: space-evenly;
     align-items: center;

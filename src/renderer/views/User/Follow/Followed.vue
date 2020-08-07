@@ -1,7 +1,7 @@
 <template>
   <div class="follow">
     <header class="follow-header">
-      <span>我的粉丝</span>
+      <span>粉丝列表</span>
     </header>
     <main class="follow-main">
       <a-row type="flex" :gutter="16">
@@ -25,6 +25,7 @@
           </router-link>
         </a-col>
       </a-row>
+      <div class="no-more">只能查看这么多了~</div>
     </main>
   </div>
 </template>
@@ -36,28 +37,55 @@ export default {
   data () {
     return {
       followeds: [],
-      limit: 30,
-      offset: 0
+      limit: 100,
+      offset: 0,
+      infiniteId: +new Date()
     }
   },
-  computed: {
-    ...mapGetters('User', ['userId'])
+  beforeRouteEnter (to, from, next) {
+    next(vm => {
+      vm.infiniteId += 1
+      vm.followeds = []
+      vm.offset = 0
+      vm.getData(vm.$route.query.uid)
+    })
   },
-  created () {
-    this.getData()
+  beforeRouteUpdate (to, from, next) {
+    next()
+    this.getData(to.query.uid)
+    this.infiniteId += 1
+    this.offset = 0
+    this.followeds = []
   },
   methods: {
-    getData () {
-      let { limit, offset, userId } = this
+    getData (uid) {
+      let { limit, offset } = this
       let options = {
         limit,
         offset,
-        uid: userId
+        uid
       }
       user_followed(options).then(res => {
-        console.log(res)
         this.followeds = res.followeds
       })
+    },
+    async loadmore ($state) {
+      let uid = this.$route.query.uid
+      this.offset += this.limit
+      let { limit, offset } = this
+      let options = {
+        limit,
+        offset,
+        uid
+      }
+      let res = await user_followed(options)
+      if ( res.follow.length ) {
+        this.followers.push(...res.follow)
+      }
+      $state.loaded()
+      if ( !res.more ) {
+        $state.complete()
+      }
     }
   }
 }
@@ -75,6 +103,7 @@ export default {
     height: 50px;
     font-size: 17px;
     color: #555;
+    background: #f5f5f7;
     margin: 0 20px;
     border-bottom: 1px solid #eae9e9;
   }
@@ -113,6 +142,10 @@ export default {
           text-overflow: ellipsis;
         }
       }
+    }
+    .no-more {
+      margin: 15px 0;
+      text-align: center;
     }
   }
 }

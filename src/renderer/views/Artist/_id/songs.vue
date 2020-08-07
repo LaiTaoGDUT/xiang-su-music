@@ -30,7 +30,8 @@ export default {
   },
   components: {
     TrackList,
-    Artists
+    Artists,
+    Loading
   },
   props: {
     tracks: {

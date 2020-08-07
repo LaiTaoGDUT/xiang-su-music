@@ -30,11 +30,11 @@ export default {
       // this.$store.commit('play/SET_SHOW_DESKTOP_LYRIC', false)
     },
     handleNetworkChange ({ name, title, message }, status = true) {
-      let networkNotification = new Notification(name, {
-        title,
-        body: message,
-        icon: 'public/images/logo.ico'
-      })
+      // let networkNotification = new Notification(name, { // 桌面通知太恶心人了
+      //   title,
+      //   body: message,
+      //   icon: 'public/images/logo.ico'
+      // })
       this.$store.commit('App/SET_ONLINE', status)
     },
     getState (state) {

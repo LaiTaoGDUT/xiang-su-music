@@ -8,9 +8,15 @@
           v-if="current_song.avatar"
         ></div>
         <a-icon type="down" class="icon" @click="closeMusicView"></a-icon>
-        <music-view ref="viewer" @avatarClick="handleAvatarClick" />
-        <div class="lyric" @click="toggleViewer" v-show="showLyric">
-          <lyric-list class="view" ref="lyrics" />
+        <z-icon type="geci" class="lrc" :class="{'active' : showLyric}" @click.native="toggleLyric"/>
+        <music-view ref="viewer" @changeColorHeight="changeColorHeight"/>
+        <div class="lyric" v-show="showLyric" >
+          <div class="playing-lyric" ref="lrc" :style="changedColor">
+            {{ lyric && lyric.lines ? lyric.lines[current_lyric_line].txt : 'PIXEL MUSIC' }}
+          </div>
+          <div class="playing-trans" ref="lrc" v-show='show_trans' :style="changedColor">
+            {{ lyric && lyric.lines ? lyric.lines[current_lyric_line].trans: '像素音乐' }}
+          </div>
         </div>
       </div>
     </transition>
@@ -20,18 +26,18 @@
 <script>
 import { mapGetters, mapState, mapActions } from 'vuex'
 import MusicView from '@/components/Common/musicView.vue'
-import LyricList from '@/components/Lyric/index.vue'
-const LINE_HEIGHT = 42
+import ZIcon from '@/components/ZIcon'
 export default {
   data () {
     return {
       songs: [],
       currentLine: 6,
-      showLyric: true
+      showLyric: true,
+      colorHeight: 0
     }
   },
   computed: {
-    ...mapState('play', ['lyric']),
+    ...mapState('play', ['lyric', 'trans', 'show_trans']),
     ...mapGetters('play', [
       'current_song',
       'current_play_list',
@@ -40,54 +46,22 @@ export default {
       'current_lyric_line',
       'source'
     ]),
-    ...mapGetters('App', ['showView'])
-  },
-  components: {
-    MusicView, LyricList
-  },
-  watch: {
-    showView (newVal) {
-      if (newVal) {
-        this.$nextTick(() => {
-          const lines = this.$refs.lyrics.$refs.lyricLine
-          if (lines && lines[this.current_lyric_line]) {
-            let top = Number(lines[this.current_lyric_line].offsetTop - LINE_HEIGHT * this.currentLine)
-            this.$refs.lyrics.scrollTo(top)
-          }
-        })
-        this.unWatcher = this.$watch('current_lyric_line', (newLine) => {
-          this.handleLineChange(newLine)
-        })
-      } else {
-        this.unWatcher()
-      }
+    ...mapGetters('App', ['showView']),
+    changedColor () {
+      return { 'text-shadow': `1px 1px 5px hsl(${this.colorHeight}, 60%, 70%), 1px -1px 3px hsl(${this.colorHeight}, 60%, 70%)` }
     }
   },
+  components: {
+    MusicView, ZIcon
+  },
   methods: {
-    handleLineChange (newLine) {
-      const lines = this.$refs.lyrics.$refs.lyricLine
-      if (lines && lines[newLine]) {
-        let top =
-          lines[newLine].offsetTop > 0
-            ? Number(lines[newLine].offsetTop - LINE_HEIGHT * this.currentLine)
-            : 0
-        this.$refs.lyrics.scrollTo(top, 'smooth')
-      }
+    changeColorHeight (newVal) {
+      this.colorHeight = (newVal + 5) % 360
     },
     closeMusicView () {
       this.$store.commit('App/SHOW_VIEW', false)
     },
-    scrollToCurrentline (top, behavior = 'auto') {
-      const lyricDom = this.$refs.lyricList
-      if (lyricDom && lyricDom.scrollTo) {
-        lyricDom.scrollTo({ top, behavior })
-      }
-    },
-    toggleViewer () {
-      this.$refs.viewer.toggleGlow()
-      this.showLyric = !this.showLyric
-    },
-    handleAvatarClick () {
+    toggleLyric () {
       this.showLyric = !this.showLyric
     }
   }
@@ -98,12 +72,23 @@ export default {
 .lyric {
   position: absolute;
   left: 0;
-  top: 10%;
+  bottom: 5%;
+  z-index: 2222;
   width: 100%;
-  bottom: 28%;
   color: #fff;
   text-align: center;
   -webkit-app-region: no-drag;
+  .playing-lyric {
+    font-size: 40px;
+    color: rgba(255, 225, 255, 0.6);
+    // text-shadow: 1px 1px 2px rgba(255, 225, 255, 0.6), 1px -1px 2px rgba(255, 255, 255, 0.6);
+
+  }
+  .playing-trans {
+    font-size: 32px;
+    color: rgba(255, 225, 255, 0.6);
+    // text-shadow: 1px 1px 2px rgba(255, 225, 255, 0.6), 1px -1px 2px rgba(255, 255, 255, 0.6);
+  }
 }
 .music-view {
   position: fixed;
@@ -134,6 +119,21 @@ export default {
     font-size: 30px;
     color: rgba(255, 255, 255, 0.2);
     -webkit-app-region: no-drag;
+    &:hover {
+      color: rgba(255, 255, 255, 1);
+      cursor: pointer;
+    }
+  }
+  .lrc {
+    position: absolute;
+    right: 15px;
+    bottom: 15px;
+    font-size: 30px;
+    color: rgba(255, 255, 255, 0.2);
+    -webkit-app-region: no-drag;
+    &.active {
+      color: rgba(255, 255, 255, 0.4);
+    }
     &:hover {
       color: rgba(255, 255, 255, 1);
       cursor: pointer;

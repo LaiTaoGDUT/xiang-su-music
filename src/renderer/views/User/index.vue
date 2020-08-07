@@ -29,11 +29,11 @@
             <strong>{{ user.profile.eventCount }}</strong>
             <div>动态</div>
           </router-link>
-          <router-link to="/follower" class="row-item">
+          <router-link :to="`/follower?uid=${user.profile.userId}`" class="row-item">
             <strong>{{ user.profile.follows }}</strong>
             <div>关注</div>
           </router-link>
-          <router-link to="/followed" class="row-item">
+          <router-link :to="`/followed?uid=${user.profile.userId}`" class="row-item">
             <strong>{{ user.profile.followeds }}</strong>
             <div>粉丝</div>
           </router-link>
@@ -98,7 +98,6 @@ export default {
     ZIcon
   },
   computed: {
-    ...mapState('User', ['userInfo']),
     list () {
       let start = (this.page - 1) * this.pageSize
       let end = this.page * this.pageSize

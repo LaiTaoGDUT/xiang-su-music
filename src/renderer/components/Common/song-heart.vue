@@ -1,9 +1,9 @@
 <template>
-  <span :class="{'disable' : disable}">
+  <span :class="{'disable' : disable}" style="display: flex;">
     <a-icon
       type="heart"
       theme="filled"
-      style="color:#5fa7e4"
+      :style="{ color: $store.getters['App/primaryColor'] }"
       @click.stop="handleClick(false)"
       v-if="isLiked"
     />
