@@ -2,16 +2,17 @@
   <div class="local-music">
     <a-card :bordered="false">
       <div slot="title">
-        <a-button icon="redo" size="small" type="primary" @click="refreshFolders" :disabled="matching">重新扫描</a-button>
+        <a-button type="primary" size="small" icon="play-circle" @click="playAll">播放全部</a-button>
+        <a-button icon="redo" size="small" type="primary" @click="refreshFolders" :disabled="matching">扫描音乐</a-button>
         <a-button :icon="matching ? 'loading' : 'api'" size="small" type="primary" :disabled="!localSongs.length" @click="matchSongs">{{ matching ? '停止匹配' : '匹配音乐'}}</a-button>
         <small>{{ localSongs.length }}首歌曲,<a href="#" @click="visible = true">选择目录</a></small>
-        <small style="margin-left: 10px" v-if="refreshing">
+        <small style="margin-left: 10px" v-show="refreshing">
           <a-spin>
             <a-icon slot="indicator" type="loading" spin size="small" tip="Loading..." />
           </a-spin>
           扫描歌曲中......
         </small>
-        <small style="margin-left: 10px" v-if="matching">
+        <small style="margin-left: 10px" v-show="matching">
           <a-spin>
             <a-icon slot="indicator" type="loading" spin size="small" tip="Loading..." />
           </a-spin>
@@ -34,11 +35,15 @@
           />
         </small>
       </div>
-      <loading v-show="!show" />
-      <track-list v-if="show" @reloading="reloading" @reloaded="reloaded" :columns="columns" :tracks="currentShowSongs" :isShowActions="false" @dblclick="play" :limit="limit" >
+      <loading v-if="!show" />
+      <track-list @reloading="reloading" @reloaded="reloaded" :columns="columns" :tracks="currentShowSongs" :isShowActions="false" @dblclick="play" :limit="limit" >
         <template slot="size" slot-scope="{ row }">
           <span>{{ row.size | normalSize }}</span>
         </template>
+        <div slot="actions" slot-scope="{ row }" style="justify-content: space-around; display: flex;">
+          <a-icon type="folder" title="打开所在文件夹" @click="openFileInFolder(row)" />
+          <a-icon type="delete" title="删除此歌曲" @click="deleteFile(row)" />
+        </div>
       </track-list>
     </a-card>
 
@@ -60,12 +65,14 @@
 </template>
 
 <script>
+import fs from 'fs'
 import { mapState, mapGetters, mapActions, mapMutations } from 'vuex'
 import { shell, remote, ipcRenderer } from 'electron'
 import { uniq } from '@/utils/calculate'
 import TrackList from '@/components/Common/track-list/index.js'
 import Loading from '@/components/Common/loading'
 import Message from 'ant-design-vue/es/message'
+import { playMode } from '@/config/config'
 const defaultDownloadFolder = `${remote.app.getPath('music')}`
 const columns = [
   {
@@ -99,6 +106,13 @@ const columns = [
     slot: 'size',
     width: '80px',
     sorter: (a, b) => a.size - b.size
+  },
+  {
+    title: '操作',
+    dataIndex: 'actions',
+    key: 'actions',
+    slot: 'actions',
+    width: '50px'
   }
 ]
 
@@ -117,8 +131,9 @@ export default {
       waitSelectFolder: [], // 用户已经选择但是没有确定的文件夹
       matchedSongs: 0, // has matched songs
       limit: 100, // 单页展示的歌曲数量
-      show: false,
-      keyword: ''
+      show: true,
+      keyword: '',
+      deleteCompletely: false
     }
   },
   components: {
@@ -127,7 +142,7 @@ export default {
   computed: {
     ...mapState('Localsong', ['exportFolders', 'needRefreshFolders']),
     ...mapGetters('Localsong', ['localSongs', 'matchSuccessNum', 'matchFailedNum', 'stopMatching']),
-    ...mapGetters('play', ['current_play_list'])
+    ...mapGetters('play', ['current_song', 'mode'])
   },
   watch: {
     localSongs (newVal) {
@@ -139,7 +154,7 @@ export default {
   },
   methods: {
     ...mapActions('Localsong', ['refresh', 'match']),
-    ...mapMutations('Localsong', ['setExportFolders', 'setneedRefreshFolders', 'clearMatchNum', 'setStopMatching']),
+    ...mapMutations('Localsong', ['setExportFolders', 'setneedRefreshFolders', 'clearMatchNum', 'setStopMatching', 'delete']),
     reloaded () {
       this.$emit('loaded')
     },
@@ -147,6 +162,11 @@ export default {
       this.$emit('reloading')
     },
     async play (tracks, index) {
+      if (!fs.existsSync(tracks[index].url)) { // 文件不存在
+        this.$message.error(`歌曲文件${tracks[index].url}已被删除`)
+        this.delete(index)
+        return
+      }
       await this.$store.dispatch('play/selectPlay', { tracks, index })
       this.$electron.ipcRenderer.send('change-play-index', {
         index: index
@@ -175,11 +195,13 @@ export default {
       this.visible = false
       this.refreshing = true
       const curSongNums = this.localSongs.length
-      this.refresh(this.selectedFolder).then(() => {
-        this.refreshing = false
-        const changeNums = this.localSongs.length - curSongNums
-        if (changeNums == 0) Message.success('扫描本地音乐完成')
-        else Message.success(`扫描本地音乐完成，${changeNums > 0 ? '新增' + changeNums : '减少' + -changeNums}首歌曲`)
+      this.$nextTick(() => {
+        this.refresh(this.selectedFolder).then(() => {
+          this.refreshing = false
+          const changeNums = this.localSongs.length - curSongNums
+          if (changeNums == 0) Message.success('扫描本地音乐完成')
+          else Message.success(`扫描本地音乐完成，${changeNums > 0 ? '新增' + changeNums : '减少' + -changeNums}首歌曲`)
+        })
       })
     },
     matchSongs () {
@@ -232,6 +254,76 @@ export default {
         }
         return false
       })
+    },
+    openFileInFolder (song) {
+      let path = song.url
+      let index = this.localSongs.findIndex(item => item.id === song.id)
+      if (!fs.existsSync(path)) { // 文件不存在
+        this.$message.error(`歌曲文件${path}已被删除`)
+        this.delete(index)
+        return
+      }
+      shell.showItemInFolder(path) // 打开文件所在文件夹
+    },
+    deleteFile (song) {
+      let path = song.url
+      let index = this.localSongs.findIndex(item => item.id === song.id)
+      if (!fs.existsSync(path)) { // 文件不存在
+        this.$message.error(`歌曲文件${path}已被删除`)
+        this.delete(index)
+        return
+      }
+      if (this.current_song.id === song.id) {
+        this.$message.warn(`歌曲正在播放中`)
+        return
+      }
+      this.deleteCompletely = false
+      const self = this
+      this.$confirm({
+        title: '确定从列表中删除该音乐吗？',
+        content: (
+          <div>
+            <a-switch  size="small" style="vertical-align: text-bottom;" onChange={this.changeDeleteCompletely}></a-switch>
+            <span style="margin-left: 10px">同时删除本地文件</span>
+          </div>
+        ),
+        icon: () => <a-icon type="info-circle" style="color: red"></a-icon>,
+        okText: '删除',
+        okType: 'danger',
+        cancelText: '取消',
+        onOk () {
+          if (self.deleteCompletely) {
+            fs.unlink(path, err => {
+              if (!err) {
+                self.delete(index)
+                self.$message.success('歌曲已删除')
+              }
+            })
+          } else {
+              self.delete(index)
+              self.$message.success('歌曲已删除')
+          }
+        }
+      })
+    },
+    changeDeleteCompletely (val) {
+      this.deleteCompletely = val
+    },
+    playAll () {
+      switch (this.mode) {
+        case playMode.sequence:
+          this.play(this.localSongs, 0)
+          break
+        case playMode.loop:
+          this.play(this.localSongs, 0)
+          break
+        case playMode.random:
+          this.play(this.localSongs, this.getRandomInt(0, this.localSongs.length - 1))
+          break
+      }
+    },
+    getRandomInt (min, max) {
+      return Math.floor(Math.random() * (max - min + 1) + min) // min,max之间的随机数（包含min,max）
     }
   },
   created () {
@@ -239,22 +331,21 @@ export default {
     this.selectedFolder = this.needRefreshFolders.concat()
     this.bufferFolder = this.needRefreshFolders.concat()
     ipcRenderer.on('selectedItem', (event, path) => {
-      // this.setExportFolders(uniq(this.exportFolders.concat(path)))
       this.bufferFolder = uniq(this.bufferFolder.concat(path))
       this.waitSelectFolder = uniq(this.waitSelectFolder.concat(path))
     })
-    setTimeout( () => {
-      this.visible = false
-      this.refreshing = true
-      const curSongNums = this.localSongs.length
-      this.refresh(this.selectedFolder).then(() => {
-        this.refreshing = false
-        const changeNums = this.localSongs.length - curSongNums
-        if (changeNums == 0) Message.success('扫描本地音乐完成')
-        else Message.success(`扫描本地音乐完成，${changeNums > 0 ? '新增' + changeNums : '减少' + -changeNums}首歌曲`)
+    if (this.localSongs.length <= 0) {
+      this.show = false
+      this.$nextTick(() => {
+        const curSongNums = this.localSongs.length
+        this.refresh(this.selectedFolder).then(() => {
+          const changeNums = this.localSongs.length - curSongNums
+          if (changeNums == 0) Message.success('扫描本地音乐完成')
+          else Message.success(`扫描本地音乐完成，${changeNums > 0 ? '新增' + changeNums : '减少' + -changeNums}首歌曲`)
+          this.show = true
+        })
       })
-      this.show = true
-    }, 0)
+    }
   },
   activated () {
     this.selectedFolder = this.needRefreshFolders.concat()

@@ -121,8 +121,6 @@
 
 <script>
 import LyricList from '@/components/Lyric/index.vue'
-import debounce from 'loadsh/debounce'
-// import { debounce } from '@/utils/dom'
 import { mapState, mapGetters } from 'vuex'
 import Lyric from '@/utils/class/Lyric.js'
 import Artists from '@/components/Common/artists'

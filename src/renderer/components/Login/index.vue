@@ -9,6 +9,7 @@
     :maskStyle="{backgroundColor: 'rgba(0, 0, 0, 0.1)'}"
   >
     <a-form id="login" :form="form" @submit="handleSubmit">
+      <Legend style="text-align: center">使用网易云登录</Legend>
       <a-form-item>
         <a-input
           v-decorator="['phone',{rules: [{ required: true, pattern: /^1[3|4|5|7|8][0-9]{9}$/, message: '格式错误!' }]}]"
@@ -83,7 +84,6 @@ export default {
                 account,
                 ...detail
               })
-              console.log('哈哈出发了' + id)
               setTimeout(() => {
                 if (this.$route.name === 'home') {
                   // do nothing

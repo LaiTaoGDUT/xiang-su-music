@@ -3,8 +3,8 @@
     <a-card :bordered="false">
       <div slot="title">
 
-        <a-button type="primary" icon="play-circle" @click="play(downloaded, 0)">播放全部</a-button>
-
+        <a-button type="primary" icon="play-circle" @click="playAll">播放全部</a-button>
+        <span style="margin-left: 10px">{{ downloaded.length }}首歌曲,</span>
         <span>
            存储目录：{{ defaultDownloadFolder }}
           <a href="#" @click="openDownloadFolder">打开目录</a>
@@ -25,9 +25,16 @@
         <template slot="size" slot-scope="{ row }">
           <span>{{ row.size | normalSize }}</span>
         </template>
-        <template slot="actions" slot-scope="{ row }">
+        <div slot="actions" slot-scope="{ row }" style="justify-content: space-around; display: flex;">
           <a-icon type="folder" title="打开所在文件夹" @click="openFileInFolder(row)" />
-        </template>
+          <a-popconfirm placement="left" ok-text="删除" cancel-text="取消" @confirm="deleteFile(row)">
+            <template slot="title">
+              <p>是否删除下载文件？</p>
+            </template>
+             <a-icon slot="icon" type="info-circle" style="color: red" />
+          <a-icon type="delete" title="删除此歌曲" style="cursor: pointer" />
+          </a-popconfirm>
+        </div>
       </track-list>
     </a-card>
   </div>
@@ -41,6 +48,7 @@ import { uniq } from '@/utils/calculate'
 import TrackList from '@/components/Common/track-list/index.js'
 import Loading from '@/components/Common/loading'
 import moment from 'moment'
+import { playMode } from '@/config/config'
 import { getUrl, generateName } from '@/utils/song'
 const columns = [
   {
@@ -102,22 +110,16 @@ export default {
     TrackList,
     Loading
   },
-  watch: {
-    downloaded (newVal) {
-      console.log('检测到新的歌曲')
-      this.add(newVal[newVal.length - 1])
-    }
-  },
   computed: {
     ...mapGetters('Download', ['downloaded']),
     ...mapGetters('Setting', ['downloadSongsFolders']),
+    ...mapGetters('play', ['current_song', 'mode']),
     defaultDownloadFolder () {
       return this.downloadSongsFolders[0]
     }
   },
   methods: {
-    ...mapActions('Localsong', ['refresh', 'match', 'add']),
-    ...mapMutations('Localsong', ['setExportFolders']),
+    ...mapMutations('Download', ['REMOVE_DOWNLOADED']),
     reloaded () {
       this.loading = false
     },
@@ -128,6 +130,11 @@ export default {
       shell.showItemInFolder(this.defaultDownloadFolder)
     },
     play (tracks, index) {
+      if (!fs.existsSync(tracks[index].url)) { // 文件不存在
+        this.$message.error(`歌曲文件${tracks[index].url}已被删除`)
+        this.REMOVE_DOWNLOADED(index)
+        return
+      }
       this.$store.dispatch('play/selectPlay', { tracks, index })
       this.$electron.ipcRenderer.send('change-play-index', {
         index: index
@@ -138,11 +145,47 @@ export default {
     },
     openFileInFolder (song) {
       let path = song.url
+      let index = this.downloaded.findIndex(item => item.id === song.id)
       if (!fs.existsSync(path)) { // 文件不存在
-        this.$message.error(`文件${path}不存在`)
+        this.$message.error(`歌曲文件${path}已被删除`)
+        this.REMOVE_DOWNLOADED(index)
         return
       }
       shell.showItemInFolder(path) // 打开文件所在文件夹
+    },
+    deleteFile (song) {
+      let path = song.url
+      let index = this.downloaded.findIndex(item => item.id === song.id)
+      if (!fs.existsSync(path)) { // 文件不存在
+        this.$message.error(`歌曲文件${path}已被删除`)
+        this.REMOVE_DOWNLOADED(index)
+        return
+      }
+      if (this.current_song.id === song.id) {
+        this.$message.warn(`歌曲正在播放中`)
+        return
+      }
+      fs.unlink(path, err => {
+        if (!err) {
+          this.REMOVE_DOWNLOADED(index)
+          this.$message.success('歌曲已删除')
+        }
+      })
+    },
+    playAll () {
+      switch (this.mode) {
+        case playMode.sequence:
+          this.play(this.downloaded, 0)
+          break
+        case playMode.loop:
+          this.play(this.downloaded, 0)
+          break
+        case playMode.random:
+          this.play(this.downloaded, this.getRandomInt(0, this.downloaded.length - 1))
+      }
+    },
+    getRandomInt (min, max) {
+      return Math.floor(Math.random() * (max - min + 1) + min) // min,max之间的随机数（包含min,max）
     }
   }
 }
@@ -150,11 +193,11 @@ export default {
 
 <style lang="less" scoped>
 .downloaded {
-  font-size: 12px;
+  font-size: 14px;
   /deep/ .ant-card {
     background: transparent;
     .ant-card-head {
-      font-size: 12px;
+      font-size: 14px;
     }
   }
   /deep/ .ant-btn {

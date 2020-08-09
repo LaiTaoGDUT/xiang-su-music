@@ -16,6 +16,7 @@
         class="extra-search"
         @change="onChange"
         @search="onSearch"
+        allow-clear
       />
     </div>
   </div>

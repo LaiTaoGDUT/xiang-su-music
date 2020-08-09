@@ -12,7 +12,7 @@
       <section class="card-info">
         <header class="info-header">
           <h5 class="songname" :title="current_song.name">{{current_song.name}}</h5>
-          <span class="icon-wrapper" v-if="!current_song.folder">
+          <span class="icon-wrapper" v-show="!current_song.folder">
             <song-heart
               :isLiked="likedsongIds.includes(current_song.id)"
               @heartClick="(isLike)=>{handleLikeSong({songId:current_song.id,isLike})}"
@@ -23,9 +23,25 @@
           <div class="artist" @click.stop>
             <artists :artists="current_song.artist" style="paddingLeft:10px" />
           </div>
-          <span class="icon-wrapper" @click.stop="showShareWindow" v-if="!current_song.folder">
-            <z-icon type="share" />
-          </span>
+          <div v-show="!current_song.folder" class="icon-wrapper" @click.stop >
+            <template v-if="downloaded.findIndex(item => item.id === current_song.id) >= 0">
+              <a-icon
+                type="check-circle"
+                theme="filled"
+                class="icon-downloaded"
+                title="已下载"
+                :style="{ color: $store.getters['App/primaryColor'] }"
+              />
+            </template>
+            <template v-else>
+              <a-icon
+              type="clock-circle"
+              class="icon-waitting"
+              v-if="queueIds.includes(current_song.id)"
+              />
+              <z-icon type="download" @click.native="download(current_song)" v-else />
+          </template>
+          </div>
         </footer>
       </section>
     </div>
@@ -33,10 +49,11 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapGetters, mapState } from 'vuex'
 import ZIcon from '@/components/ZIcon'
 import Artists from '@/components/Common/artists'
 import SongHeart from '@/components/Common/song-heart'
+
 export default {
   data () {
     return {}
@@ -47,8 +64,10 @@ export default {
     SongHeart
   },
   computed: {
+    ...mapState('Download', ['downloading', 'downloaded', 'queue']),
     ...mapGetters('User', ['userId', 'likedsongIds']),
-    ...mapGetters('play', ['current_song', 'fullscreen'])
+    ...mapGetters('play', ['current_song', 'fullscreen']),
+    ...mapGetters('Download', ['queueIds'])
   },
   methods: {
     setFullscreen () {
@@ -57,19 +76,8 @@ export default {
     handleLikeSong ({ songId, isLike }) {
       this.$store.dispatch('User/handleLikeSong', { songId, isLike, self: this })
     },
-    showShareWindow () {
-      let url = `https://music.163.com/#/song?id=${this.current_song.id}`
-      let _shareUrl =
-        'http://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?'
-      _shareUrl += 'url=' + url
-      _shareUrl += '&showcount=' + 1 // 参数showcount是否显示分享总数,显示：'1'，不显示：'0'，默认不显示
-      _shareUrl += '&desc=' + '♪我发现一首不错的歌曲-' + this.current_song.name
-      _shareUrl += '&summary=' + '分享摘要'
-      _shareUrl +=
-        '&title=' + '♪我发现一首不错的歌曲-' + this.current_song.name
-      _shareUrl += '&site=' + 'https://music.163.com/'
-      _shareUrl += '&pics=' + this.current_song.avatar
-      this.$electron.remote.shell.openExternal(_shareUrl)
+    download (song) {
+      this.$store.dispatch('Download/adddownloadQueue', [song])
     }
   }
 }

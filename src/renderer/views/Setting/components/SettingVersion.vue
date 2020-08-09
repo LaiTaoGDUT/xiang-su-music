@@ -1,5 +1,5 @@
 <template>
-  <setting-item label="关于云音乐">
+  <setting-item label="关于像素音乐">
     <div @click="checkVersion">
       <span>当前版本：{{ localVersion }}</span>
       <span v-if="remoteVersion">远程版本：{{ remoteVersion }}</span>
@@ -36,26 +36,26 @@ export default {
     }
   },
   methods: {
-    ...mapMutations('Setting', [ 'mutateState' ]),
-    checkVersion () {
-      this.loading = true
-      checkUpdate().then(res => {
-        let data = res.data
-        this.remoteVersion = data.name
-        this.$store.commit('Update/SET_UPDATE_CONTENT', this.converter.makeHtml(data.body))
-        this.$electron.ipcRenderer.send('update-version', this.remoteVersion)
-        let shouldUpdate = semver.gt(this.remoteVersion, this.localVersion)
-        if ( shouldUpdate ) {
-          this.$electron.ipcRenderer.send('toggle-updatewin')
-        } else {
-          this.$message.warn('暂无更新')
-        }
-      }).catch(() => {
-        this.$message.error('获取版本号失败')
-      }).finally(() => {
-        this.loading = false
-      })
-    }
+    ...mapMutations('Setting', [ 'mutateState' ])
+    // checkVersion () {
+    //   this.loading = true
+    //   checkUpdate().then(res => {
+    //     let data = res.data
+    //     this.remoteVersion = data.name
+    //     this.$store.commit('Update/SET_UPDATE_CONTENT', this.converter.makeHtml(data.body))
+    //     this.$electron.ipcRenderer.send('update-version', this.remoteVersion)
+    //     let shouldUpdate = semver.gt(this.remoteVersion, this.localVersion)
+    //     if ( shouldUpdate ) {
+    //       this.$electron.ipcRenderer.send('toggle-updatewin')
+    //     } else {
+    //       this.$message.warn('暂无更新')
+    //     }
+    //   }).catch(() => {
+    //     this.$message.error('获取版本号失败')
+    //   }).finally(() => {
+    //     this.loading = false
+    //   })
+    // }
   }
 }
 </script>

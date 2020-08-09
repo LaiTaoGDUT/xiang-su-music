@@ -495,7 +495,7 @@ export default {
     padding: 0 5px;
   }
   .col-index {
-    justify-content: flex-end;
+    justify-content: center;
     flex: 0 0 40px !important;
     font-size: 14px;
   }

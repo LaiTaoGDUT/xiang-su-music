@@ -8,7 +8,6 @@ let downloads = {}
 let updateWindow
 
 export default function () {
-
   ipcMain.on('change-lyric', (event, params) => { // from mainWindow
     // params : { lyric, trans }
     global.lyricWindow.webContents.send('change-lyric', params)
@@ -41,28 +40,28 @@ export default function () {
   let viewReady = false, miniReady = false, trayReady = false, lyricReady = false
   ipcMain.on('view-ready', (event, params) => { // from mainWindow and trayWindow
     viewReady = true
-    if(viewReady && miniReady && trayReady && lyricReady) {
+    if (viewReady && miniReady && trayReady && lyricReady) {
       global.mainWindow.webContents.send('view-ready')
     }
   })
 
   ipcMain.on('mini-ready', (event, params) => { // from mainWindow and trayWindow
     miniReady = true
-    if(viewReady && miniReady && trayReady && lyricReady) {
+    if (viewReady && miniReady && trayReady && lyricReady) {
       global.mainWindow.webContents.send('view-ready')
     }
   })
 
   ipcMain.on('tray-ready', (event, params) => { // from mainWindow and trayWindow
     trayReady = true
-    if(viewReady && miniReady && trayReady && lyricReady) {
+    if (viewReady && miniReady && trayReady && lyricReady) {
       global.mainWindow.webContents.send('view-ready')
     }
   })
 
   ipcMain.on('lyric-ready', (event, params) => { // from mainWindow and trayWindow
     lyricReady = true
-    if(viewReady && miniReady && trayReady && lyricReady) {
+    if (viewReady && miniReady && trayReady && lyricReady) {
       global.mainWindow.webContents.send('view-ready')
     }
   })
@@ -245,7 +244,6 @@ export default function () {
         })
       }
     }).then(downloadItem => {
-      // console.log(downloadItem)
       global.mainWindow.webContents.send('download-success', {
         id: args.id,
         song: args.song,

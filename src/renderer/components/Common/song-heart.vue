@@ -1,13 +1,14 @@
 <template>
-  <span :class="{'disable' : disable}" style="display: flex;">
+  <span :class="{'disable' : disable}">
     <a-icon
       type="heart"
       theme="filled"
       :style="{ color: $store.getters['App/primaryColor'] }"
+      style="vertical-align: text-bottom"
       @click.stop="handleClick(false)"
       v-if="isLiked"
     />
-    <a-icon type="heart" theme="outlined" @click.stop="handleClick(true)" v-else/>
+    <a-icon style="vertical-align: text-bottom" type="heart" theme="outlined" @click.stop="handleClick(true)" v-else/>
   </span>
 </template>
 

@@ -28,6 +28,14 @@ let mutations = {
   SET_DOWNLOADED (state, songs) {
     state.downloaded = songs
   },
+  REMOVE_DOWNLOADED (state, index) {
+    db.download.remove({ id: state.downloaded[index].id }, (err, doc) => {
+      if (err) {
+        console.log('删除下载歌曲失败:', err)
+      }
+    })
+    state.downloaded.splice(index, 1)
+  },
   ADD_DOWNLOADING (state, song) {
     state.downloading.push(song)
   },
@@ -40,7 +48,7 @@ let mutations = {
     state.downloading[index] && (state.downloading[index].downloadPercent = progress)
   },
   CHANGE_TO_DOWNLOADED (state, { song, index } ) {
-    state.downloaded.splice(state.downloaded.length, 0, song)
+    state.downloaded.splice(0, 0, song)
     state.downloaded = uniqueData(state.downloaded)
     state.downloading.splice(index, 1)
     db.download.findOne({ id: song.id }, (err, doc) => {
@@ -50,7 +58,7 @@ let mutations = {
       }
       if (!doc) {
         db.download.insert(song, (insertErr, downloadItem) => {
-          if (!err) {
+          if (!insertErr) {
             console.log('保存下载歌曲成功')
           } else {
             console.log('保存下载歌曲失败:' + insertErr)
@@ -70,7 +78,6 @@ let actions = {
         console.log('get downloaded error:' + err)
       }
     })
-
     ipcRenderer.on('download-onStarted', (event, data) => {
       let { song, totalBytes } = data
 
@@ -94,6 +101,10 @@ let actions = {
       song.folder = downloadFolder
       song.size = state.downloading[index].totalBytes
       commit('CHANGE_TO_DOWNLOADED', { song, index })
+      // 如果本地音乐目录包含下载目录，则在下载完成后自动加入本地歌曲
+      if (rootState.Localsong.needRefreshFolders.indexOf(rootState.Setting.downloadSongsFolders[0]) > 0) {
+        commit('Localsong/add', song, { root: true })
+      }
       commit('REMOVE_QUEUE', song)
       dispatch('download')
       // 歌曲下载成功尝试下载歌词

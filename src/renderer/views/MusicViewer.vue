@@ -12,10 +12,10 @@
         <music-view ref="viewer" @changeColorHeight="changeColorHeight"/>
         <div class="lyric" v-show="showLyric" >
           <div class="playing-lyric" ref="lrc" :style="changedColor">
-            {{ lyric && lyric.lines ? lyric.lines[current_lyric_line].txt : 'PIXEL MUSIC' }}
+            {{ lyric && lyric.lines && lyric.lines[current_lyric_line] ? lyric.lines[current_lyric_line].txt : 'PIXEL MUSIC' }}
           </div>
           <div class="playing-trans" ref="lrc" v-show='show_trans' :style="changedColor">
-            {{ lyric && lyric.lines ? lyric.lines[current_lyric_line].trans: '像素音乐' }}
+            {{ lyric && lyric.lines && lyric.lines[current_lyric_line] ? lyric.lines[current_lyric_line].trans: '' }}
           </div>
         </div>
       </div>

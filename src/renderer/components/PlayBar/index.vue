@@ -66,6 +66,8 @@
 </template>
 
 <script>
+import fs from 'fs'
+
 import { mapState, mapGetters, mapMutations, mapActions } from 'vuex'
 import { playMode } from '@/config/config'
 import { getUrl } from '@/utils/song'
@@ -93,6 +95,7 @@ export default {
       isFirstPlay: false,
       waiting: false,
       curVolume: 0,
+      randomHistoryIndexArr: [], // 在随机模式下存储历史记录，用于歌曲播放回退时寻路
       needSync: true // 标识是否需要同步播放器状态，当状态改变的来源是其他窗口时不能同步，否则会造成死循环
     }
   },
@@ -212,7 +215,10 @@ export default {
     source (newVal) {
       this.$electron.ipcRenderer.send('change-source', { value: newVal })
     },
-    current_song: 'handleSongChange'
+    current_song: 'handleSongChange',
+    current_play_list () { // 切换列表或双击了本列表的歌曲之后，随机历史都会清空
+      this.randomHistoryIndexArr = []
+    }
   },
   mounted () {
     this.curVolume = this.volume
@@ -300,6 +306,22 @@ export default {
       if (!newSong.id || (oldSong && (newSong.id === oldSong.id))) return
       this.isSongReady = false
       if (newSong.folder) { // 如果是本地歌曲
+        if (!fs.existsSync(newSong.url)) { // 文件不存在
+          this.$message.error(`歌曲文件${newSong.url}已被删除`)
+          this.$store.commit('play/SET_SOURCE', '')
+          this.$store.commit('play/SET_PLAY_STATUS', false)
+          if (this.needSync) {
+            this.$electron.ipcRenderer.send('toggle-play2', {
+              value: false
+            })
+          } else {
+            this.needSync = true
+          }
+          this.$store.commit('play/REMOVE_SONG', this.current_song_index)
+          this.isSongReady = true
+          this.lyricInstance && this.resetLyric()
+          return
+        }
         this.$store.commit('play/SET_SOURCE', newSong.url)
         // this.$refs.audio.src = ''
         this.$refs.audio.src = newSong.url
@@ -338,7 +360,6 @@ export default {
               this.needSync = true
             }
             this.$store.commit('play/REMOVE_SONG', this.current_song_index)
-            // this.$store.commit('play/SET_CURRENT_INDEX', this.current_song_index - 1)
             this.isSongReady = true
             this.lyricInstance && this.resetLyric()
           }
@@ -635,12 +656,14 @@ export default {
         while (true) {
           let _index = this.getRandomInt(0, list_len - 1)
           if (current_song_index != _index) {
+            this.randomHistoryIndexArr.push(current_song_index)
             current_song_index = this.getRandomInt(0, list_len - 1)
             break
           }
         }
       } else {
         current_song_index++
+        this.randomHistoryIndexArr = []
         if (current_song_index > list_len - 1) {
           current_song_index = 0
         }
@@ -658,11 +681,15 @@ export default {
       let list_len = this.current_play_list.length
       let current_song_index = this.current_song_index
       if (this.mode === playMode.random) {
-        while (true) {
-          let _index = this.getRandomInt(0, list_len - 1)
-          if (current_song_index != _index) {
-            current_song_index = this.getRandomInt(0, list_len - 1)
-            break
+        if (this.randomHistoryIndexArr.length) {
+          current_song_index = this.randomHistoryIndexArr.pop()
+        } else { // 如果没有随机播放的历史，就随机后退
+          while (true) {
+            let _index = this.getRandomInt(0, list_len - 1)
+            if (current_song_index != _index) {
+              current_song_index = this.getRandomInt(0, list_len - 1)
+              break
+            }
           }
         }
       } else {
@@ -854,6 +881,7 @@ export default {
     .anticon {
       font-size: 18px;
       cursor: pointer;
+      vertical-align: sub;
       &.lrc {
         &.active {
           color: @primary-color;
@@ -879,7 +907,7 @@ export default {
   .bar4 {
     flex: 0 0 200px;
     display: flex;
-    justify-content: space-evenly;
+    justify-content: space-between;
     align-items: center;
     .count-wrapper {
       line-height: 1;

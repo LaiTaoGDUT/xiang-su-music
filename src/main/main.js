@@ -126,9 +126,9 @@ function createWindow () {
       BrowserWindow.addDevToolsExtension(path.resolve(__dirname, './../../src/main/vue-devtools'))
     }
     // 打开调试窗口
-    // mainWindow.webContents.openDevTools()
+    mainWindow.webContents.openDevTools()
   }
-  mainWindow.webContents.openDevTools()
+  // mainWindow.webContents.openDevTools()
 
   global.mainWindow = mainWindow
   // 初始化进程之间事件监听

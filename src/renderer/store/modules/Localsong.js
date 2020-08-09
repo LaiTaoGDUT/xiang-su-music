@@ -4,6 +4,7 @@ import db from './../../datastore'
 import { getSearchSuggest, getSearch } from './../../api/search'
 import { normalSong } from '../../utils/song'
 import { getAlbum } from '@/api/album'
+import { nextTick } from 'process'
 const fs = require('fs')
 const path = require('path')
 const mm = require('music-metadata')
@@ -17,23 +18,28 @@ async function searchMusicFile (folder, songs, localSongs) {
       const stat = fs.statSync(pathname)
       if (stat.isFile()) {
         if (item.endsWith('.mp3') || item.endsWith('.m4a') || item.endsWith('.flac')) { // 在未来增加更多可识别的格式
-          let localSong = localSongs.find(song => pathname == song.url)
+          let localSong = localSongs.find(song => pathname.substring(0, pathname.lastIndexOf('.')).trim() == song.url.substring(0, song.url.lastIndexOf('.')).trim())
           if (localSong) { // the song is existed
-            songs.push(localSong)
-            continue
+            if (localSong.url == pathname) {
+              await Promise.resolve()
+              songs.push(localSong)
+              continue
+            } else {
+              continue
+            }
           }
           const metadata = await mm.parseFile(pathname, {
             duration: true
           })
           let songname = item.substring(0, item.lastIndexOf('.')).trim()
-          let artist = [], name = songname, matched = false
-          if (songname.split('-')[0] && songname.split('-')[1]) {
-            artist = songname.split('-')[0].split('_').map(item => { return { name: item } })
-            name = songname.split('-')[1].trim()
-            matched = false
+          let artist = [], name = songname
+          let nameArr = songname.split(' - ')
+          if (nameArr[0] && nameArr[1]) {
+            artist = nameArr[0].split('_').map(item => { return { name: item } })
+            name = nameArr[1].trim()
           }
           let extraItem = {
-            name, matched
+            name
           }
           const songItem = {
             id: uuid(),
@@ -48,6 +54,13 @@ async function searchMusicFile (folder, songs, localSongs) {
             size: stat.size,
             matched: false
           }
+          // let localSong = localSongs.find(song => pathname == song.url)
+          // if (localSong) { // the song is existed
+          //   songs.push(Object.assign(extraItem, songItem, localSong))
+          //   continue
+          // } else {
+          //   songs.push(Object.assign(extraItem, songItem))
+          // }
           songs.push(Object.assign(extraItem, songItem))
         }
       } else if (stat.isDirectory()) { // 递归扫描
@@ -98,10 +111,9 @@ export default {
       state.localSongs[obj.index].url = obj.url
     },
     add (state, song) {
-      console.log('insert into localSongs')
       if (state.localSongs.findIndex(_song => _song.url == song.url && _song.size == song.size) < 0) {
-        state.localSongs.splice(state.localSongs.length, 0, song)
-        console.log('insert success')
+        song.matched = true
+        state.localSongs.splice(0, 0, song)
       }
     },
     delete (state, songIndex) {
@@ -170,7 +182,6 @@ export default {
             // if local song lists has this song and larger then it
             let repeatIndex = localSongs.slice(0, i).findIndex(song => (suggest.id == song.id))
             if (repeatIndex != -1) {
-              console.log(repeatIndex)
               if (localSongs[repeatIndex].size <= song.size) {
                 localSongs[repeatIndex].size = song.size
                 localSongs[repeatIndex].url = song.url

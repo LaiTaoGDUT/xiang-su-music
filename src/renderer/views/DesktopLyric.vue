@@ -4,7 +4,7 @@
       {{current_lyric ? current_lyric : 'PIXEL MUSIC' }}
     </div>
     <div class="playing-trans" ref="lrc" v-show='show_trans'>
-      {{current_trans ? current_trans : '像素音乐'}}
+      {{current_trans ? current_trans : ''}}
     </div>
   </div>
 </template>

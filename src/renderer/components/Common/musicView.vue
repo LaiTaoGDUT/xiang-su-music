@@ -139,7 +139,6 @@ export default {
           let value = output[i + 100] / 4
           let Rv1 = R - value
           let Rv2 = R + value
-
           // 画线段阴影
           // i * du / 180 从 0 增加到 2，三角函数内部从0到2Π
           // 对应的正弦值从0到1再到0再到-1再到0，对应的余弦值从1到0到-1到0再到1，
@@ -208,103 +207,6 @@ export default {
           ctx.closePath()
         }
         _this.timer0 = requestAnimationFrame(drawSpectrum)
-      })()
-    },
-    drawSpectrum3 () {
-      let { width, height } = this.wrap
-      let ctx = this.wrap.getContext('2d')
-      // 创建数据
-      const output = new Uint8Array(460)
-      const du = 2 // 圆心到两条射线距离所成的角度
-      const potInt = { x: width / 2, y: height / 2 } // 起始坐标
-      const R = 150 // 半径
-      const W = 2 // 射线的宽度
-      ctx.lineCap = 'round'
-      ctx.lineWidth = W
-      let _output = []
-      const _this = this
-      // 获取两个坐标的重点坐标
-      function getMidPoint (low, high) {
-        let mid = {}
-        mid.x = Math.floor((Math.sin(((low * du) / 180) * Math.PI) * (R + Math.floor(_output[low] / 4)) + potInt.x + Math.sin(((high * du) / 180) * Math.PI) * (R + _output[high] / 4) + potInt.x) / 2)
-        mid.y = Math.floor((potInt.y - Math.cos(((low * du) / 180) * Math.PI) * (R + Math.floor(_output[low] / 4)) + potInt.y - Math.cos(((high * du) / 180) * Math.PI) * (R + _output[high] / 4)) / 2)
-        return mid
-      }
-      (function drawSpectrum () {
-        _this.analyser.getByteFrequencyData(output) // 获取频域数据
-        _output = output.slice(100)
-        ctx.clearRect(0, 0, _this.wrap.width, _this.wrap.height)
-        let [crest, trough] = _this.getCrestAndTrough(_output.slice(0, 180))
-        if (trough.length > crest.length) trough.pop()  // 让波谷和波峰数量相等
-        let gradient = ctx.createRadialGradient(potInt.x, potInt.y, 130, potInt.x, potInt.y, 200)
-        gradient.addColorStop(0, 'hsla(' + _this.colorHeight + ', 60%, 70%, 0.9)')
-        gradient.addColorStop(1, 'hsla(' + (_this.colorHeight + 30) + ', 60%, 70%, 0.3)')
-        ctx.fillStyle = gradient
-        ctx.beginPath()
-        ctx.arc(
-          potInt.y,
-          potInt.x,
-          130,
-          0,
-          Math.PI * 2,
-          false
-        )
-        ctx.arc(
-          potInt.y,
-          potInt.x,
-          135,
-          0,
-          Math.PI * 2,
-          false
-        )
-        ctx.fill()
-        ctx.closePath()
-        ctx.beginPath()
-        let beginPoint = getMidPoint(trough[0], crest[0])
-        ctx.moveTo(
-          beginPoint.x,
-          beginPoint.y
-        )
-        let i = 1, isLow = false
-        while (i < trough.length) {
-          let midPoint, endPoint
-          if (!isLow) {
-            midPoint = {   // 参考点
-              x: Math.sin(((crest[i - 1] * du) / 180) * Math.PI) * (R + Math.floor(_output[crest[i - 1]] / 4)) + potInt.x,
-              y: -Math.cos(((crest[i - 1] * du) / 180) * Math.PI) * (R + Math.floor(_output[crest[i - 1]] / 4)) + potInt.y
-            }
-            endPoint = getMidPoint(crest[i - 1], trough[i])
-          } else {
-            midPoint = {   // 参考点
-              x: Math.sin(((trough[i] * du) / 180) * Math.PI) * (R + Math.floor(_output[trough[i]] / 4)) + potInt.x,
-              y: -Math.cos(((trough[i] * du) / 180) * Math.PI) * (R + Math.floor(_output[trough[i]] / 4)) + potInt.y
-            }
-            endPoint = getMidPoint(crest[i], trough[i])
-            i++
-          }
-          isLow = !isLow
-          ctx.quadraticCurveTo(
-            midPoint.x,
-            midPoint.y,
-            endPoint.x,
-            endPoint.y
-            )
-        }
-        let ee = getMidPoint(crest[i - 1], trough[0])
-        ctx.quadraticCurveTo(  // 参考点是最后一个波峰
-          Math.sin(((crest[i - 1] * du) / 180) * Math.PI) * (R + Math.floor(_output[crest[i - 1]] / 4)) + potInt.x,
-          -Math.cos(((crest[i - 1] * du) / 180) * Math.PI) * (R + Math.floor(_output[crest[i - 1]] / 4)) + potInt.y,
-          ee.x,
-          ee.y
-        )
-        ctx.quadraticCurveTo(  // 参考点是第一个波谷
-          Math.sin(((trough[0] * du) / 180) * Math.PI) * (R + Math.floor(_output[trough[0]] / 4)) + potInt.x,
-          -Math.cos(((trough[0] * du) / 180) * Math.PI) * (R + Math.floor(_output[trough[0]] / 4)) + potInt.y,
-          beginPoint.x,
-          beginPoint.y
-        )
-        ctx.fill()
-        _this.timer1 = requestAnimationFrame(drawSpectrum)
       })()
     },
     drawSpectrum2 () {
@@ -444,6 +346,45 @@ export default {
         }
         ctx.clearRect(0, 0, _this.wrap.width, _this.wrap.height)
         circleSet.forEach(circle => circle.render())
+        _this.timer3 = requestAnimationFrame(drawSpectrum)
+      })()
+    },
+    drawSpectrum3 () {
+      let { width, height } = this.wrap
+      let ctx = this.wrap.getContext('2d')
+      // 创建数据
+      const output = new Uint8Array(460)
+      const du = 3 // 圆心到两条射线距离所成的角度
+      const potInt = { x: width / 2, y: height / 2 } // 起始坐标
+      const R = 140 // 半径
+      const _this = this;
+      (function drawSpectrum () {
+        _this.analyser.getByteFrequencyData(output)
+        let gradient = ctx.createRadialGradient(potInt.x, potInt.y, 130, potInt.x, potInt.y, 200)
+        gradient.addColorStop(0, 'hsla(' + _this.colorHeight + ', 60%, 70%, 1)')
+        gradient.addColorStop(1, 'hsla(' + (_this.colorHeight + 40) + ', 60%, 70%, 0.5)')
+        ctx.fillStyle = gradient
+        ctx.clearRect(0, 0, width, height)
+        ctx.beginPath()
+        ctx.moveTo(
+            potInt.x,
+            -(R + Math.floor(output[150] / 4)) + potInt.y
+        )
+        let length = 360 / du
+        for (let i = 1; i < length; i++) {
+          let value = Math.floor(output[150 + i]) / 4
+          let Rv2 = R + value
+          ctx.lineTo(
+            Math.sin(((i * du) / 180) * Math.PI) * Rv2 + potInt.x,
+            -Math.cos(((i * du) / 180) * Math.PI) * Rv2 + potInt.y
+          )
+        }
+        ctx.lineTo(
+            potInt.x,
+            -(R + Math.floor(output[150] / 4)) + potInt.y
+        )
+        ctx.closePath()
+        ctx.fill()
         _this.timer3 = requestAnimationFrame(drawSpectrum)
       })()
     }
