@@ -146,18 +146,23 @@ let actions = {
       }
     })
   },
-  handleLikeSong ({ commit, state }, { songId, isLike, self }) {
+  handleLikeSong ({ commit, state }, { song, isLike, self }) {
     return new Promise(async (resolve, reject) => {
       try {
-        let { code } = await likeMusic(songId, isLike)
+        if (song.platform == 'qq') {
+          Message.error('暂不支持喜欢其他平台的音乐!')
+          reject(new Error('操作失败'))
+          return
+        }
+        let { code } = await likeMusic(song.id, isLike)
         if (code === 200) {
           let likedsongIds = [...state.likedsongIds]
           if (isLike) {
-            likedsongIds.unshift(songId)
+            likedsongIds.unshift(song.id)
             commit('SET_LIKEDSONG_IDS', { ids: likedsongIds, self })
             Message.success('喜欢歌曲成功!')
           } else {
-            let index = likedsongIds.findIndex(id => id === songId)
+            let index = likedsongIds.findIndex(id => id === song.id)
             likedsongIds.splice(index, 1)
             commit('SET_LIKEDSONG_IDS', { ids: likedsongIds, self })
             Message.success('取消喜欢成功!')

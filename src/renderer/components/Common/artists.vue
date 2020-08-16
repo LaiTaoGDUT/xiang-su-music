@@ -5,7 +5,7 @@
   >
     <span v-for="(artist, index) in artists" :key="index" class="artists">
       <span v-if="index != 0">/</span>
-      <router-link :to="`/artist/${artist.id}`" v-if="artist.id">{{artist.name}}</router-link>
+      <router-link :to="`/artist/${artist.id}?platform=${artist.platform}`" v-if="artist.id">{{artist.name}}</router-link>
       <span v-else>{{artist.name}}</span>
     </span>
   </span>

@@ -9,7 +9,7 @@
         :key="artist.id"
       >
         <a-col :span="24">
-          <router-link :to="`/artist/${artist.id}`" class="artist">
+          <router-link :to="`/artist/${artist.id}?platform=${artist.platform}`" class="artist">
             <img v-lazy="`${artist.img1v1Url}?param=50y50`">
             <span>{{artist.name}}</span>
           </router-link>

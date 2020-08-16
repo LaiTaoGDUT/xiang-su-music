@@ -28,7 +28,8 @@ export default {
   methods: {
     async loadmore ($state) {
       let id = this.$route.params.id
-      let res = await getAlbumComment(id, this.limit, this.offset)
+      let platform = this.$route.query.platform
+      let res = await getAlbumComment(id, this.limit, this.offset, platform)
       if (res.comments.length) {
         if (this.commentData) {
           this.commentData.comments.push(...res.comments)

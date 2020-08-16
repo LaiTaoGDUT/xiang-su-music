@@ -24,7 +24,7 @@
                     {{ userInfo.pcSign ? '已签到' : '签到' }}
                   </a-button>
                   <transition name="sign">
-                    <div class="sign-point" v-if="showPoint">{{ signPoint }}</div>
+                    <div class="sign-point" v-if="showPoint">{{ 'EXP +' + signPoint }}</div>
                   </transition>
                 </a-col>
               </a-row>
@@ -123,6 +123,7 @@ export default {
           this.$message.success('签到成功!')
           this.signPoint = res.point
           this.showPoint = true
+          this.refreshData(true)
         }
       }
     },
@@ -185,12 +186,31 @@ export default {
   .sign-point {
     position: absolute;
     left: 0;
-    top: 0;
     right: 0;
+    top: 0;
     line-height: 27px;
     text-align: center;
     color: @primary-color;
-    opacity: 0;
+    animation-name: cssAnimation;
+    animation-duration: 2s;
+    animation-timing-function: ease-in;
+    animation-delay: 0s;
+    animation-iteration-count: 0;
+    animation-direction: normal;
+  }
+  @keyframes cssAnimation {
+    form {
+      top: 0;
+      opacity: 1;
+    }
+    50% {
+      top: -25px;
+      opacity: 1;
+    }
+    to {
+      top: -25px;
+      opacity: 0;
+    }
   }
   .sign-btn {
     height: 27px;

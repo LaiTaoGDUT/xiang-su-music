@@ -70,6 +70,7 @@ function createWindow () {
     icon: previewIcon,
     frame: false,
     show: false,
+    backgroundColor: '#5fa7e4',
     webPreferences: {
       nodeIntegration: true,
       nodeIntegrationInWorker: true,
@@ -121,8 +122,7 @@ function createWindow () {
 
   if ( isDevelopment ) {
     // 安装vue-devtools
-    let extensions = BrowserWindow.getDevToolsExtensions()
-    if ( !extensions[ 'Vue.js devtools' ] ) {
+    if ( !BrowserWindow.getDevToolsExtensions().hasOwnProperty('Vue.js devtools') ) {
       BrowserWindow.addDevToolsExtension(path.resolve(__dirname, './../../src/main/vue-devtools'))
     }
     // 打开调试窗口

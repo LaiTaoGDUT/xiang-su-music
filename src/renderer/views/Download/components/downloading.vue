@@ -7,6 +7,7 @@
         <span>存储目录:{{ defaultDownloadFolder }} <a href="#" @click="openDownloadFolder">打开目录</a></span>
       </div>
       <loading v-show="loading" />
+      <div style="margin: 10px">正在下载</div>
       <track-list @reloading="reloading" @reloaded="reloaded" :limit="limit" :columns="columns" :tracks="downloading" :isShowActions="false">
         <template slot="downloadPercent" slot-scope="{ row }">
           <div style="width:170px;line-height: 1;">
@@ -24,6 +25,21 @@
               <li class="item">
                 <a-icon type="caret-right" title="开始下载" @click="toggleDownload(row, false)" v-if="row.isPaused === true" />
                 <a-icon type="pause" title="暂停下载" @click="toggleDownload(row, true)" v-else />
+                <a-icon type="close" title="取消下载" @click="cancelDownload(row)" />
+              </li>
+            </ul>
+          </div>
+        </template>
+      </track-list>
+      <div style="margin: 0 10px 10px">等待下载</div>
+      <track-list @reloading="reloading" @reloaded="reloaded" :limit="limit" :columns="columns" :tracks="queue" :isShowActions="false">
+        <template slot="downloadPercent">
+          <div>等待中...</div>
+        </template>
+        <template slot="actions" slot-scope="{ row }">
+          <div>
+            <ul class="actions">
+              <li class="item">
                 <a-icon type="close" title="取消下载" @click="cancelDownload(row)" />
               </li>
             </ul>
@@ -98,22 +114,19 @@ export default {
       })
     },
     cancelDownload (song) {
+      if (!song.hasOwnProperty('downloadPercent')) {
+        this.$store.commit('Download/REMOVE_QUEUE', song)
+        return
+      }
       ipcRenderer.send('download-cancel', {
         id: song.id
       })
-      this.$store.commit('Download/REMOVE_QUEUE', song)
       this.$store.commit('Download/REMOVE_DOWNLOADING', song)
       let filepath = `${this.defaultDownloadFolder}\\${song.name}.mp3`
+      this.$store.dispatch('Download/download')
       if (fs.existsSync(filepath)) {
         fs.unlinkSync(filepath)
       }
-      this.$db.test.remove({ id: song.id }, {}, (err, numRemoved) => {
-        if (err) {
-          console.log(err)
-        } else {
-          console.log('numRemoved', numRemoved)
-        }
-      })
     },
     cancelAll () {},
     pauseAll () {}

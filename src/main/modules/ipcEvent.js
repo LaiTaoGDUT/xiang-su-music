@@ -2,10 +2,12 @@ import { ipcMain, dialog, app, BrowserWindow, shell } from 'electron'
 import path from 'path'
 import createMiniWindow from '../windows/miniWindow'
 import createUpdateWindow from './../windows/updateWindow'
+import createMusicRefreshWindow from './../windows/musicRefreshWindow'
 import { defaultDownloadFolder } from '../../renderer/config/downloadSettings'
 let { download } = require('electron-dl')
 let downloads = {}
 let updateWindow
+let musicRefreshWindow
 
 export default function () {
   ipcMain.on('change-lyric', (event, params) => { // from mainWindow
@@ -384,5 +386,23 @@ export default function () {
   ipcMain.on('update-version', (event, data) => {
     let version = data
     global.remoteVersion = version
+  })
+
+  // 开一个子窗口单独扫描本地音乐
+  ipcMain.on('refresh-folders', (event, data) => {
+    if (!musicRefreshWindow) {
+      musicRefreshWindow = createMusicRefreshWindow(BrowserWindow)
+      musicRefreshWindow.once('ready-to-show', () => {
+        musicRefreshWindow.webContents.send('refresh-folders', data)
+      })
+    } else {
+      global.mainWindow.webContents.send('refresh-not-complete')
+    }
+  })
+
+  ipcMain.on('refresh-complete', (event, songs) => {
+    global.mainWindow.webContents.send('refresh-complete', songs)
+    musicRefreshWindow.destroy()
+    musicRefreshWindow = null
   })
 }

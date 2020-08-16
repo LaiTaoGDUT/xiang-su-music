@@ -15,7 +15,8 @@
           <span class="icon-wrapper" v-show="!current_song.folder">
             <song-heart
               :isLiked="likedsongIds.includes(current_song.id)"
-              @heartClick="(isLike)=>{handleLikeSong({songId:current_song.id,isLike})}"
+              @heartClick="(isLike)=>{handleLikeSong({ song: current_song, isLike })}"
+              :platform="current_song.platform"
             />
           </span>
         </header>
@@ -73,8 +74,8 @@ export default {
     setFullscreen () {
       this.$store.commit('play/SET_FULLSCREEN', true)
     },
-    handleLikeSong ({ songId, isLike }) {
-      this.$store.dispatch('User/handleLikeSong', { songId, isLike, self: this })
+    handleLikeSong ({ song, isLike }) {
+      this.$store.dispatch('User/handleLikeSong', { song, isLike, self: this })
     },
     download (song) {
       this.$store.dispatch('Download/adddownloadQueue', [song])

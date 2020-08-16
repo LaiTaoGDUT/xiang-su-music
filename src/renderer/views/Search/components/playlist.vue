@@ -9,7 +9,7 @@
         :key="playlist.id"
       >
         <a-col :span="12">
-          <router-link :to="`/playlist/${playlist.id}`" class="playlist">
+          <router-link :to="`/playlist/${playlist.id}?platform=${playlist.platform}`" class="playlist">
             <img v-lazy="`${playlist.coverImgUrl}?param=50y50`">
             <span>{{playlist.name}}</span>
           </router-link>

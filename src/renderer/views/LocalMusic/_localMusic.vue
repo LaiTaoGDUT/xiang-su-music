@@ -3,8 +3,8 @@
     <a-card :bordered="false">
       <div slot="title">
         <a-button type="primary" size="small" icon="play-circle" @click="playAll">播放全部</a-button>
-        <a-button icon="redo" size="small" type="primary" @click="refreshFolders" :disabled="matching">扫描音乐</a-button>
-        <a-button :icon="matching ? 'loading' : 'api'" size="small" type="primary" :disabled="!localSongs.length" @click="matchSongs">{{ matching ? '停止匹配' : '匹配音乐'}}</a-button>
+        <a-button icon="redo" size="small" type="primary" @click="refreshFolders" :disabled="matching || refreshing">扫描音乐</a-button>
+        <a-button :icon="matching ? 'loading' : 'api'" size="small" type="primary" :disabled="!localSongs.length || refreshing" @click="matchSongs">{{ matching ? '停止匹配' : '匹配音乐'}}</a-button>
         <small>{{ localSongs.length }}首歌曲,<a href="#" @click="visible = true">选择目录</a></small>
         <small style="margin-left: 10px" v-show="refreshing">
           <a-spin>
@@ -35,7 +35,6 @@
           />
         </small>
       </div>
-      <loading v-if="!show" />
       <track-list @reloading="reloading" @reloaded="reloaded" :columns="columns" :tracks="currentShowSongs" :isShowActions="false" @dblclick="play" :limit="limit" >
         <template slot="size" slot-scope="{ row }">
           <span>{{ row.size | normalSize }}</span>
@@ -68,9 +67,9 @@
 import fs from 'fs'
 import { mapState, mapGetters, mapActions, mapMutations } from 'vuex'
 import { shell, remote, ipcRenderer } from 'electron'
+import { getRandomInt } from '@/utils/calculate.js'
 import { uniq } from '@/utils/calculate'
 import TrackList from '@/components/Common/track-list/index.js'
-import Loading from '@/components/Common/loading'
 import Message from 'ant-design-vue/es/message'
 import { playMode } from '@/config/config'
 const defaultDownloadFolder = `${remote.app.getPath('music')}`
@@ -131,13 +130,13 @@ export default {
       waitSelectFolder: [], // 用户已经选择但是没有确定的文件夹
       matchedSongs: 0, // has matched songs
       limit: 100, // 单页展示的歌曲数量
-      show: true,
       keyword: '',
-      deleteCompletely: false
+      deleteCompletely: false,
+      curSongNums: 0 // 记录刷新前本地音乐的数量
     }
   },
   components: {
-    TrackList, Loading
+    TrackList
   },
   computed: {
     ...mapState('Localsong', ['exportFolders', 'needRefreshFolders']),
@@ -183,25 +182,32 @@ export default {
         this.$message.warn('至少选择一个文件夹')
         return
       }
+      if (this.refreshing) {
+        this.$message.warn('上一轮扫描还未完成哦')
+        return
+      }
       this.selectedFolder = this.bufferFolder.concat()
       if (this.waitSelectFolder.length) { // 有新添加的文件夹
         this.setExportFolders(uniq(this.exportFolders.concat(this.waitSelectFolder)))
         this.waitSelectFolder.splice(0, this.waitSelectFolder.length) // 清空
       }
-      this.refreshFolders()
+      if (this.selectedFolder.length == this.needRefreshFolders.length) {
+        if ( this.selectedFolder.concat().sort().toString() == this.needRefreshFolders.concat().sort().toString()) {
+          this.visible = false
+        } else {
+          this.refreshFolders()
+        }
+      } else {
+        this.refreshFolders()
+      }
     },
     refreshFolders () {
       this.setneedRefreshFolders(this.selectedFolder)
       this.visible = false
       this.refreshing = true
-      const curSongNums = this.localSongs.length
+      this.curSongNums = this.localSongs.length
       this.$nextTick(() => {
-        this.refresh(this.selectedFolder).then(() => {
-          this.refreshing = false
-          const changeNums = this.localSongs.length - curSongNums
-          if (changeNums == 0) Message.success('扫描本地音乐完成')
-          else Message.success(`扫描本地音乐完成，${changeNums > 0 ? '新增' + changeNums : '减少' + -changeNums}首歌曲`)
-        })
+        this.refresh(this.selectedFolder)
       })
     },
     matchSongs () {
@@ -318,15 +324,25 @@ export default {
           this.play(this.localSongs, 0)
           break
         case playMode.random:
-          this.play(this.localSongs, this.getRandomInt(0, this.localSongs.length - 1))
+          this.play(this.localSongs, getRandomInt(0, this.localSongs.length - 1))
           break
       }
-    },
-    getRandomInt (min, max) {
-      return Math.floor(Math.random() * (max - min + 1) + min) // min,max之间的随机数（包含min,max）
     }
   },
   created () {
+    ipcRenderer.on('refresh-complete', (event, songs) => {
+      setTimeout(() => { // 确保在本地列表更新后触发
+        this.refreshing = false
+        const changeNums = this.localSongs.length - this.curSongNums
+        if (changeNums == 0) Message.success('扫描本地音乐完成')
+        else Message.success(`扫描本地音乐完成，${changeNums > 0 ? '新增' + changeNums : '减少' + -changeNums}首歌曲`)
+      }, 0)
+    })
+    ipcRenderer.on('refresh-not-complete', (event, songs) => {
+      this.refreshing = true
+    })
+
+    this.curSongNums = this.localSongs.length
     this.currentShowSongs = JSON.parse(JSON.stringify(this.localSongs))
     this.selectedFolder = this.needRefreshFolders.concat()
     this.bufferFolder = this.needRefreshFolders.concat()
@@ -335,15 +351,9 @@ export default {
       this.waitSelectFolder = uniq(this.waitSelectFolder.concat(path))
     })
     if (this.localSongs.length <= 0) {
-      this.show = false
+      this.refreshing = true
       this.$nextTick(() => {
-        const curSongNums = this.localSongs.length
-        this.refresh(this.selectedFolder).then(() => {
-          const changeNums = this.localSongs.length - curSongNums
-          if (changeNums == 0) Message.success('扫描本地音乐完成')
-          else Message.success(`扫描本地音乐完成，${changeNums > 0 ? '新增' + changeNums : '减少' + -changeNums}首歌曲`)
-          this.show = true
-        })
+        this.refresh(this.selectedFolder)
       })
     }
   },

@@ -87,6 +87,13 @@ const router = new Router({
       component: function (resolve) {
         require(['@/views/Update/index.vue'], resolve)
       }
+    },
+    {
+      name: 'musicRefresh',
+      path: '/music-refresh',
+      component: function (resolve) {
+        require(['@/views/LocalMusic/musicRefresh.vue'], resolve)
+      }
     }
   ]
 })
@@ -99,6 +106,7 @@ router.beforeEach((to, from, next) => {
     } else {
       store.commit('User/SET_SHOW_LOGIN', true)
       store.commit('App/SET_REDIRECT', to.fullPath)
+      next(false)
     }
   } else {
     next()

@@ -28,8 +28,7 @@ export default {
   },
   methods: {
     async _getArtistSimi () {
-      let { id } = this.$route.params
-      let { artists } = await getArtistSimi({ id })
+      let { artists } = await getArtistSimi({ id: this.$route.params.id, platform: this.$route.params.platform })
       this.artists = artists
     }
   }

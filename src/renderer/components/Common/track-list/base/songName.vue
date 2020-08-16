@@ -3,7 +3,7 @@
     <span>{{ row[col.key] }}</span>
     <small class="alia" v-if="row.alia && row.alia.length">({{ row.alia.join(',') }})</small>
     <router-link
-      :to="`/mv/${row.mvid}`"
+      :to="`/mv/${row.mvid}?platform=${row.platform}`"
       title="查看MV"
       v-if="row.mvid"
     >

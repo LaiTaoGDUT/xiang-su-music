@@ -3,7 +3,7 @@
     <a-spin :spinning="spinning">
       <track-list :tracks="songs" @dblclick="play" @download="download"/>
     </a-spin>
-    <slot :total="result.songCount"></slot>
+    <slot :total="total"></slot>
   </div>
 </template>
 
@@ -18,11 +18,15 @@ export default {
   ],
   data () {
     return {
-      songs: []
+      songs: [],
+      total: 0
     }
   },
   methods: {
     normalData () {
+      if (this.result.songCount > this.total) {
+        this.total = this.result.songCount
+      }
       if (this.result.songs && this.result.songs.length) {
         this.songs = this.result.songs.map(song => {
           return normalSong(song)
@@ -46,10 +50,14 @@ export default {
       let avatar
       if (song.album) {
         let albumId = song.album.id
-        console.log(albumId)
         avatar = await getAlbum(albumId)
-        avatar = avatar.songs[0].al.picUrl
-        console.log(avatar)
+        if (avatar.songs && avatar.songs.length > 0) {
+          avatar = avatar.songs[0].al.picUrl
+        } else if (avatar.album) {
+          avatar = avatar.album.picUrl
+        } else {
+          avatar = ''
+        }
         return avatar
       }
     },

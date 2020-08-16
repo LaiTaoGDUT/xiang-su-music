@@ -12,7 +12,7 @@
         <div>{{ subscriber.nickname }}</div>
       </a-col>
     </a-row>
-    <div v-else>暂无收藏者</div>
+    <div v-else style="text-align: center">暂无收藏者~</div>
   </div>
 </template>
 

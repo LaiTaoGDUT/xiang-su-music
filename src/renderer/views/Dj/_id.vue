@@ -13,11 +13,11 @@
               <span class="name">{{dj.dj.nickname}}</span>
             </div>
             <ul class="actions">
-              <li class="item">
+              <!-- <li class="item">
                 <a-button-group size="small">
                   <a-button type="primary" icon="play-circle" @click="play">播放全部</a-button>
                 </a-button-group>
-              </li>
+              </li> -->
               <li class="item">
                 <a-button size="small" icon="check" @click="subscribe(2, dj)" v-if="dj.subed">
                   已订阅({{dj.subCount}})
@@ -27,7 +27,7 @@
                 </a-button>
               </li>
               <li class="item">
-                <a-button size="small" icon="download">下载全部</a-button>
+                <a-button size="small" icon="download" @cilck="downloadAll">下载全部</a-button>
               </li>
             </ul>
             <div class="desc">
@@ -86,10 +86,6 @@ export default {
   activated () {
     this._getDjDetail()
   },
-  // beforeRouteUpdate (to, from, next) {
-  //   this._getDjDetail(to.params.id)
-  //   next()
-  // },
   methods: {
     _getDjDetail () {
       this.loading = true
@@ -102,17 +98,20 @@ export default {
     searchSongs (value) {
       this.searchKey = value
     },
-    play () {
-      this.$store.dispatch('play/selectPlay', { tracks: this.tracks, index: 0 })
-      this.$electron.ipcRenderer.send('change-play-index', {
-        index: 0
-      })
-      this.$electron.ipcRenderer.send('set-play-list', {
-        value: this.tracks
-      })
-    },
+    // play () {
+    //   this.$store.dispatch('play/selectPlay', { tracks: this.tracks, index: 0 })
+    //   this.$electron.ipcRenderer.send('change-play-index', {
+    //     index: 0
+    //   })
+    //   this.$electron.ipcRenderer.send('set-play-list', {
+    //     value: this.tracks
+    //   })
+    // },
     subscribe (t, dj) {
       this.$store.dispatch('User/subscribeDj', { t, dj })
+    },
+    downloadAll () {
+      this.$message.warn('暂不支持下载哦')
     }
   }
 }

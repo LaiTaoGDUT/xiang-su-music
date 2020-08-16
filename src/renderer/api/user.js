@@ -229,3 +229,11 @@ export function getHotTopic ({ limit = 30, offset = 0 }) {
     }
   })
 }
+
+export function uGetSongUrl (id) {
+  return uRequest.get('/song/url', {
+    params: {
+      id
+    }
+  })
+}

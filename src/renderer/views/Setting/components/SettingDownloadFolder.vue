@@ -10,7 +10,7 @@
 </template>
 <script>
 import SettingItem from './SettingItem.vue'
-import { mapState, mapGetters, mapMutations } from 'vuex'
+import { mapState, mapGetters, mapMutations, mapActions } from 'vuex'
 import { remote } from 'electron'
 import { uniq } from '@/utils/calculate'
 
@@ -21,6 +21,7 @@ export default {
   },
   computed: {
     ...mapState('Localsong', [ 'exportFolders', 'needRefreshFolders' ]),
+    ...mapGetters('Localsong', ['localSongs']),
     ...mapGetters('Setting', [ 'downloadSongsFolders' ]),
     defaultDownloadFolder () {
       return this.downloadSongsFolders[ 0 ]
@@ -29,6 +30,7 @@ export default {
   methods: {
     ...mapMutations('Setting', [ 'SET_FOLDERS' ]),
     ...mapMutations('Localsong', [ 'setExportFolders', 'setneedRefreshFolders' ]),
+    ...mapActions('Localsong', ['refresh']),
     select () {
       dialog.showOpenDialog(
         {
@@ -39,6 +41,7 @@ export default {
             this.SET_FOLDERS(filePaths)
             this.setExportFolders(uniq(this.exportFolders.concat(filePaths)))
             this.setneedRefreshFolders(uniq(this.needRefreshFolders.concat(filePaths)))
+            this.refresh(this.needRefreshFolders)
           }
         }
       )

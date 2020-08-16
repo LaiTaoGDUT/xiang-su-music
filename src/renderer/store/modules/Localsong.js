@@ -1,76 +1,8 @@
-import { remote } from 'electron'
-import uuid from 'uuid/v1'
-import db from './../../datastore'
+import { remote, ipcRenderer } from 'electron'
+
 import { getSearchSuggest, getSearch } from './../../api/search'
 import { normalSong } from '../../utils/song'
 import { getAlbum } from '@/api/album'
-import { nextTick } from 'process'
-const fs = require('fs')
-const path = require('path')
-const mm = require('music-metadata')
-const avatarIcon = 'images/default_album.jpg'
-
-async function searchMusicFile (folder, songs, localSongs) {
-  try {
-    const dirs = fs.readdirSync(folder)
-    for (let item of dirs) {
-      const pathname = path.join(folder, item)
-      const stat = fs.statSync(pathname)
-      if (stat.isFile()) {
-        if (item.endsWith('.mp3') || item.endsWith('.m4a') || item.endsWith('.flac')) { // 在未来增加更多可识别的格式
-          let localSong = localSongs.find(song => pathname.substring(0, pathname.lastIndexOf('.')).trim() == song.url.substring(0, song.url.lastIndexOf('.')).trim())
-          if (localSong) { // the song is existed
-            if (localSong.url == pathname) {
-              await Promise.resolve()
-              songs.push(localSong)
-              continue
-            } else {
-              continue
-            }
-          }
-          const metadata = await mm.parseFile(pathname, {
-            duration: true
-          })
-          let songname = item.substring(0, item.lastIndexOf('.')).trim()
-          let artist = [], name = songname
-          let nameArr = songname.split(' - ')
-          if (nameArr[0] && nameArr[1]) {
-            artist = nameArr[0].split('_').map(item => { return { name: item } })
-            name = nameArr[1].trim()
-          }
-          let extraItem = {
-            name
-          }
-          const songItem = {
-            id: uuid(),
-            avatar: avatarIcon,
-            album: metadata.common.album || '',
-            artist: metadata.common.artists
-              ? metadata.common.artists.map(item => { return { name: item } })
-              : artist,
-            duration: parseInt(metadata.format.duration) || 0,
-            url: pathname,
-            folder,
-            size: stat.size,
-            matched: false
-          }
-          // let localSong = localSongs.find(song => pathname == song.url)
-          // if (localSong) { // the song is existed
-          //   songs.push(Object.assign(extraItem, songItem, localSong))
-          //   continue
-          // } else {
-          //   songs.push(Object.assign(extraItem, songItem))
-          // }
-          songs.push(Object.assign(extraItem, songItem))
-        }
-      } else if (stat.isDirectory()) { // 递归扫描
-        await searchMusicFile(pathname, songs, localSongs)
-      }
-    }
-  } catch (err) {
-    alert('刷新失败' + err)
-  }
-}
 
 export default {
   namespaced: true,
@@ -113,6 +45,7 @@ export default {
     add (state, song) {
       if (state.localSongs.findIndex(_song => _song.url == song.url && _song.size == song.size) < 0) {
         song.matched = true
+        console.log('add...', song)
         state.localSongs.splice(0, 0, song)
       }
     },
@@ -138,6 +71,11 @@ export default {
     }
   },
   actions: {
+    async init ({ dispatch, commit, state, rootState }) {
+      ipcRenderer.on('refresh-complete', (event, songs) => {
+        commit('mutateState', { localSongs: songs })
+      })
+    },
     async match ({ state, commit }, forceMatch = false) {
       let albumAvater = new Map() // 暂存专辑id以免相同专辑的歌曲重复请求
       let localSongs = state.localSongs.slice()
@@ -151,13 +89,16 @@ export default {
           if (!forceMatch && song.matched) {
             continue
           }
-          let res = await getSearchSuggest({ keyword: `${song.name} ${song.artist.length ? song.artist[0].name : ''}`, limit: 5 })
+          let res
+          try {
+            res = await getSearchSuggest({ keyword: (`${song.name}`).slice(0, 22), limit: 5 })
+          } catch (err) {
+            commit('addFailedNum')
+            continue
+          }
           if (!res.result || !res.result.songs) {
-            res = await getSearchSuggest({ keyword: `${song.name}`, limit: 5 })
-            if (!res.result || !res.result.songs) {
-              commit('addFailedNum')
-              continue
-            }
+            commit('addFailedNum')
+            continue
           }
           let matchSongs = res.result.songs
           if (matchSongs && matchSongs.length) {
@@ -170,13 +111,8 @@ export default {
                 return item.album.name == song.album
               })
               if (!suggest) {
-                suggest = matchSongs.find(item => {
-                  return item.name == song.name
-                })
-                if (!suggest) {
-                  commit('addFailedNum')
-                  continue
-                }
+                commit('addFailedNum')
+                continue
               }
             }
             // if local song lists has this song and larger then it
@@ -198,9 +134,12 @@ export default {
               if (albumAvater.has(albumId)) {
                 avatar = albumAvater.get(albumId)
               } else {
-                avatar = await getAlbum(albumId)
-                if (avatar.songs) {
+                avatar = await getAlbum(albumId, suggest.platform)
+                if (avatar.songs && avatar.songs.length > 0) {
                   avatar = avatar.songs[0].al.picUrl
+                  albumAvater.set(albumId, avatar)
+                } else if (avatar.album) {
+                  avatar = avatar.album.picUrl
                   albumAvater.set(albumId, avatar)
                 } else {
                   avatar = ''
@@ -225,26 +164,25 @@ export default {
         commit('mutateState', { localSongs: localSongs })
       } catch (error) {
         console.log('match error:', error)
-        const _localSongsCopy = state.localSongs.slice()
-        commit('mutateState', { localSongs: _localSongsCopy })
+        commit('mutateState', { localSongs: localSongs })
       }
     },
     async refresh ({ state, commit, dispatch, rootState }, selectedFolders) {
       let folders = selectedFolders && selectedFolders.length ? selectedFolders : state.exportFolders
-      let songs = []
-
-      for (let folder of folders) {
-        await searchMusicFile(folder, songs, state.localSongs)
-      }
-      commit('mutateState', { localSongs: songs })
+      ipcRenderer.send('refresh-folders', {
+        folders: folders,
+        localSongs: state.localSongs
+      })
     },
     async add ({ state, commit, dispatch, rootState }, song) {
       let avatar
       if (song.album) {
         let albumId = song.album.id
         avatar = await getAlbum(albumId)
-        if (avatar.songs) {
+        if (avatar.songs && avatar.songs.length > 0) {
           avatar = avatar.songs[0].al.picUrl
+        } else if (avatar.album) {
+          avatar = avatar.album.picUrl
         } else {
           avatar = ''
         }

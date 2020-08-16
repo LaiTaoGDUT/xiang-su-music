@@ -15,10 +15,11 @@ export function getUserPlaylist (uid) {
 }
 
 // 传入歌单id, 获取对应歌单内的所有的音乐
-export function getPlaylistDetail (id) {
+export function getPlaylistDetail (id, platform = 'netease') {
   return request.get('/playlist/detail', {
     params: {
       id,
+      platform,
       _: new Date().getTime()
     }
   })
@@ -72,10 +73,11 @@ export function getRecommendPlaylist () {
 }
 
 // 传入歌单id, 获取歌单的所有收藏者
-export function getPlaylistSubscribers ({ limit = 20, offset = 0, id }) {
+export function getPlaylistSubscribers ({ limit = 20, offset = 0, id, platform }) {
   return request.get('/playlist/subscribers', {
     params: {
       id,
+      platform,
       limit,
       offset
     }

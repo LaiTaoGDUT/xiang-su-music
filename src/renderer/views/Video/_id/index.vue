@@ -108,7 +108,7 @@
               <div class="artist">
                 by
                 <router-link
-                  :to="`/artist/${c.userId}`"
+                  :to="`/artist/${c.userId}?platform=${c.platform}`"
                   v-for="c in item.creator"
                   :key="c.userId"
                 >{{c.userName}}</router-link>

@@ -13,7 +13,7 @@
             <ul class="actions">
               <li class="item">
                 <a-button-group size="small">
-                  <a-button type="primary" icon="play-circle" @click="play">播放全部</a-button>
+                  <a-button type="primary" icon="play-circle" @click="playAll">播放全部</a-button>
                   <a-button type="primary" icon="plus" @click="addToList" />
                 </a-button-group>
               </li>
@@ -21,13 +21,13 @@
                 <a-button size="small" icon="check" @click="subscribe(2, album)" v-if="isSubscribed">
                   已收藏
                 </a-button>
-                <a-button size="small" icon="folder-add" @click="subscribe(1, album)" v-else>
+                <a-button :disabled="album.platform == 'qq'" size="small" icon="folder-add" @click="subscribe(1, album)" v-else>
                   收藏
                 </a-button>
               </li>
-              <li class="item" @click="share">
-                <a-button size="small" icon="share-alt">分享({{ album.info.shareCount }})</a-button>
-              </li>
+              <!-- <li class="item" @click="share">
+                <a-button :disabled="album.platform == 'qq'" size="small" icon="share-alt">分享({{ album.info.shareCount }})</a-button>
+              </li> -->
               <li class="item">
                 <a-button size="small" icon="download" @click="downloadAll">下载全部({{ album.size }}首)</a-button>
               </li>
@@ -37,7 +37,7 @@
               <artists :artists="album.artists"></artists>
             </div>
             <div>时间：{{ album.publishTime | toDate }}</div>
-            <div>简介：{{ album.description }}</div>
+            <div class="content">简介：{{ album.description }}</div>
           </div>
           <div class="album-avatar" slot="avatar">
             <img width="200" height="200" v-lazy="`${album.picUrl}?param=200y200`" :key="album.id" />
@@ -46,7 +46,7 @@
       </a-list-item>
     </a-list>
 
-    <tab-bar :tabs="tabs" @search="searchSongs" />
+    <tab-bar :tabs="tabs" @search="searchSongs" :platform="$route.query.platform" />
     <keep-alive>
       <router-view :tracks="tracks" />
     </keep-alive>
@@ -58,6 +58,8 @@ import { mapGetters } from 'vuex'
 import TabBar from '@/components/Common/tabBar'
 import Artists from '@/components/Common/artists'
 import Loading from '@/components/Common/loading'
+import { playMode } from '@/config/config'
+import { getRandomInt } from '@/utils/calculate.js'
 import { normalSong } from '@/utils/song'
 import { getAlbum } from '@/api/album'
 import { uniqueData } from '@/utils/assist'
@@ -89,10 +91,10 @@ export default {
     Loading
   },
   activated () {
-    this._getAlbum(this.$route.params.id)
+    this._getAlbum(this.$route.params.id, this.$route.query.platform)
   },
   beforeRouteUpdate (to, from, next) {
-    this._getAlbum(to.params.id)
+    this._getAlbum(to.params.id, to.query.platform)
     next()
   },
   computed: {
@@ -106,7 +108,8 @@ export default {
     },
     ...mapGetters('play', [
       'current_play_list'
-    ])
+    ]),
+    ...mapGetters('play', ['mode'])
   },
   methods: {
     searchSongs (value) {
@@ -117,15 +120,17 @@ export default {
         this.sublist = res.data
       })
     },
-    _getAlbum (id) {
+    _getAlbum (id, platform) {
       this.loading = true
-      getAlbum(id).then(res => {
+      getAlbum(id, platform).then(res => {
         this.album = res.album
         this.songs = res.songs.map(song => {
           return normalSong(song)
         })
         this.loading = false
-        this._getSubAlbum()
+        if (platform != 'qq') {
+          this._getSubAlbum()
+        }
       })
     },
     downloadAll () {
@@ -134,14 +139,27 @@ export default {
       })
       this.$store.dispatch('Download/adddownloadQueue', this.songs)
     },
-    play () {
-      this.$store.dispatch('play/selectPlay', { tracks: this.tracks, index: 0 })
+    play (tracks, index) {
+      this.$store.dispatch('play/selectPlay', { tracks, index })
       this.$electron.ipcRenderer.send('change-play-index', {
-        index: 0
+        index
       })
       this.$electron.ipcRenderer.send('set-play-list', {
-        value: this.tracks
+        value: tracks
       })
+    },
+    playAll () {
+      switch (this.mode) {
+        case playMode.sequence:
+          this.play(this.songs, 0)
+          break
+        case playMode.loop:
+          this.play(this.songs, 0)
+          break
+        case playMode.random:
+          this.play(this.songs, getRandomInt(0, this.songs.length - 1))
+          break
+      }
     },
     addToList () {
       let current_play_list = this.current_play_list.slice()
@@ -203,6 +221,10 @@ export default {
     button {
       font-size: 14px;
     }
+  }
+  .content {
+    max-height: 150px;
+    overflow: auto;
   }
 }
 

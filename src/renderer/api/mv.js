@@ -38,28 +38,31 @@ export function getNewMV ({ limit = 10 }) {
 }
 
 // 传入mvid(在搜索音乐的时候传type=1004获得), 可获取对应MV数据
-export function getMVInfo (mvid) {
+export function getMVInfo (mvid, platform = 'netease') {
   return request.get('/mv/detail', {
     params: {
-      mvid
+      mvid,
+      platform
     }
   })
 }
 
 // 传入mvid, 获取mv播放地址
-export function getMvUrl (id) {
+export function getMvUrl (id, platform = 'netease') {
   return request.get('/mv/url', {
     params: {
-      id
+      id,
+      platform
     }
   })
 }
 
 // 传入mvid, 获取相似mv
-export function getSimiMV (id) {
+export function getSimiMV (id, platform = 'netease') {
   return request.get('/simi/mv', {
     params: {
-      mvid: id
+      mvid: id,
+      platform
     }
   })
 }

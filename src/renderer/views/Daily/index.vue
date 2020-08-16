@@ -14,7 +14,7 @@
       <div class="tracks-top">
         <div class="item">
           <a-button-group>
-            <a-button type="primary" icon="play-circle" @click="play(songs,0)">播放全部</a-button>
+            <a-button type="primary" icon="play-circle" @click="playAll">播放全部</a-button>
             <a-button type="primary" icon="plus" title="添加所有到播放列表" @click="addToList" />
           </a-button-group>
         </div>
@@ -32,6 +32,8 @@
 import { mapGetters } from 'vuex'
 import { getRecommendSongs, createPlaylist, addSongToList } from '@/api/user'
 import { normalSong } from '@/utils/song'
+import { playMode } from '@/config/config'
+import { getRandomInt } from '@/utils/calculate.js'
 import TrackList from '@/components/Common/track-list/index.js'
 import { uniqueData } from '@/utils/assist'
 export default {
@@ -71,7 +73,7 @@ export default {
   methods: {
     getSongs () {
       getRecommendSongs().then(res => {
-        this.songs = res.recommend.map(song => {
+        this.songs = res.data.dailySongs.map(song => {
           return normalSong(song)
         })
       })
@@ -113,6 +115,19 @@ export default {
       this.$electron.ipcRenderer.send('set-play-list', {
         value: tracks
       })
+    },
+    playAll () {
+      switch (this.mode) {
+        case playMode.sequence:
+          this.play(this.songs, 0)
+          break
+        case playMode.loop:
+          this.play(this.songs, 0)
+          break
+        case playMode.random:
+          this.play(this.songs, getRandomInt(0, this.localSongs.length - 1))
+          break
+      }
     },
     addToList () {
       let current_play_list = this.current_play_list.slice()

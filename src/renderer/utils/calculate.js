@@ -1,4 +1,4 @@
-function getRandomInt (min, max) {
+export function getRandomInt (min, max) {
   // min,max之间的随机数（包含min,max）
   return Math.floor(Math.random() * (max - min + 1) + min)
 }

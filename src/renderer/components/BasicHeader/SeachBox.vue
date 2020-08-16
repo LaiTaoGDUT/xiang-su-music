@@ -156,15 +156,15 @@ export default {
       let path = ''
       switch (key) {
         case 'albums':
-          path = `/album/${item.id}`
+          path = `/album/${item.id}?platform=${item.platform}`
           this.$router.push({ path })
           break
         case 'artists':
-          path = `/artist/${item.id}`
+          path = `/artist/${item.id}?platform=${item.platform}`
           this.$router.push({ path })
           break
         case 'playlists':
-          path = `/playlist/${item.id}`
+          path = `/playlist/${item.id}?platform=${item.platform}`
           this.$router.push({ path })
           break
         case 'mvs':

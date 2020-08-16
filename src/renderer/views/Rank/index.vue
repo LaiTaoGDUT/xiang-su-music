@@ -23,7 +23,7 @@
           <dt class="title" :style="`background-image: url(${imgs['A']})`">
             <span class="text">{{ topArtist.updateTime | toDate('MM月DD日') }} 更新</span>
           </dt>
-          <router-link tag="dd" :to="`/artist/${artist.id}`" class="item"
+          <router-link tag="dd" :to="`/artist/${artist.id}?platform=${artist.platform}`" class="item"
                        v-for="(artist, i) in topArtist.artists.slice(0, 8)" :key="artist.id" style="cursor: pointer">
             <span class="index" :class="{'highlight' : i < 3}">{{ i+1 }}</span>
             <span class="name">{{ artist.name }}</span>
@@ -59,7 +59,8 @@
 import HomeLayout from '@/layouts/HomeLayout'
 import Loading from '@/components/Common/loading'
 import Artists from '@/components/Common/artists'
-import { getToplist, getTopDetail } from '@/api/rank'
+import { getToplist } from '@/api/rank'
+import { getPlaylistDetail } from '@/api/playlist'
 import { getTopArtist } from '@/api/artist'
 import { normalSong } from '@/utils/song'
 
@@ -118,7 +119,7 @@ export default {
         this.list = list
         list.forEach(async item => {
           if ( item.ToplistType ) {
-            let { playlist } = await getTopDetail(ToplistType[ item.ToplistType ].idx)
+            let { playlist } = await getPlaylistDetail(item.id)
             item.tracks = playlist.tracks.slice(0, 8).map(track => {
               return normalSong(track)
             })

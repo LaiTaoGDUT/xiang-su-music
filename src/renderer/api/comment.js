@@ -10,10 +10,10 @@ export function getPlaylistComment (id, limit = 20, offset = 0) {
 }
 
 // 传入专辑id和limit参数 ,获得该专辑的所有评论
-export function getAlbumComment (id, limit = 20, offset = 0) {
+export function getAlbumComment (id, limit = 20, offset = 0, platform = 'netease' ) {
   return request.get('/comment/album', {
     params: {
-      id, limit, offset
+      id, limit, offset, platform
     }
   })
 }

@@ -1,5 +1,5 @@
 <template>
-  <router-link tag="li" :to="`/artist/${artist.id}`">
+  <router-link tag="li" :to="`/artist/${artist.id}?platform=${artist.platform}`">
     <figure class="figure">
       <img v-lazy="`${artist.img1v1Url}?param=360y360`" />
       <figcaption class="figcaption">{{artist.name}}</figcaption>

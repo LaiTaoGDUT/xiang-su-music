@@ -23,7 +23,7 @@
       <div class="r" v-if="current_song">
         <h2 class="song-name">{{current_song.name}}</h2>
         <div class="song-info">
-          <div class="song-album">专辑: <router-link :to="`/album/${current_song.album.id}`">{{current_song.album.name}}</router-link> </div>
+          <div class="song-album">专辑: <router-link :to="`/album/${current_song.album.id}?platform=${current_song.platform}`">{{current_song.album.name}}</router-link> </div>
           <div class="song-artist">
             歌手:
             <artists :artists="current_song.artist"/>
@@ -43,6 +43,7 @@
 import moment from 'moment'
 import { mapState, mapGetters } from 'vuex'
 import { getFm } from '@/api/user'
+import { playMode } from '@/config/config'
 import { normalSong, getUrl } from '@/utils/song'
 import { getSongComment } from '@/api/comment'
 import LyricList from '@/components/Lyric/index.vue'
@@ -107,7 +108,7 @@ export default {
       this.loading = true
       this._getFm().then(tracks => {
         this.tracks = tracks
-        this.$store.dispatch('play/selectPlay', { tracks: tracks, index: 0 })
+        this.$store.dispatch('play/selectPlay', { tracks: tracks, index: 0, isFm: true })
         this.$electron.ipcRenderer.send('change-play-index', {
           index: 0
         })

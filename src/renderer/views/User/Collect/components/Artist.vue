@@ -3,7 +3,7 @@
     <a-row type="flex" align="middle" v-for="artist in data" :key="artist.id" class="artist-item" @click.native="onClick(artist)">
       <a-col :span="14">
         <img v-lazy="`${artist.picUrl}?param=40y40`" alt="" width="40">
-        <router-link :to="`/artist/${artist.id}`"> {{artist.name}} </router-link>
+        <router-link :to="`/artist/${artist.id}?platform=${artist.platform}`"> {{artist.name}} </router-link>
       </a-col>
       <a-col :span="5">
         专辑: {{artist.albumSize}}

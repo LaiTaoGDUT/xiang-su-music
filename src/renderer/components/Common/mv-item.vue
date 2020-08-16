@@ -1,6 +1,6 @@
 <template>
   <div class="item">
-    <router-link :to="`/mv/${this.mv.id}`" class="info">
+    <router-link :to="`/mv/${mv.id}?platform=${mv.platform}`" class="info">
       <img class="avatar" v-lazy="mv.cover">
       <div class="top">
         <z-icon type="shipin"/>
@@ -11,7 +11,7 @@
       </div>
       <a-icon type="play-circle" class="play-icon"/>
     </router-link>
-    <router-link :to="`/mv/${this.mv.id}`" class="name">{{mv.name}}</router-link>
+    <router-link :to="`/mv/${mv.id}?platform=${mv.platform}`" class="name">{{mv.name}}</router-link>
     <div class="artists">
       <artists :artists="mv.artists"/>
     </div>

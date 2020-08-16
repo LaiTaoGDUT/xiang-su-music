@@ -17,7 +17,7 @@ export default {
   },
   methods: {
     onClick () {
-      this.$router.push(`/album/${this.event.album.id}`)
+      this.$router.push(`/album/${this.event.album.id}?platform=${this.event.album.platform}`)
     }
   }
 }

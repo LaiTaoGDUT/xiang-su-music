@@ -36,8 +36,10 @@
 <script>
 import { mapGetters } from 'vuex'
 import ZIcon from '@/components/ZIcon'
+import { getRandomInt } from '@/utils/calculate.js'
 import { getPlaylistDetail } from '@/api/playlist'
 import { normalSong } from '@/utils/song'
+import { playMode } from '@/config/config'
 export default {
   data () {
     return {}
@@ -46,7 +48,8 @@ export default {
     ZIcon
   },
   computed: {
-    ...mapGetters('User', ['userId', 'subscribedList', 'likedsongIds'])
+    ...mapGetters('User', ['userId', 'subscribedList', 'likedsongIds']),
+    ...mapGetters('play', ['mode'])
   },
   methods: {
     removePlaylist (action, pid) {
@@ -57,13 +60,26 @@ export default {
         let tracks = res.playlist.tracks.map(track => {
           return normalSong(track)
         })
-        this.$store.dispatch('play/selectPlay', { tracks, index: 0 })
-        this.$electron.ipcRenderer.send('change-play-index', {
-          index: 0
-        })
-        this.$electron.ipcRenderer.send('set-play-list', {
-          value: tracks
-        })
+        switch (this.mode) {
+          case playMode.random:
+            let num = getRandomInt(0, tracks.length - 1)
+            this.$store.dispatch('play/selectPlay', { tracks, index: num })
+            this.$electron.ipcRenderer.send('change-play-index', {
+              index: num
+            })
+            this.$electron.ipcRenderer.send('set-play-list', {
+              value: tracks
+            })
+            break
+          default:
+            this.$store.dispatch('play/selectPlay', { tracks, index: 0 })
+            this.$electron.ipcRenderer.send('change-play-index', {
+              index: 0
+            })
+            this.$electron.ipcRenderer.send('set-play-list', {
+              value: tracks
+            })
+        }
       })
     }
   }

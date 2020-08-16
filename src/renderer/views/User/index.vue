@@ -45,7 +45,7 @@
       <div class="title">{{ user.profile.nickname }} 的歌单( {{ total }} )</div>
       <ul>
         <li v-for="(playlist) in list" :key="playlist.id" class="list-item">
-          <router-link :to="`/playlist/${playlist.id}`" class="playlist">
+          <router-link :to="`/playlist/${playlist.id}?platform=${playlist.platform}`" class="playlist">
             <img v-lazy="`${playlist.coverImgUrl}?param=42y42`" class="avatar" />
             <div class="name">{{ playlist.name }}</div>
             <div class="track-count">歌曲: {{ playlist.trackCount }}首</div>

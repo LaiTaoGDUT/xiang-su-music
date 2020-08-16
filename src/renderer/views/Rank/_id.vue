@@ -16,7 +16,7 @@
             <ul class="actions">
               <li class="item">
                 <a-button-group size="small">
-                  <a-button type="primary" icon="play-circle" @click="play">播放全部</a-button>
+                  <a-button type="primary" icon="play-circle" @click="playAll">播放全部</a-button>
                   <a-button type="primary" icon="plus" @click="addToList" />
                 </a-button-group>
               </li>
@@ -50,7 +50,7 @@
           </li>
           <li>
             <div>播放数</div>
-            <strong>{{rank.playCount}}</strong>
+            <strong>{{rank.playCount | toWan}}</strong>
           </li>
         </ul>
       </a-list-item>
@@ -66,8 +66,9 @@
 import { mapGetters } from 'vuex'
 import TabBar from '@/components/Common/tabBar'
 import Loading from '@/components/Common/loading'
-import { getTopDetail } from '@/api/rank'
 import { getPlaylistDetail } from '@/api/playlist'
+import { playMode } from '@/config/config'
+import { getRandomInt } from '@/utils/calculate.js'
 import { normalSong } from '@/utils/song'
 import { uniqueData } from '@/utils/assist'
 export default {
@@ -101,12 +102,8 @@ export default {
     next()
   },
   computed: {
-    ...mapGetters('User', [
-      'likedPlaylistIds'
-    ]),
-    ...mapGetters('play', [
-      'current_play_list'
-    ]),
+    ...mapGetters('User', [ 'likedPlaylistIds' ]),
+    ...mapGetters('play', [ 'current_play_list', 'mode' ]),
     songs () {
       return this.tracks.filter(track => {
         return track.name.includes(this.searchKey)
@@ -130,30 +127,30 @@ export default {
         this.loading = false
       })
     },
-    _getTopDetail () {
-      this.loading = true
-      let id = this.$route.params.id
-      getTopDetail(id).then(res => {
-        this.rank = res.playlist
-        let arr = []
-        res.playlist.tracks.forEach(track => {
-          arr.push(normalSong(track))
-        })
-        this.tracks = arr
-        this.loading = false
-      })
-    },
     searchSongs (value) {
       this.searchKey = value
     },
-    play () {
-      this.$store.dispatch('play/selectPlay', { tracks: this.tracks, index: 0 })
+    play (tracks, index) {
+      this.$store.dispatch('play/selectPlay', { tracks, index })
       this.$electron.ipcRenderer.send('change-play-index', {
-        index: 0
+        index
       })
       this.$electron.ipcRenderer.send('set-play-list', {
-        value: this.tracks
+        value: tracks
       })
+    },
+    playAll () {
+      switch (this.mode) {
+        case playMode.sequence:
+          this.play(this.tracks, 0)
+          break
+        case playMode.loop:
+          this.play(this.tracks, 0)
+          break
+        case playMode.random:
+          this.play(this.tracks, getRandomInt(0, this.tracks.length - 1))
+          break
+      }
     },
     addToList () {
       let current_play_list = this.current_play_list.slice()

@@ -1,8 +1,7 @@
 export const playMode = {    // 播放模式
   sequence: 0,  // 顺序播放
   loop: 1,   // 循环播放
-  random: 2,  // 随机播放
-  xindong: 3  // 心动模式
+  random: 2  // 随机播放
 }
 
 export const brsMap = {   // mv清晰度

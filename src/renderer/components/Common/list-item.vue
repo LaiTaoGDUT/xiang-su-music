@@ -48,7 +48,7 @@ export default {
       } else if ( this.itemType == 'video' ) {
         this.$router.push(`/video/${this.item.videoId}`)
       } else {
-        this.$router.push(`/playlist/${this.item.id}`)
+        this.$router.push(`/playlist/${this.item.id}?platform=${this.item.platform}`)
       }
     }
   },
@@ -67,11 +67,11 @@ export default {
       }
       let path
       if ( this.itemType == 'mv' && typeof this.item.id == 'number' ) {
-        path = `/mv/${this.item.id}`
+        path = `/mv/${this.item.id}?platform=${this.item.platform}`
       } else if ( this.itemType == 'video' ) {
         path = `/video/${this.item.videoId}`
       } else {
-        path = `/playlist/${this.item.id}`
+        path = `/playlist/${this.item.id}?platform=${this.item.platform}`
       }
       return path
     }

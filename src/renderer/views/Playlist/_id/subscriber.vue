@@ -9,7 +9,7 @@
         <div class="nickname">{{ subscriber.nickname }}</div>
       </router-link>
     </div>
-    <div v-else>暂无收藏者</div>
+    <div v-else style="text-align: center">暂无收藏者~</div>
   </div>
 </template>
 
@@ -33,7 +33,8 @@ export default {
   methods: {
     _getPlaylistSubscribers () {
       let id = this.$route.params.id
-      let options = { ...this.options, id }
+      let platform = this.$route.query.platform
+      let options = { ...this.options, id, platform }
       getPlaylistSubscribers(options).then(res => {
         this.subscribers = res.subscribers
       })

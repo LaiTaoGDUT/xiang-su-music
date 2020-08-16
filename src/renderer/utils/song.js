@@ -1,4 +1,5 @@
 import { getLyric, getSongUrl, getIntelligence } from '@/api/song'
+import { uGetSongUrl } from '@/api/user'
 
 // param图片宽高
 export function normalSong (song, param = '300y300', isFm = false) {
@@ -22,7 +23,8 @@ export function normalSong (song, param = '300y300', isFm = false) {
     url: '',
     mvid: song.mvid || song.mv || '',
     hot: 90,
-    isFm
+    isFm,
+    platform: song.platform || 'netease'
   }
 }
 
@@ -34,6 +36,11 @@ export async function getUrl (id) {
       songUrl = `https://music.163.com/song/media/outer/url?id=${id}.mp3`
     } else if (res.data[0].url) {
       songUrl = res.data[0].url
+    } else {
+      res = await uGetSongUrl(id) // 当从会员账号中无法找到链接时，往用户登录的账号里面找
+      if (res.data[0].url) {
+        songUrl = res.data[0].url
+      }
     }
     return songUrl
   } catch (error) {

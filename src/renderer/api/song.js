@@ -9,10 +9,10 @@ export function getSongUrl (id) {
 }
 
 // 歌曲详情
-export function getSongDetail (id) {
+export function getSongDetail (ids) {
   return request.get('/song/detail', {
     params: {
-      id
+      ids: ids.join(',')
     }
   })
 }
@@ -43,19 +43,21 @@ export function getIntelligence (id, pid) {
 }
 
 // 相似音乐
-export function getSimiSong (id) {
+export function getSimiSong (id, platform) {
   return request.get('/simi/song', {
     params: {
-      id
+      id,
+      platform
     }
   })
 }
 
 // 根据歌曲找到包含这首歌的歌单
-export function getSimiPlaylist (id) {
+export function getSimiPlaylist (id, platform) {
   return request.get('/simi/playlist', {
     params: {
-      id
+      id,
+      platform
     }
   })
 }

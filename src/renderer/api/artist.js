@@ -13,55 +13,60 @@ export function getArtistList ({ cat = '全部', limit = 30, offset = 0, initial
 }
 
 // 传入歌手id, 获得歌手专辑内容
-export function getArtistAlbum ({ id, limit = 30, offset = 0 }) {
+export function getArtistAlbum ({ id, limit = 30, offset = 0, platform }) {
   return request.get('/artist/album', {
     params: {
       id,
       limit,
-      offset
+      offset,
+      platform
     }
   })
 }
 
 // 传入歌手id, 获得歌手MV内容
-export function getArtistMV ({ id, limit = 10, offset = 0 }) {
+export function getArtistMV ({ id, limit = 10, offset = 0, platform }) {
   return request.get('/artist/mv', {
     params: {
       id,
       limit,
-      offset
+      offset,
+      platform
     }
   })
 }
 
 // 传入歌手id, 获得歌手部分信息和热门歌曲
-export function getArtistSongs ({ id, limit = 30, offset = 0 }) {
+export function getArtistSongs ({ id, limit = 30, offset = 0, platform }) {
   return request.get('/artists', {
     params: {
       id,
       limit,
-      offset
+      offset,
+      platform
     }
   })
 }
 
 // 传入歌手id, 获得歌手描述
-export function getArtistDesc ({ id, limit = 30, offset = 0 }) {
+export function getArtistDesc ({ id, limit = 30, offset = 0, platform }) {
   return request.get('/artist/desc', {
     params: {
       id,
       limit,
-      offset
+      offset,
+      platform
     }
   })
 }
 // 传入歌手id, 获得相似歌手
-export function getArtistSimi ({ id, limit = 30, offset = 0 }) {
+export function getArtistSimi ({ id, limit = 30, offset = 0, platform }) {
   return request.get('/simi/artist', {
     params: {
       id,
       limit,
-      offset
+      offset,
+      platform
     }
   })
 }

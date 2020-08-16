@@ -11,6 +11,8 @@
             <div>单曲数：{{artist.musicSize}}</div>
             <div>专辑数：{{artist.albumSize}}</div>
             <div>MV数：{{artist.mvSize}}</div>
+            <div  v-if="artist.fans" >粉丝数：{{ artist.fans | toWan }}</div>
+            <div v-if="artist.briefDesc" style="max-height: 100px;overflow: auto;">简介：{{ artist.briefDesc }}</div>
           </div>
           <img v-lazy="`${artist.img1v1Url}?param=200y200`" width="200" height="200" :key="artist.id" slot="avatar">
         </a-list-item-meta>
@@ -18,13 +20,13 @@
           <a-button size="small" icon="check" @click="subscribe(2, artist)" v-if="artist.followed">
             已收藏
           </a-button>
-          <a-button size="small" icon="folder-add" @click="subscribe(1, artist)" v-else>
+          <a-button :disabled="artist.platform == 'qq'" size="small" icon="folder-add" @click="subscribe(1, artist)" v-else>
             收藏
           </a-button>
         </div>
       </a-list-item>
     </a-list>
-    <tab-bar :tabs="tabs" @search="searchSongs" />
+    <tab-bar :tabs="tabs" @search="searchSongs" :platform="artist.platform" />
     <keep-alive>
       <router-view :tracks="songs" @loadmore="pushSongs" />
     </keep-alive>
@@ -72,10 +74,10 @@ export default {
     TabBar, Loading
   },
   activated () {
-    this._getArtistSongs(this.$route.params.id)
+    this._getArtistSongs(this.$route.params.id, this.$route.query.platform)
   },
   beforeRouteUpdate (to, from, next) {
-    this._getArtistSongs(to.params.id)
+    this._getArtistSongs(to.params.id, to.query.platform)
     next()
   },
   computed: {
@@ -89,9 +91,9 @@ export default {
     searchSongs (value) {
       this.searchKey = value
     },
-    async _getArtistSongs (id) {
+    async _getArtistSongs (id, platform) {
       this.loading = true
-      let { artist, hotSongs } = await getArtistSongs({ id, limit: 50, offset: 0 })
+      let { artist, hotSongs } = await getArtistSongs({ id, limit: 50, offset: 0, platform })
       this.artist = artist
       const arr = []
       hotSongs.forEach(song => {

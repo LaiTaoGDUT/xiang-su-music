@@ -6,7 +6,7 @@
         v-for="(tab , index) in tabs"
         :key="index"
       >{{tab.label}}</router-link>-->
-      <router-link :to="{name:tab.name}" v-for="(tab , index) in tabs" :key="index">{{tab.label}}</router-link>
+      <router-link :to="{name:tab.name, query: {platform: platform}}" v-for="(tab , index) in tabs" :key="index">{{tab.label}}</router-link>
     </nav>
     <div class="tab-bar-extra-content" v-if="showSearch">
       <a-input-search
@@ -45,6 +45,10 @@ export default {
           }
         ]
       }
+    },
+    platform: {
+      type: String,
+      default: 'netease'
     },
     showSearch: { type: Boolean, default: true }
   },

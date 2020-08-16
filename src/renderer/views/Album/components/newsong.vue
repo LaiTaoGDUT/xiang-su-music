@@ -8,7 +8,7 @@
       <div class="tracks-top">
         <div class="item">
           <a-button-group>
-            <a-button type="primary" icon="play-circle" @click="play(songs,0)">播放全部</a-button>
+            <a-button type="primary" icon="play-circle" @click="playAll">播放全部</a-button>
             <a-button type="primary" icon="plus" title="添加所有到播放列表" @click="addToList" />
           </a-button-group>
         </div>
@@ -30,6 +30,8 @@
 import { mapGetters } from 'vuex'
 import albumItem from '@/components/Common/album-item'
 import TrackList from '@/components/Common/track-list/index.js'
+import { playMode } from '@/config/config'
+import { getRandomInt } from '@/utils/calculate.js'
 import { normalSong } from '@/utils/song'
 import { getTopSong } from '@/api/song'
 import { uniqueData } from '@/utils/assist'
@@ -88,6 +90,7 @@ export default {
       'fullscreen'
     ]),
     ...mapGetters('User', [ 'userCollectists', 'likedsongIds' ]),
+    ...mapGetters('play', ['mode']),
     subIcon () {
       return this.likedsongIds.includes(this.pid) ? 'folder-add' : 'check'
     }
@@ -116,11 +119,24 @@ export default {
     play (tracks, index) {
       this.$store.dispatch('play/selectPlay', { tracks, index })
       this.$electron.ipcRenderer.send('change-play-index', {
-        index: index
+        index
       })
       this.$electron.ipcRenderer.send('set-play-list', {
         value: tracks
       })
+    },
+    playAll () {
+      switch (this.mode) {
+        case playMode.sequence:
+          this.play(this.songs, 0)
+          break
+        case playMode.loop:
+          this.play(this.songs, 0)
+          break
+        case playMode.random:
+          this.play(this.songs, getRandomInt(0, this.songs.length - 1))
+          break
+      }
     },
     addToList () {
       let current_play_list = this.current_play_list.slice()

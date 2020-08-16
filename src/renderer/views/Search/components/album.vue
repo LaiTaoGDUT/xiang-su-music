@@ -9,7 +9,7 @@
         :key="album.id"
       >
         <a-col :span="12">
-          <router-link :to="`/album/${album.id}`" class="album">
+          <router-link :to="`/album/${album.id}?platform=${album.platform}`" class="album">
             <img v-lazy="`${album.picUrl}?param=50y50`">
             <span>{{album.name}}</span>
           </router-link>

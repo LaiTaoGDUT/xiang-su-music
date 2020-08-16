@@ -19,10 +19,11 @@ export function getNewestAlbum ({ limit, offset }) {
 }
 
 //  传入专辑id, 获得专辑内容
-export function getAlbum (id) {
+export function getAlbum (id, platform = 'netease') {
   return request.get('/album', {
     params: {
-      id
+      id,
+      platform
     }
   })
 }

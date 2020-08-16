@@ -33,17 +33,12 @@
       <a-menu-item v-for="(item,index) in createdList" :key="item.id">
         <a-dropdown :trigger="['contextmenu']" overlayClassName="sider-right-menu">
           <div class="flex" v-if="index == 0" :title="item.name">
-            <router-link class="link" :to="`/playlist/${item.id}`">
+            <router-link class="link" :to="`/playlist/${item.id}?platform=netease`">
               <span class="ellipsis">
                 <a-icon type="heart" />
                 <span>{{item.name}}</span>
               </span>
             </router-link>
-            <a-tooltip title="开启心动模式">
-              <span @click.prevent.stop="xindong(item.id)" style="paddingRight:5px">
-                <z-icon type="FMcollect" />
-              </span>
-            </a-tooltip>
           </div>
 
           <div class="flex" :title="item.name" v-else>
@@ -77,7 +72,7 @@
 import { mapGetters } from 'vuex'
 import ZIcon from '@/components/ZIcon'
 import PlaylistCreate from '@/components/Playlist/Create.vue'
-
+import { getRandomInt } from '@/utils/calculate.js'
 import { getUserPlaylist, getUserLikeSongs } from '@/api/user'
 import { getPlaylistDetail } from '@/api/playlist'
 import { getIntelligence } from '@/api/song'
@@ -118,49 +113,27 @@ export default {
         let tracks = res.playlist.tracks.map(track => {
           return normalSong(track)
         })
-        this.$store.dispatch('play/selectPlay', { tracks, index: 0 })
-        this.$electron.ipcRenderer.send('change-play-index', {
-          index: 0
-        })
-        this.$electron.ipcRenderer.send('set-play-list', {
-          value: tracks
-        })
+        switch (this.mode) {
+          case playMode.random:
+            let num = getRandomInt(0, tracks.length - 1)
+            this.$store.dispatch('play/selectPlay', { tracks, index: num })
+            this.$electron.ipcRenderer.send('change-play-index', {
+              index: num
+            })
+            this.$electron.ipcRenderer.send('set-play-list', {
+              value: tracks
+            })
+            break
+          default:
+            this.$store.dispatch('play/selectPlay', { tracks, index: 0 })
+            this.$electron.ipcRenderer.send('change-play-index', {
+              index: 0
+            })
+            this.$electron.ipcRenderer.send('set-play-list', {
+              value: tracks
+            })
+        }
       })
-    },
-    async xindong (pid) {
-      if (this.hideLoading) return
-      this.hideLoading = this.$message.loading('正在开启心动模式..', 0)
-      try {
-        let songId
-        if (this.current_song && !this.current_song.folder && this.current_song.id) { // 如果当前有播放歌曲且不是本地歌曲
-          songId = this.current_song.id
-        } else {
-          let { ids } = await getUserLikeSongs(this.userId)
-          songId = ids[0]
-        }
-        let res = await getIntelligence(songId, pid)
-        if (res.data.length) {
-          let tracks = res.data.map(song => {
-            return normalSong(song.songInfo)
-          })
-          this.$store.dispatch('play/selectPlay', { tracks, index: 0 })
-          this.$electron.ipcRenderer.send('change-play-index', {
-            index: 0
-          })
-          this.$electron.ipcRenderer.send('set-play-list', {
-            value: tracks
-          })
-        }
-        this.$store.commit('play/SET_MODE', playMode.xindong)
-        this.$electron.ipcRenderer.send('set-mode', {
-          value: playMode.xindong
-        })
-        this.hideLoading()
-        this.hideLoading = null
-      } catch (e) {
-        this.hideLoading()
-        this.hideLoading = null
-      }
     },
     hide () {
       this.visible = false

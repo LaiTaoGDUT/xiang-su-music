@@ -1,5 +1,5 @@
 <template>
-  <router-link :to="`/playlist/${event.playlist.id}`" class="playlist">
+  <router-link :to="`/playlist/${event.playlist.id}?platform=${event.playlist.platform}`" class="playlist">
     <div class="avatar">
       <img v-lazy="`${event.playlist.coverImgUrl}?param=40y40`" />
     </div>

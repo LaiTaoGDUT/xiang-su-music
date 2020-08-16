@@ -36,6 +36,7 @@ const state = () => ({
   videoPlaying: false, // 视频是否播放
   source: ls.get(SOURCE_KEY, ''), // 音视频播放源
   mode: playMode.sequence, // 音频播放模式
+  privateFm: false, // 私人FM模式
   fullscreen: false, // 音频大屏
   lyric: null, // 歌词
   trans: null, // lyric translation
@@ -63,11 +64,15 @@ const getters = {
   isMuted: state => state.isMuted,
   volume: state => state.volume,
   showDesktoplyric: state => state.showDesktoplyric,
-  showDesktopView: state => state.showDesktopView
+  showDesktopView: state => state.showDesktopView,
+  privateFm: state => state.privateFm
 }
 const mutations = {
   SET_SHOW_DESKTOP_LYRIC (state, flag) {
     state.showDesktoplyric = flag
+  },
+  SET_PRIVATE_FM (state, flag) {
+    state.privateFm = flag
   },
   SET_SHOW_DESKTOP_VIEW (state, flag) {
     state.showDesktopView = flag
@@ -185,9 +190,14 @@ const actions = {
     })
     commit('SET_CURRENT_PLAY_LIST', current_play_list)
   },
-  // 双击的播放
-  async selectPlay ({ commit, state }, { tracks, index }) {
+  // 双击播放或播放全部
+  async selectPlay ({ commit, dispatch, state, rootState }, { tracks, index, isFM = false }) {
     if ( tracks.length < 1 ) return
+    if (isFM) {
+      commit('SET_PRIVATE_FM', true)
+    } else if (state.privateFm) {
+      commit('SET_PRIVATE_FM', false)
+    }
     commit('SET_CURRENT_PLAY_LIST', tracks)
     commit('SET_CURRENT_INDEX', index)
     // commit('SET_PLAY_STATUS', true)

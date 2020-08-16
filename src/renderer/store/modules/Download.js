@@ -101,11 +101,7 @@ let actions = {
       song.folder = downloadFolder
       song.size = state.downloading[index].totalBytes
       commit('CHANGE_TO_DOWNLOADED', { song, index })
-      // 如果本地音乐目录包含下载目录，则在下载完成后自动加入本地歌曲
-      if (rootState.Localsong.needRefreshFolders.indexOf(rootState.Setting.downloadSongsFolders[0]) > 0) {
-        commit('Localsong/add', song, { root: true })
-      }
-      commit('REMOVE_QUEUE', song)
+      dispatch('addLocalMusic', song)
       dispatch('download')
       // 歌曲下载成功尝试下载歌词
       db.lyric.findOne({ songId: id }, (err, doc) => {
@@ -144,7 +140,7 @@ let actions = {
       return
     }
     let queue = state.queue
-    let song = queue[0]
+    let song = queue.shift()
     let { id, name } = song
     let filename = generateName(song)
     try {
@@ -159,12 +155,10 @@ let actions = {
         })
       } else {
         Message.error(`歌曲${name}无下载资源!`)
-        commit('REMOVE_QUEUE', song)
         dispatch('download')
       }
     } catch (err) {
       Message.error('下载失败' + err)
-      commit('REMOVE_QUEUE', song)
       dispatch('download')
     }
   },
@@ -180,6 +174,13 @@ let actions = {
     }
     if (state.queue.length > 0 && !state.downloading.length) {
       dispatch('download')
+    }
+  },
+  addLocalMusic ({ commit, dispatch, state, rootState }, song) {
+    // 如果本地音乐目录包含下载目录，则在下载完成后自动加入本地歌曲
+    if (rootState.Localsong.needRefreshFolders.indexOf(rootState.Setting.downloadSongsFolders[0]) >= 0) {
+      commit('Localsong/add', song, { root: true })
+      console.log('add', song)
     }
   }
 }

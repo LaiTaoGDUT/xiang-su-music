@@ -2,7 +2,7 @@
   <span>
     <template v-if="row[col.key] && row[col.key].name && row[col.key].id">
       <router-link
-        :to="`/album/${row[col.key].id}`"
+        :to="`/album/${row[col.key].id}?platform=${row[col.key].platform}`"
         :title="`专辑:${row[col.key].name}`"
       >{{ row[col.key].name }}</router-link>
     </template>

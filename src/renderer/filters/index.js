@@ -12,6 +12,11 @@ Vue.filter('NumberFormat', function (value) {  // 将数字的整数部分转换
 })
 
 Vue.filter('toWan', function (num) {       // 将数字转换为 x万xxx的格式
+  if (num >= 100000000) {
+    let billion = Math.floor(num / 100000000)
+    num = num % 100000000
+    return billion + '亿' + (num >= 10000 ? (num / 10000).toFixed(1) + '万' : num)
+  }
   return num >= 10000 ? (num / 10000).toFixed(1) + '万' : num
 })
 
@@ -52,4 +57,12 @@ Vue.filter('normalSize', function (size, type) {   // 将以Byte单位的容量�
   if (isNaN(size) || size < 0) return '未知大小'
   if (type === 'K') return `${(size / 1024).toFixed(2)}k`
   return `${(size / 1024 / 1024).toFixed(2)}M`
+})
+
+Vue.filter('normalDate', function (date) {
+  if (!/^(\d+)$/g.test(date)) {
+    return date
+  }
+  let _date = new Date(date)
+  return `${_date.getFullYear()}-${_pad(_date.getMonth())}-${_pad(_date.getDay())}`
 })

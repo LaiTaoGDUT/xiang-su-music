@@ -36,7 +36,7 @@
             <div class="info">
               <div class="album" :title="current_song.album.name" v-if="current_song.album" @click="shrinkScreen">
                 专辑：
-                <router-link :to="`/album/${current_song.album.id}`" class="value">{{current_song.album.name}}</router-link>
+                <router-link :to="`/album/${current_song.album.id}?platform=${current_song.platform}`" class="value">{{current_song.album.name}}</router-link>
               </div>
               <div class="singer" v-if="current_song.artist">
                 歌手：
@@ -207,9 +207,9 @@ export default {
       if (newSong.id === oldSong.id || !this.fullscreen) return
       this.delay = 0
       this.$refs.lyrics.scrollTo(0)
-      this._getSimiPlaylist(newSong.id)
-      this._getSimiSong(newSong.id)
-      this._getSongUsers(newSong.id)
+      this._getSimiPlaylist(newSong.id, newSong.platform)
+      this._getSimiSong(newSong.id, newSong.platform)
+      this._getSongUsers(newSong.id, newSong.platform)
 
       this.offset = 0
       this.comment = null
@@ -246,9 +246,9 @@ export default {
         this.$nextTick(() => {
           this.refresh = false
         })
-        this._getSimiPlaylist(this.current_song.id)
-        this._getSimiSong(this.current_song.id)
-        this._getSongUsers(this.current_song.id)
+        this._getSimiPlaylist(this.current_song.id, this.current_song.platform)
+        this._getSimiSong(this.current_song.id, this.current_song.platform)
+        this._getSongUsers(this.current_song.id, this.current_song.platform)
       } else {
         this.isAddAnimation = false
         this.unWatcher_lyric && this.unWatcher_lyric()
@@ -301,17 +301,17 @@ export default {
     toggleFixLyric () {
       this.fixLyric = !this.fixLyric
     },
-    _getSimiSong (id) {
+    _getSimiSong (id, platform) {
       if (this.current_song.folder && !this.current_song.matched) return
-      getSimiSong(id).then(res => {
+      getSimiSong(id, platform).then(res => {
         this.simiSongs = res.songs.map(song => {
           return normalSong(song)
         })
       })
     },
-    _getSimiPlaylist (id) {
+    _getSimiPlaylist (id, platform) {
       if (this.current_song.folder && !this.current_song.matched) return
-      getSimiPlaylist(id).then(res => {
+      getSimiPlaylist(id, platform).then(res => {
         this.simiPlaylists = res.playlists
       })
     },
@@ -341,7 +341,7 @@ export default {
       }
     },
     _handleLikeSong () {
-      this.$store.dispatch('User/handleLikeSong', { songId: this.current_song.id, isLike: !this.isLiked, self: this })
+      this.$store.dispatch('User/handleLikeSong', { song: this.current_song, isLike: !this.isLiked, self: this })
     },
     download (song) {
       // if (this.downloaded.findIndex(item => item.id === this.current_song.id) >= 0) return
@@ -352,7 +352,7 @@ export default {
     },
     goRoute (playlist) {
       this.shrinkScreen()
-      this.$router.push({ path: `/playlist/${playlist.id}` })
+      this.$router.push({ path: `/playlist/${playlist.id}?platform=${playlist.platform}` })
     },
     goUserRoute (userId) {
       this.shrinkScreen()

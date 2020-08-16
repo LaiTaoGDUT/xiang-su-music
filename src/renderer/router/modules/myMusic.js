@@ -11,7 +11,8 @@ let myMusicRoutes = [
       {
         path: '/music_local/home',
         component: () => import(/* webpackChunkName: "playlist-id-tracks" */ '@/views/LocalMusic/_localMusic.vue'),
-        name: 'music_local-home'
+        name: 'music_local-home',
+        title: '本地音乐'
       }
     ]
   },

@@ -26,7 +26,7 @@
       <song-heart
         class="item no-drag"
         :isLiked="likedsongIds.includes(current_song.id)"
-        @heartClick="(isLike)=>{_handleLikeSong({songId:current_song.id,isLike})}"
+        @heartClick="(isLike)=>{_handleLikeSong({ song:current_song, isLike })}"
         title="喜欢歌曲"
         v-show="!current_song.folder"
       />
@@ -175,9 +175,9 @@ export default {
         height: this.isShowList ? 500 : 48
       })
     },
-    _handleLikeSong ({ songId, isLike }) {
+    _handleLikeSong ({ song, isLike }) {
       this.$electron.ipcRenderer.send('like-song', {
-        songId, isLike
+        song, isLike
       })
     },
     updateTheme (primaryColor) {

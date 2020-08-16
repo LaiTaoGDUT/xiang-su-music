@@ -1,13 +1,13 @@
 <template>
   <section class="desc">
-    <dl>
-      <dt>简介</dt>
-      <dd>{{briefDesc}}</dd>
-    </dl>
-    <dl v-for="(item, index) in introduction" :key="index">
-      <dt>{{item.ti}}</dt>
-      <dd>{{item.txt}}</dd>
-    </dl>
+    <div>
+      <div>简介</div>
+      <pre v-html="briefDesc"></pre>
+    </div>
+    <div v-for="(item, index) in introduction" :key="index">
+      <div>{{item.ti}}</div>
+      <pre v-html="item.txt"></pre>
+    </div>
     <dl v-for="(item, index) in topicData" :key="index">
       <dt>{{item.mainTitle}}</dt>
       <dd v-for="(con, index) in content" :key="index" v-html="con.content"></dd>
@@ -33,8 +33,7 @@ export default {
   methods: {
     async _getArtistDesc () {
       this.loading = true
-      let { id } = this.$route.params
-      let { introduction, briefDesc, topicData } = await getArtistDesc({ id })
+      let { introduction, briefDesc, topicData } = await getArtistDesc({ id: this.$route.params.id, platform: this.$route.query.platform })
       this.introduction = introduction
       this.briefDesc = briefDesc
       this.topicData = topicData

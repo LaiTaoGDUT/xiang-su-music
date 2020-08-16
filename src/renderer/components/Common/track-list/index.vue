@@ -54,11 +54,12 @@
                   <div class="col-item col-actions" v-if="isShowActions">
                     <song-heart
                       :disable = "row.songHeartDisable"
+                      :platform = 'row.platform'
                       :isLiked="likedsongIds.includes(row.id)"
-                      @heartClick="(isLike) => {_handleLikeSong(row, { songId: row.id, isLike })}"
+                      @heartClick="(isLike) => {_handleLikeSong(row, isLike)}"
                     />
 
-                    <template v-if="downloaded.findIndex(item => item.id === row.id) >= 0">
+                    <template v-if="downloaded.findIndex(item => item.id === row.id) >= 0 || localSongs.findIndex(item => item.id === row.id) > 0">
                       <a-icon
                         type="check-circle"
                         theme="filled"
@@ -71,13 +72,13 @@
                       <a-icon
                         type="clock-circle"
                         class="icon-waitting"
-                        v-if="queueIds.includes(row.id) && !row.downloadPercent"
+                        v-if="queueIds.includes(row.id) || ( downloading.length > 0 && downloading[0].id == row.id && !row.downloadPercent)"
                       />
                       <a-progress
                         type="circle"
                         :width="20"
                         :percent="row.downloadPercent"
-                        v-else-if="queueIds.includes(row.id) && row.downloadPercent > 0"
+                        v-else-if="row.downloadPercent > 0"
                       />
                       <z-icon type="download" @click.native="download(row)" v-else />
                     </template>
@@ -126,7 +127,7 @@
                       <span>下一首播放</span>
                     </div>
                   </a-menu-item>
-                  <a-sub-menu key="1">
+                  <a-sub-menu key="1" :disabled="row.platform == 'qq'">
                     <template slot="title">
                       <a-icon type="folder-add" />
                       <span>收藏到歌单</span>
@@ -300,6 +301,7 @@ export default {
   },
   computed: {
     ...mapState('Download', ['downloading', 'downloaded', 'queue']),
+    ...mapGetters('Localsong', ['localSongs']),
     ...mapGetters('Download', ['queueIds']),
     ...mapGetters('play', [
       'playing',
@@ -432,9 +434,9 @@ export default {
     _getUserLikelist (userId) {
       this.getUserLikedSongs({ self: this })
     },
-    _handleLikeSong (row, { songId, isLike }) {
+    _handleLikeSong (row, isLike) {
       this.$set(row, 'songHeartDisable', true)
-      this.handleLikeSong({ songId, isLike, self: this }).then(() => {
+      this.handleLikeSong({ song: row, isLike, self: this }).then(() => {
         this.$set(row, 'songHeartDisable', false)
       })
     },

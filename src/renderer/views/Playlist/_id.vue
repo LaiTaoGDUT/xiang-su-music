@@ -16,7 +16,7 @@
             <ul class="actions">
               <li class="item">
                 <a-button-group size="small">
-                  <a-button type="primary" icon="play-circle" @click="play">播放全部</a-button>
+                  <a-button type="primary" icon="play-circle" @click="playAll">播放全部</a-button>
                   <a-button type="primary" icon="plus" title="添加所有到播放列表" @click="addToList"></a-button>
                 </a-button-group>
               </li>
@@ -24,13 +24,13 @@
                 <a-button size="small" icon="check" @click="subscribe(2, playlist)" v-if="isLiked">
                   已收藏({{playlist.subscribedCount}})
                 </a-button>
-                <a-button size="small" icon="folder-add" @click="subscribe(1, playlist)" v-else>
+                <a-button  :disabled="playlist.platform == 'qq'" size="small" icon="folder-add" @click="subscribe(1, playlist)" v-else>
                   收藏({{playlist.subscribedCount}})
                 </a-button>
               </li>
-              <li class="item" @click="share">
-                <a-button size="small" icon="share-alt">分享({{playlist.shareCount}})</a-button>
-              </li>
+              <!-- <li class="item" @click="share">
+                <a-button :disabled="playlist.platform == 'qq'" size="small" icon="share-alt">分享({{playlist.shareCount}})</a-button>
+              </li> -->
               <li class="item">
                 <a-button size="small" @click="downloadAll"><z-icon type="download"></z-icon> 下载全部</a-button>
               </li>
@@ -46,7 +46,7 @@
             </div>
             <div class="desc">
               <span>简介：</span>
-              <span v-if="playlist.description"> {{ playlist.description }}</span>
+              <span v-if="playlist.description" v-html="playlist.description"></span>
               <span v-else>无</span>
             </div>
           </div>
@@ -65,7 +65,7 @@
       </a-list-item>
     </a-list>
 
-    <tab-bar @search="searchSongs" />
+    <tab-bar @search="searchSongs" :platform="$route.query.platform" />
     <keep-alive>
       <router-view :tracks="songs"/>
     </keep-alive>
@@ -74,9 +74,12 @@
 
 <script>
 import { getPlaylistDetail } from '@/api/playlist'
+import { getSongDetail } from '@/api/song'
 import TabBar from '@/components/Common/tabBar'
 import Loading from '@/components/Common/loading'
 import ZIcon from '@/components/ZIcon/index.vue'
+import { playMode } from '@/config/config'
+import { getRandomInt } from '@/utils/calculate.js'
 import { normalSong } from '@/utils/song'
 import { uniqueData } from '@/utils/assist'
 import { mapGetters } from 'vuex'
@@ -97,19 +100,15 @@ export default {
     ZIcon
   },
   activated () {
-    this.getDetail(this.$route.params.id)
+    this.getDetail(this.$route.params.id, this.$route.query.platform)
   },
   beforeRouteUpdate (to, from, next) {
-    this.getDetail(to.params.id)
+    this.getDetail(to.params.id, to.query.platform)
     next()
   },
   computed: {
-    ...mapGetters('User', [
-      'likedPlaylistIds'
-    ]),
-    ...mapGetters('play', [
-      'current_play_list'
-    ]),
+    ...mapGetters('User', [ 'likedPlaylistIds' ]),
+    ...mapGetters('play', [ 'current_play_list', 'mode' ]),
     isLiked () {
       return this.likedPlaylistIds.includes(this.playlist.id)
     },
@@ -120,14 +119,29 @@ export default {
     }
   },
   methods: {
-    async getDetail (id) {
+    async getDetail (id, platform) {
       try {
         this.loading = true
-        let res = await getPlaylistDetail(id)
+        let res = await getPlaylistDetail(id, platform)
         this.playlist = res.playlist
         this.tracks = res.playlist.tracks.map(track => {
           return normalSong(track)
         })
+        const trackIds = res.playlist.trackIds.map(ele => {
+          return ele.id
+        }).slice(1000)
+        if (trackIds.length) {
+          let songsRes = []
+          for (let i = 0; i < trackIds.length; i += 100) {
+            let j = i + 100 > trackIds.length ? trackIds.length : i + 100
+            let songSplit = await getSongDetail(trackIds.slice(i, j))
+            songsRes.push(...songSplit.songs)
+          }
+          songsRes = songsRes.map(track => {
+            return normalSong(track)
+          })
+          this.tracks.push(...songsRes)
+        }
         this.loading = false
       } catch (error) {
         this.loading = false
@@ -139,14 +153,27 @@ export default {
     subscribe (t, playlist) {
       this.$store.dispatch('User/subscribePlatlist', { t, playlist })
     },
-    play () {
-      this.$store.dispatch('play/selectPlay', { tracks: this.tracks, index: 0 })
+    play (tracks, index) {
+      this.$store.dispatch('play/selectPlay', { tracks, index })
       this.$electron.ipcRenderer.send('change-play-index', {
-        index: 0
+        index
       })
       this.$electron.ipcRenderer.send('set-play-list', {
-        value: this.tracks
+        value: tracks
       })
+    },
+    playAll () {
+      switch (this.mode) {
+        case playMode.sequence:
+          this.play(this.tracks, 0)
+          break
+        case playMode.loop:
+          this.play(this.tracks, 0)
+          break
+        case playMode.random:
+          this.play(this.tracks, getRandomInt(0, this.tracks.length - 1))
+          break
+      }
     },
     addToList () {
       let current_play_list = this.current_play_list.slice()
@@ -207,6 +234,8 @@ export default {
     .creator-avatar {
       border-radius: 50%;
       margin-right: 5px;
+      width: 32px;
+      height: 32px;
     }
     .name {
       margin-right: 5px;
@@ -220,7 +249,10 @@ export default {
     margin: 15px 0;
     .item {
       display: inline-block;
-      margin-right: 10px;
+      margin-right: 5px;
+      i {
+        vertical-align: top;
+      }
     }
     button {
       font-size: 14px;
@@ -251,7 +283,6 @@ export default {
 
 .desc {
   display: -webkit-box;
-  overflow: hidden;
   text-overflow: ellipsis;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;

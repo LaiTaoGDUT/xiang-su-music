@@ -44,6 +44,7 @@
 import fs from 'fs'
 import { mapState, mapGetters, mapActions, mapMutations } from 'vuex'
 import { shell, remote, ipcRenderer } from 'electron'
+import { getRandomInt } from '@/utils/calculate.js'
 import { uniq } from '@/utils/calculate'
 import TrackList from '@/components/Common/track-list/index.js'
 import Loading from '@/components/Common/loading'
@@ -181,11 +182,8 @@ export default {
           this.play(this.downloaded, 0)
           break
         case playMode.random:
-          this.play(this.downloaded, this.getRandomInt(0, this.downloaded.length - 1))
+          this.play(this.downloaded, getRandomInt(0, this.downloaded.length - 1))
       }
-    },
-    getRandomInt (min, max) {
-      return Math.floor(Math.random() * (max - min + 1) + min) // min,max之间的随机数（包含min,max）
     }
   }
 }

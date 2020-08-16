@@ -1,5 +1,5 @@
 <template>
-  <router-link tag="li" :to="'/album/'+album.id" class="item">
+  <router-link tag="li" :to="`/album/${album.id}?platform=${album.platform}`" class="item">
     <img v-lazy="`${album.picUrl}?param=150y150`" class="avatar">
     <div class="name">
       {{album.name}}

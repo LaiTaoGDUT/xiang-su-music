@@ -37,7 +37,8 @@ export default {
       let params = {
         id: this.$route.params.id,
         limit: this.limit,
-        offset: this.offset
+        offset: this.offset,
+        platform: this.$route.query.platform
       }
       try {
         let { hotAlbums, more } = await getArtistAlbum(params)

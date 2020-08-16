@@ -2,7 +2,7 @@
   <div class="artist-top">
     <ul>
       <li v-for="(artist, index) in artists" :key="artist.id" >
-        <router-link :to="`/artist/${artist.id}`" class="artist">
+        <router-link :to="`/artist/${artist.id}?platform=${artist.platform}`" class="artist">
           <div class="index">{{ index+1 }}</div>
           <img v-lazy="`${artist.picUrl}?param=50y50`" class="avatar">
           <div class="name">{{ artist.name }}</div>

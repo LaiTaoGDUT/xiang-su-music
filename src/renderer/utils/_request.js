@@ -3,9 +3,12 @@ import store from './../store'
 import { Base64 } from 'js-base64'
 import Message from 'ant-design-vue/es/message'
 import Toast from './../components/Toast/toast'
-const baseHost = process.env.NODE_ENV === 'development'
-  ? 'http://192.168.0.110'
-  : 'http://192.168.0.110'
+// const baseHost = process.env.NODE_ENV === 'development'
+//   ? 'http://192.168.0.110'
+//   : 'http://192.168.0.110'
+  const baseHost = process.env.NODE_ENV === 'development'
+  ? 'http://localhost'
+  : 'http://localhost'
 const basePort = process.env.NODE_ENV === 'development'
   ? ':8000'
   : ':8000'
@@ -17,13 +20,13 @@ const userURL = baseHost + userPort
 
 const instance = axios.create({
   baseURL: baseURL,
-  timeout: 30000,
+  timeout: 60000,
   withCredentials: true
 })
 
 const uInstance = axios.create({
     baseURL: userURL,
-    timeout: 30000,
+    timeout: 60000,
     withCredentials: true
   })
 

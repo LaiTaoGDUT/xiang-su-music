@@ -17,7 +17,7 @@ const createWelcomeWindow = function (BrowserWindow) {
     fullscreenable: false,
     resizable: false,
     alwaysOnTop: true,
-    // parent: global.mainWindow,
+    parent: global.mainWindow,
     backgroundColor: '#fff',
     skipTaskbar: true,
     webPreferences: {

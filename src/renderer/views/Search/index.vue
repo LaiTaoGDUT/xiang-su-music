@@ -76,11 +76,11 @@ const tabs = [
     label: '专辑',
     type: 10
   },
-  {
-    name: 'search-video_1014',
-    label: '视频',
-    type: 1014
-  },
+  // {
+  //   name: 'search-video_1014',
+  //   label: '视频',
+  //   type: 1014
+  // },
   {
     name: 'search-playlist_1000',
     label: '歌单',

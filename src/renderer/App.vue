@@ -23,6 +23,9 @@ export default {
       initDownload: 'init',
       checkDownloaded: 'checkDownloaded'
     }),
+    ...mapActions('Localsong', {
+      initLocalsong: 'init'
+    }),
     handleAppWillClose () {
       if ( this.$route.name !== 'mini' ) {
         this.$store.commit('play/SET_PLAY_STATUS', false)
@@ -63,6 +66,7 @@ export default {
   },
   created () {
     this.initDownload()
+    this.initLocalsong()
   },
   mounted () {
     // this.$electron.ipcRenderer.on('console', (e, data) => {

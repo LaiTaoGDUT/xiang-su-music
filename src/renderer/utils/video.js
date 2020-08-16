@@ -18,6 +18,7 @@ export function normalVideo (video) {
 export function normalMV (video, param = '300y168') {
   let cover = video.cover || video.picUrl || video.imgurl
   return {
+    ...video,
     id: video.id,
     name: video.title || video.name,
     briefDesc: video.desc || '',

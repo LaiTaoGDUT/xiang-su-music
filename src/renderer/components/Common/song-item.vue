@@ -18,7 +18,7 @@
           <a-icon type="youtube" class="icon-mv" v-if="song.mvid && showMore"/>
         </div>
         <div v-if="!showMore">
-          <router-link :to="`/mv/${song.mvid}`" title="查看MV" v-if="song.mvid">
+          <router-link :to="`/mv/${song.mvid}?platform=${song.platform}`" title="查看MV" v-if="song.mvid">
             <a-icon type="youtube" class="icon-mv" />
           </router-link>
           <artists :artists="song.artist" @click.native.stop />

@@ -1,5 +1,6 @@
-const electron = require('electron')
 import { LOAD_URL } from './../config'
+const electron = require('electron')
+
 const winURL = process.env.NODE_ENV === 'development'
   ? `http://localhost:9080/#desktop-view`
   : `${LOAD_URL}#desktop-view`

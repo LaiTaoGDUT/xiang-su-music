@@ -8,7 +8,6 @@
         :key="mv.id"
       />
     </ul>
-    <infinite-loading forceUseInfiniteWrapper=".ant-layout-content" :identifier="infiniteId" @infinite="loadmore" />
   </div>
 </template>
 
@@ -21,45 +20,29 @@ export default {
   name: 'artist_id_mv',
   data () {
     return {
-      mvs: [],
-      limit: 20,
-      offset: 0,
-      infiniteId: +new Date()
+      mvs: []
     }
   },
   components: {
     mvItem
   },
   activated () {
-    let { id } = this.$route.params
-    console.log(this.infiniteId)
-    this.offset = 0
-    this.mvs = []
-    this.infiniteId = id
+    this._getArtistMv(this.$route.params.id, this.$route.query.platform)
   },
   methods: {
-    async loadmore ($state) {
-      let { id } = this.$route.params
+    async _getArtistMv (id, platform) {
+      this.mvs = []
       let params = {
         id,
         limit: this.limit,
-        offset: this.offset
+        offset: this.offset,
+        platform
       }
-      try {
-        let { mvs, hasMore } = await getArtistMV(params)
-        let arr = mvs.map(mv => {
-          return normalMV(mv, '400y224')
-        })
-        this.mvs = this.mvs.concat(arr)
-        $state.loaded()
-        if ( hasMore ) {
-          this.offset += this.limit
-        } else {
-          $state.complete()
-        }
-      } catch ( error ) {
-        $state.error()
-      }
+      let { mvs, hasMore } = await getArtistMV(params)
+      let arr = mvs.map(mv => {
+        return normalMV(mv, '400y224')
+      })
+      this.mvs = this.mvs.concat(arr)
     }
   }
 }

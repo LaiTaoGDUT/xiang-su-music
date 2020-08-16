@@ -9,3 +9,9 @@ export function debounce (func, wait) {
     }, wait)
   }
 }
+
+export function encodeHtml (str) {
+  let ele = document.createElement('span')
+  ele.append(document.createTextNode(str))
+  return ele.innerHTML
+}

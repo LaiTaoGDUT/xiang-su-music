@@ -21,13 +21,13 @@
           @waiting="onWaiting"
           @playing="onPlaying"
           @error="onError"
-          :post="mv.coverUrl"
+          :post="mv.cover"
           :src="mvURL.url"
           v-if="mvURL && mvURL.url"
         >
-          <!-- <source :src="urls[0].url" type="video/mp4"> -->
         </video>
-        <ul class="brs-list" v-if="mvURL && mvURL.url" v-show="isShowBrs">
+        <!-- 暂时无法选取清晰度 -->
+        <!-- <ul class="brs-list" v-if="mvURL && mvURL.url" v-show="isShowBrs">
           <li
             class="brs-item"
             :class="{'current':item.key == mvURL.key}"
@@ -38,7 +38,7 @@
             <a-icon type="check" v-if="item.key == mvURL.key" />
             {{ brsMap[item.key] }}
           </li>
-        </ul>
+        </ul> -->
         <div class="video-controls">
           <div class="video-progress">
             <progress-bar
@@ -84,10 +84,11 @@
             icon="folder-add"
             @click.native="subscribe(mv.id, 1)"
             v-else
+            :disabled="$route.query.platform == 'qq'"
           >收藏MV</a-button>
         </li>
         <li class="item" @click="share">
-          <a-button icon="share-alt" size="small">分享({{ mv.shareCount }})</a-button>
+          <a-button icon="share-alt" size="small" :disabled="$route.query.platform == 'qq'" >分享({{ mv.shareCount }})</a-button>
         </li>
       </ul>
 
@@ -103,7 +104,7 @@
     <div class="col-r">
       <div class="mv-info">
         <h5 class="title">MV介绍</h5>
-        <div class="publishTime">发布时间：{{mv.publishTime}}</div>
+        <div class="publishTime">发布时间：{{mv.publishTime | normalDate}}</div>
         <div class="playCount">播放次数：{{mv.playCount | toWan}}</div>
         <div class="desc">{{mv.briefDesc || mv.desc || '暂无描述'}}</div>
       </div>
@@ -111,7 +112,7 @@
         <h5 class="title">相关MV</h5>
         <div class="list">
           <router-link
-            :to="`/mv/${item.id}`"
+            :to="`/mv/${item.id}?platform=${item.platform}`"
             class="item"
             v-for="(item,index) in simiList"
             :key="`${item.id}_${index}`"
@@ -150,7 +151,7 @@ export default {
     return {
       title: 'mv详情',
       mv: '',
-      mvURL: '',
+      mvURL: {},
       brsMap,
       simiList: [],
       currentTime: 0,
@@ -202,15 +203,15 @@ export default {
       this.$nextTick(() => {
         newVal ? mv.play() : mv.pause()
       })
-    },
-    mvURL (newURL) {
-      if (this.mvURL == newURL) {
-        return
-      }
-      this.buffered = 0
-      this.$refs.mv.currentTime = this.currentTime
-      this.$refs.mv.play()
     }
+    // mvURL (newURL) {  // 暂时无法选取清晰度
+    //   if (this.mvURL == newURL) {
+    //     return
+    //   }
+    //   this.buffered = 0
+    //   this.$refs.mv.currentTime = this.currentTime
+    //   this.$refs.mv.play()
+    // }
   },
   activated () {
     this.isLoading = true
@@ -220,8 +221,10 @@ export default {
     this.offset = 0
     this.commentData = null
     this.infiniteId++
-    this._getMv(this.$route.params.id)
-    this.getSubVideo()
+    this._getMv(this.$route.params.id, this.$route.query.platform)
+    if (this.$route.query.platform != 'qq') {
+      this.getSubVideo()
+    }
   },
   beforeRouteUpdate (to, from, next) {
     this.isLoading = true
@@ -231,12 +234,14 @@ export default {
     this.offset = 0
     this.commentData = null
     this.infiniteId++
-    this._getMv(to.params.id)
-    this.getSubVideo()
+    this._getMv(to.params.id, to.query.platform)
+    if (this.$route.query.platform != 'qq') {
+      this.getSubVideo()
+    }
     next()
   },
   beforeRouteLeave (to, from, next) {
-    this.mvURL = ''
+    this.mvURL = {}
     next()
   },
   methods: {
@@ -268,31 +273,43 @@ export default {
       })
       win.loadURL(winURL)
     },
-    _getMv (id) {
-      getMVInfo(id).then(res => {
+    _getMv (id, platform) {
+      getMVInfo(id, platform).then(res => {
         this.mv = res.data
-        let urls = []
-        for (let k in res.data.brs) {
-          let item = {}
-          item.key = k
-          item.url = res.data.brs[k]
-          urls.push(item)
+        // let urls = [] // 暂时无法选取清晰度
+        // for (let k in res.data.brs) {
+        //   let item = {}
+        //   item.key = k
+        //   item.url = res.data.brs[k]
+        //   urls.push(item)
+        // }
+        // this.urls = urls
+        // this.mvURL = urls[urls.length - 1] // 取清晰度最高的一个
+        // this.isLoading = false
+        if (res.recommend) {
+            let arr = []
+            res.recommend.forEach(item => {
+              arr.push(normalMV(item))
+            })
+            this.simiList = arr
+        } else {
+          getSimiMV(id, platform).then(res => {
+            let arr = []
+            res.mvs.forEach(item => {
+              arr.push(normalMV(item))
+            })
+            this.simiList = arr
+          })
         }
-        this.urls = urls
-        this.mvURL = urls[urls.length - 1]
-        console.log(this.urls)
+      })
+      getMvUrl(id, platform).then(res => {
+        if (!res.data) {
+          this.mvURL.url = ''
+        }
+        console.log(res.data.url)
+        this.mvURL.url = res.data.url
         this.isLoading = false
       })
-      getSimiMV(id).then(res => {
-        let arr = []
-        res.mvs.forEach(item => {
-          arr.push(normalMV(item))
-        })
-        this.simiList = arr
-      })
-      // getMVComment(id).then(res => {
-      //   this.comment = res
-      // })
     },
     async loadmore ($state) {
       let id = this.$route.params.id
@@ -388,16 +405,16 @@ export default {
       this.fullScreenFlag = !this.fullScreenFlag
       this.$refs.mv.webkitRequestFullScreen()
     },
-    selectBrs (br) {
-      if (this.mvURL.url == br.url) return
-      this.$refs.mv.pause()
-      let currentTime = this.$refs.mv.currentTime
-      this.mvURL = br
-      this.isShowBrs = false
-      this.$nextTick(() => {
-        this.$refs.mv.currentTime = currentTime
-      })
-    },
+    // selectBrs (br) { // 暂时无法选取清晰度
+    //   if (this.mvURL.url == br.url) return
+    //   this.$refs.mv.pause()
+    //   let currentTime = this.$refs.mv.currentTime
+    //   this.mvURL = br
+    //   this.isShowBrs = false
+    //   this.$nextTick(() => {
+    //     this.$refs.mv.currentTime = currentTime
+    //   })
+    // },
     share () {
       let url = `https://music.163.com/#/mv?id=${this.$route.params.id}`
       let _shareUrl = 'http://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?'
@@ -548,6 +565,7 @@ export default {
         width: 40px;
         text-align: center;
         font-size: 18px;
+        cursor: pointer;
       }
     }
   }
@@ -587,6 +605,9 @@ export default {
       }
       .desc {
         line-height: 1.2;
+        height: 350px;
+        overflow: auto;
+        margin-bottom: 36px;
       }
       .tag {
         color: #005daf;
