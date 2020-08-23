@@ -28,7 +28,13 @@
           <div class="right" v-if="Object.keys(current_song).length">
             <h4 class="name">
               <span>{{current_song.name}}</span>
-              <router-link to="/" v-if="current_song.mv" class="label">mv</router-link>
+              <router-link
+                :to="`/mv/${current_song.mvid}?platform=${current_song.platform}`"
+                title="查看MV"
+                v-if="current_song.mvid"
+              >
+                <a-icon type="youtube" />
+              </router-link>
             </h4>
             <div class="alia" v-if="current_song.alia && current_song.alia.length">
               <span v-for="(item ,index) in current_song.alia" :key="index">{{item.name}}</span>

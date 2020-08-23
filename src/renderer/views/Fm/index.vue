@@ -14,8 +14,10 @@
           </div>
         </div>
         <div class="fm-actions">
-          <a-button size="large" shape="circle" icon="heart" title="喜欢"/>
-          <a-button size="large" shape="circle" icon="delete" title="垃圾桶"/>
+          <a-button size="large" shape="circle" :title="isLiked ? '取消喜欢' : '喜欢'" @click="_handleLikeSong">
+            <a-icon type="heart" :theme="isLiked ? 'filled' : 'outlined'" :class="{isLiked}"/>
+          </a-button>
+          <a-button size="large" shape="circle" icon="delete" title="垃圾桶" @click="_deleteSong"/>
           <a-button size="large" shape="circle" icon="step-forward" title="下一曲" :disabled="loading || disabled" @click="next"/>
           <a-button size="large" shape="circle" icon="ellipsis" title="更多"  />
         </div>
@@ -41,8 +43,8 @@
 
 <script>
 import moment from 'moment'
-import { mapState, mapGetters } from 'vuex'
-import { getFm } from '@/api/user'
+import { mapState, mapGetters, mapActions } from 'vuex'
+import { getFm, fmTrash } from '@/api/user'
 import { playMode } from '@/config/config'
 import { normalSong, getUrl } from '@/utils/song'
 import { getSongComment } from '@/api/comment'
@@ -58,7 +60,8 @@ export default {
       tracks: [],
       disabled: false,
       commentData: null,
-      loading: false
+      loading: false,
+      adding: false
     }
   },
   components: {
@@ -74,8 +77,12 @@ export default {
       'current_song_index',
       'current_play_list'
     ]),
+    ...mapGetters('User', ['likedsongIds']),
     playIcon () {
       return this.playing ? 'pause-circle' : 'play-circle'
+    },
+    isLiked () {
+      return this.likedsongIds.includes(this.current_song.id)
     }
   },
   watch: {
@@ -87,6 +94,7 @@ export default {
     },
     current_song (newSong, oldSong) {
       if (newSong.id === oldSong.id) return
+      if (this.adding) return
       this.handleFmChange(newSong)
     }
   },
@@ -95,6 +103,7 @@ export default {
     this.init()
   },
   methods: {
+    ...mapActions('play', ['deleteSong']),
     setClass (index) {
       if (index === this.current_song_index) {
         return 'active'
@@ -108,7 +117,7 @@ export default {
       this.loading = true
       this._getFm().then(tracks => {
         this.tracks = tracks
-        this.$store.dispatch('play/selectPlay', { tracks: tracks, index: 0, isFm: true })
+        this.$store.dispatch('play/selectPlay', { tracks: tracks, index: 0, isFM: true })
         this.$electron.ipcRenderer.send('change-play-index', {
           index: 0
         })
@@ -128,6 +137,7 @@ export default {
         }
       })
       if (this.current_song_index === this.current_play_list.length - 1) {
+        this.adding = true
         this._getFm().then(tracks => {
           this.tracks = this.tracks.concat(tracks)
           let list = this.current_play_list
@@ -136,6 +146,7 @@ export default {
           this.$electron.ipcRenderer.send('set-play-list', {
             value: list
           })
+          this.adding = false
         }).catch(err => {
           console.log(err)
         })
@@ -200,6 +211,15 @@ export default {
     getComment (id) {
       getSongComment(id).then(res => {
         this.commentData = res
+      })
+    },
+    _handleLikeSong () {
+      this.$store.dispatch('User/handleLikeSong', { song: this.current_song, isLike: !this.isLiked, self: this })
+    },
+    _deleteSong () {
+      fmTrash(this.current_song.id).then(() => {
+        this.tracks.splice(this.current_song_index, 1)
+        this.deleteSong({ index: this.current_song_index, self: this })
       })
     }
   }
@@ -302,6 +322,9 @@ export default {
     justify-content: space-between;
     width: 300px;
     float: right;
+    .isLiked {
+      color: @primary-color;
+    }
   }
 }
 .fm-comment {

@@ -180,6 +180,14 @@ export function getFm () {
   return uRequest.get('/personal_fm?_=' + new Date().getTime())
 }
 
+export function fmTrash (id) {
+  return uRequest.get('/fm_trash', {
+    params: {
+      id
+    }
+  })
+}
+
 // 每日推荐歌曲
 export function getRecommendSongs () {
   return uRequest.get('/recommend/songs')

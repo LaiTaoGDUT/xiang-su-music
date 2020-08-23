@@ -5,11 +5,19 @@
 <!-- <p align="center">
   <img src="https://github.com/xiaozhu188/electron-vue-cloud-music/blob/master/docs/images/logo.png" width="120">
 </p> -->
+## install
+`npm install`
+
+项目后台未部署到服务器，运行项目需要安装依赖[像素音乐聚合API](https://github.com/xiangSuMusic)
 
 ## 下一步
 * 本地音乐按歌手，专辑等分类查看功能
 * 专辑详情页增加专辑付费信息与购买
 * 本地歌单功能，支持不同平台歌曲加入本地歌单
+
+## BUG
+* ~~播放本地音乐时下载歌曲成功将切换正在播放的音乐~~
+* ~~使用下载全部功能时不会排除列表中已包含在本地音乐中的歌曲~~
 
 ## 特点
 * 歌词滚动，翻译切换
@@ -21,6 +29,14 @@
 ![view2](https://github.com/LaiTaoGDUT/xiang-su-music/blob/master/screenshot/view2.png)
 ![view3](https://github.com/LaiTaoGDUT/xiang-su-music/blob/master/screenshot/view3.png)
 ![view4](https://github.com/LaiTaoGDUT/xiang-su-music/blob/master/screenshot/view4.png)
+* 本地音乐匹配
+![match](https://github.com/LaiTaoGDUT/xiang-su-music/blob/master/screenshot/match.png)
+* 匹配QQ音乐的歌
+![qqMusic](https://github.com/LaiTaoGDUT/xiang-su-music/blob/master/screenshot/qqMusic.png)
+* 评论功能表情不能少
+![emoji](https://github.com/LaiTaoGDUT/xiang-su-music/blob/master/screenshot/emoji.png)
+* 聚合网易云与QQ音乐搜索
+![search](https://github.com/LaiTaoGDUT/xiang-su-music/blob/master/screenshot/search.png)
 * mini模式
 ![mini](https://github.com/LaiTaoGDUT/xiang-su-music/blob/master/screenshot/mini.png)
 ![mini2](https://github.com/LaiTaoGDUT/xiang-su-music/blob/master/screenshot/mini2.png)
@@ -29,6 +45,7 @@
 * 还有......
 
 ## 版本更新
+* 0.3.2 修复若干问题，私人FM支持垃圾桶功能，支持给删除当前播放列表中的歌曲，支持在音乐详情页跳转至MV播放
 * 0.3.1 接入QQ音乐，支持QQ音乐的接口：歌曲，歌单，专辑，MV，歌手，以及以上各项的搜索，不支持通过登录获取QQ音乐的用户信息，修复接口升级后MV无法获取链接的问题，现在可以正常播放登录用户购买的专辑内歌曲
 * 0.2.4 评论区现在可以正确显示表情，歌单现在可以完整显示所有音乐，修复部分歌曲歌词无法显示的问题,现在在任何地方播放本地音乐列表或下载列表中存在的歌曲时，无需加载来自网络上的资源
 * 0.2.3 修复下载歌曲时无法完整显示下载队列的问题，现在可以删除等待下载的任务，本地歌曲扫描卡顿优化，部分图标更新

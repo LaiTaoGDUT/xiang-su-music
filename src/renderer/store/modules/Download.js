@@ -162,8 +162,14 @@ let actions = {
       dispatch('download')
     }
   },
-  adddownloadQueue ({ commit, dispatch, state }, songs) {
+  adddownloadQueue ({ commit, dispatch, state, rootState }, songs) {
     let queue = [...state.queue]
+    songs = songs.filter(song => {   // 过滤已经在本地音乐里面的歌曲
+      return !rootState.Localsong.localSongs.some(item => item.id === song.id)
+    })
+    songs = songs.filter(song => {   // 过滤已经在已下载音乐里面的歌曲
+      return !state.downloaded.some(item => item.id === song.id)
+    })
     songs = songs.filter(song => {   // 过滤已经在queue里面的歌曲
       return !queue.some(item => item.id === song.id)
     })

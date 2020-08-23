@@ -209,6 +209,23 @@ const actions = {
       return song.id == item.id
     }, PLAY_HISTORY_MAX_LEN)
     commit('SET_PLAY_HISTORY', songs)
+  },
+  // 从当前播放列表中删除歌曲
+  deleteSong ({ commit, dispatch, state }, { index, self }) {
+    let songs = state.current_play_list
+    songs.splice(index, 1)
+    commit('SET_CURRENT_PLAY_LIST', songs)
+    if (index < state.current_song_index) {
+      commit('SET_CURRENT_INDEX', state.current_song_index - 1)
+      self.$electron.ipcRenderer.send('change-play-index', {
+        index: state.current_song_index - 1
+      })
+    } else if (index == state.current_song_index) {
+      commit('SET_CURRENT_INDEX', state.current_song_index)
+      self.$electron.ipcRenderer.send('change-play-index', {
+        index: state.current_song_index
+      })
+    }
   }
 }
 

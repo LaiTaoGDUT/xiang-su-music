@@ -45,8 +45,7 @@ export default {
     add (state, song) {
       if (state.localSongs.findIndex(_song => _song.url == song.url && _song.size == song.size) < 0) {
         song.matched = true
-        console.log('add...', song)
-        state.localSongs.splice(0, 0, song)
+        state.localSongs.push(song)
       }
     },
     delete (state, songIndex) {

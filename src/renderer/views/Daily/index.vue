@@ -125,7 +125,7 @@ export default {
           this.play(this.songs, 0)
           break
         case playMode.random:
-          this.play(this.songs, getRandomInt(0, this.localSongs.length - 1))
+          this.play(this.songs, getRandomInt(0, this.songs.length - 1))
           break
       }
     },
