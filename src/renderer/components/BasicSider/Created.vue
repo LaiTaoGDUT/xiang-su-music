@@ -1,6 +1,6 @@
 <template>
   <a-menu mode="inline" :selectable="false" :defaultOpenKeys="['playlist_create']">
-    <a-sub-menu key="playlist_create">
+    <a-sub-menu key="playlist_create"  :class="{ 'dark-back1': isDark }">
       <div slot="title" class="create-title">
         <span>创建的歌单</span>
         <a-popover
@@ -25,7 +25,7 @@
             </div>
           </template>
           <span title="新建歌单">
-            <a-icon type="plus-circle" theme="filled" />
+            <a-icon type="plus-circle" theme="filled" :style="isDark ? 'color: #7c7c7c' : ''"/>
           </span>
         </a-popover>
       </div>
@@ -42,7 +42,7 @@
           </div>
 
           <div class="flex" :title="item.name" v-else>
-            <router-link class="link" :to="`/playlist/${item.id}`">
+            <router-link class="link" :to="`/playlist/${item.id}?platform=netease`">
               <z-icon type="yinleliebiaokuai" />
               <span>{{item.name}}</span>
             </router-link>
@@ -93,7 +93,8 @@ export default {
     ZIcon, PlaylistCreate
   },
   computed: {
-    ...mapGetters('User', ['userId', 'createdList', 'likedsongIds'])
+    ...mapGetters('User', ['userId', 'createdList', 'likedsongIds']),
+    ...mapGetters('App', ['isDark'])
   },
   methods: {
     deletePlaylist (id) {
@@ -141,3 +142,14 @@ export default {
   }
 }
 </script>
+
+<style lang="less" scoped>
+  .dark-back1 {
+    .create-title {
+      color: #7c7c7c;
+    }
+    a {
+      color: #adafb2 !important;
+    }
+  }
+</style>

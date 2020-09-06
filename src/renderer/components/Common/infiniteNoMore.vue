@@ -1,10 +1,14 @@
 <template>
-  <div class="no-more">没有更多了~</div>
+  <div class="no-more" :class="{'dark-back1': isDark}">没有更多了~</div>
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 export default {
-  name: 'infiniteNoMore'
+  name: 'infiniteNoMore',
+  computed: {
+    ...mapGetters('App', ['isDark'])
+  }
 }
 </script>
 
@@ -12,5 +16,8 @@ export default {
   .no-more {
     margin: 15px 0;
     text-align: center;
+  }
+  .dark-back1 {
+    color: #ffffff;
   }
 </style>

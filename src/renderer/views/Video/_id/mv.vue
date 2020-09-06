@@ -1,8 +1,9 @@
 <template>
-  <section class="mv-detail">
+  <section class="mv-detail" :class="{'dark-back1': isDark}">
     <div class="col-l">
       <loading v-show="isLoading"></loading>
       <h5 class="video-title" v-if="mv">
+        <a-tag class="tag">MV</a-tag>
         {{mv.name}}
         <span class="artist">
           <artists :artists="mv.artists" />
@@ -177,6 +178,7 @@ export default {
     Artists
   },
   computed: {
+    ...mapGetters('App', ['isDark']),
     ...mapGetters('User', ['userId']),
     ...mapGetters('play', ['videoPlaying', 'playing']),
     percent () {
@@ -444,8 +446,9 @@ export default {
       font-size: 18px;
       margin-bottom: 10px;
       padding-left: 10px;
-      border-left: 3px solid #c52f30;
       line-height: 1;
+      display: flex;
+      align-items: center;
     }
     .artist {
       font-size: 14px;
@@ -623,6 +626,7 @@ export default {
             max-width: 140px;
             height: 50%;
             width: 50%;
+            max-height: 80px;
           }
           .info {
             flex: 1;
@@ -643,6 +647,75 @@ export default {
         }
       }
     }
+  }
+}
+.tag {
+  padding: 0 10px;
+  line-height: 23px;
+  height: 24px;
+  border-radius: 2px;
+  background-color: @primary-color;
+  border-color: @primary-color;
+  color: #fff;
+  float: left;
+}
+.dark-back1 {
+  .col-l {
+    .video-title {
+      color: #dcdde4;
+    }
+    .actions {
+      .item {
+        .ant-btn {
+          color: #fff;
+          background: #26272b !important;
+          border: none !important;
+          &:hover {
+            background: #686a6e !important;
+          }
+        }
+        .ant-btn[disabled] {
+          color: #828385 !important;
+          background: #26272b !important;
+        }
+      }
+    }
+  }
+  .col-r {
+    .title {
+      color: #dcdde4;
+      border-bottom: 1px solid #23262c;
+    }
+    .mv-info {
+      .desc {
+        color: #777;
+        &::-webkit-scrollbar-thumb {
+          background: #2f3134;
+        }
+      }
+    }
+    .simi-mv {
+      .list {
+        .item {
+          .info {
+            flex: 1;
+            .name{
+              color: #ffffff;
+            }
+            .duration {
+              color: #828385;
+            }
+            .artist,
+            .artist a {
+              color: #999;
+            }
+          }
+        }
+      }
+    }
+  }
+  .tag {
+    background-color: #5fa7e4 !important;
   }
 }
 </style>

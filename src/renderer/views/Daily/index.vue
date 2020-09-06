@@ -1,5 +1,5 @@
 <template>
-  <div class="recommend-songs">
+  <div class="recommend-songs" :class="{'dark-back1': isDark}">
     <div class="intro">
       <div class="date">
         <div class="week">{{ getWeek() }}</div>
@@ -13,7 +13,7 @@
     <div class="tracks">
       <div class="tracks-top">
         <div class="item">
-          <a-button-group>
+          <a-button-group class="playlist-playall">
             <a-button type="primary" icon="play-circle" @click="playAll">播放全部</a-button>
             <a-button type="primary" icon="plus" title="添加所有到播放列表" @click="addToList" />
           </a-button-group>
@@ -58,6 +58,7 @@ export default {
     ...mapGetters('User', [
       'userCollectists', 'likedsongIds'
     ]),
+    ...mapGetters('App', ['isDark']),
     subIcon () {
       return this.likedsongIds.includes(this.pid) ? 'check' : 'folder-add'
     }
@@ -194,6 +195,53 @@ export default {
       display: flex;
       justify-content: space-between;
       padding: 10px;
+    }
+  }
+}
+.dark-back1 {
+  .intro {
+    .date {
+      .week {
+        color: #5fa7e4;
+      }
+      .day {
+        color: #5fa7e4 !important;
+      }
+    }
+    .info {
+      .name {
+        color: #d0d0d1;
+      }
+      .desc {
+        color: #696769;
+      }
+    }
+  }
+  .tracks {
+    border: 1px solid #23262c;
+    .tracks-top {
+      .item {
+        .ant-btn {
+          color: #fff;
+          background: #26272b !important;
+          border: none !important;
+          &:hover {
+            background: #686a6e !important;
+          }
+        }
+        .ant-btn[disabled] {
+          color: #828385 !important;
+          background: #26272b !important;
+        }
+        .playlist-playall {
+          .ant-btn {
+            background: #5fa7e4 !important;
+            &:hover {
+              background: #1A94E6 !important;
+            }
+          }
+        }
+      }
     }
   }
 }

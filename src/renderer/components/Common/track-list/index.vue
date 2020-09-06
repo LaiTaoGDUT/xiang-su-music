@@ -1,7 +1,7 @@
 <template>
   <div>
     <transition name="track-list">
-      <div class="track-list" v-if="songs.length">
+      <div class="track-list" v-if="songs.length" :class="{'dark-back1': isDark}">
         <div :class="pagination">
           <a-pagination
             v-show="offset >= limit"
@@ -76,7 +76,9 @@
                       />
                       <a-progress
                         type="circle"
+                        :showInfo="false"
                         :width="20"
+                        :strokeWidth="20"
                         :percent="row.downloadPercent"
                         v-else-if="row.downloadPercent > 0"
                       />
@@ -105,6 +107,7 @@
                         :is="componentNames[col.key] || 'DefaultComponent'"
                         :row="row"
                         :col="col"
+                        :matched="row.matched"
                         v-else
                       >
                       </component>
@@ -162,7 +165,7 @@
         </div>
       </div>
     </transition>
-    <div v-if="!songs.length" class="no-result">暂无歌曲</div>
+    <div v-if="!songs.length" class="no-result" :style="isDark ? {color: '#fff'} : {}">暂无歌曲</div>
     <drap-modal
       centered
       title="新建歌单"
@@ -311,6 +314,7 @@ export default {
       'source'
     ]),
     ...mapGetters('User', ['userId', 'likedsongIds', 'createdList']),
+    ...mapGetters('App', ['isDark']),
     currentShowSongs () {
       return this.songs.slice(this.offset, this.offset + this.limit)
     },
@@ -486,7 +490,6 @@ export default {
 .track-list {
   font-family: "Source Sans Pro", "\660E\9ED1", Arial, Helvetica;
   .page {
-    margin: 20px 0;
     text-align: center;
   }
   .pageHide {
@@ -523,6 +526,14 @@ export default {
       }
       &.col-has-sorter:hover {
         background: #eaeaea;
+      }
+      &:hover .sort-icons {
+        display: inline-block;
+      }
+      .sort-icons {
+        position: relative;
+        color: #bfbfbf;
+        display: none;
       }
     }
   }
@@ -575,7 +586,7 @@ export default {
             }
             /deep/ .anticon {
               cursor: pointer;
-              color: #999;
+              color: #888;
               &.icon-downloaded {
                 color: #42a5f5;
                 &:hover {
@@ -603,19 +614,147 @@ export default {
       }
     }
     .page {
-      margin: 20px 0;
+      padding: 20px 0;
       text-align: center;
     }
   }
 }
-.col-item {
-  &:hover .sort-icons {
-    display: inline-block;
+.dark-back1 {
+  .track-list-header {
+    border-top: 1px solid #23262c;
+    border-bottom: 1px solid #23262c;
+    background: #16181c;
+    color: #adafb2;
+    .col-item {
+      &:not(:last-child) {
+        border-right: 1px solid #23262c;
+      }
+      &.col-has-sorter:hover {
+        background: #242629;
+      }
+    }
   }
-}
-.sort-icons {
-  position: relative;
-  color: #bfbfbf;
-  display: none;
+  .track-list-body {
+    .song-list {
+      cursor: auto;
+      user-select: none;
+      background: #16181c;
+      li {
+        color: #828385;
+        &.gray {
+          color: #4e4e52 !important;
+        }
+        &:nth-child(even) {
+          background: #1b1d20;
+        }
+        &:focus {
+          background: #000;
+        }
+        &:hover {
+          background: #242629;
+          color: #dcdde4;
+        }
+      }
+      .song-item {
+        .col-item {
+          &.col-actions {
+            /deep/ .ant-progress {
+              .anticon {
+                color: #5fa7e4;
+              }
+            }
+            /deep/ .anticon {
+              cursor: pointer;
+              color: #828385;
+              &.icon-downloaded {
+                color: #dcdde4 !important;
+                &:hover {
+                  color: #dcdde4 !important;
+                }
+              }
+              &:hover {
+                color: #dcdde4;
+              }
+            }
+            /deep/ .ant-progress-circle-trail {
+              stroke: rgba(0, 0, 0, 0.1);
+            }
+            .ant-progress {
+              vertical-align: top;
+            }
+          }
+          a {
+            color: #dcdde4 !important;
+          }
+        }
+      }
+    }
+    .page {
+      background: #16181c;
+      /*页码*/
+      /deep/ .ant-pagination-item {
+        border: none;
+        background: #16181c;
+        a {
+          background: #16181c;
+          color: #adafb2;
+          &:hover {
+            background: #242629;
+            color: #dcdde4;
+          }
+        }
+      }
+      /*当前选中的页码*/
+      /deep/ .ant-pagination-item-active {
+        a {
+          color: #5fa7e4;
+          text-decoration: underline;
+          cursor: auto;
+          &:hover {
+            background: #16181c;
+            color: #5fa7e4;
+          }
+        }
+      }
+      /*往前按钮*/
+      /deep/ .ant-pagination-prev {
+        a {
+          border: none;
+          background: #242629;
+          color: #adafb2;
+          &:hover {
+            border: 1px solid #4e4e52 !important;
+          }
+        }
+      }
+      /*往后按钮 */
+      /deep/ .ant-pagination-next {
+        a {
+          border: none;
+          background: #242629;
+          color: #adafb2;
+          &:hover {
+            border: 1px solid #4e4e52 !important;
+          }
+        }
+      }
+      /*省略号 */
+      /deep/ .ant-pagination-item-ellipsis {
+        color: #adafb2;
+      }
+      /deep/ .ant-pagination-item-link-icon {
+        color: #adafb2;
+      }
+      /*不可用的按钮*/
+      /deep/ .ant-pagination-disabled {
+        a {
+          color: #32343b;
+          &:hover {
+            border: none !important;
+          }
+        }
+      }
+    }
+  }
 }
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <div class="lyric-list" ref="lyricList" v-if="lyric">
+  <div class="lyric-list" ref="lyricList" v-if="lyric" :class="{'dark-back1': isDark}">
     <div class="lyric-wrapper">
       <p
         ref="lyricLine"
@@ -35,7 +35,8 @@ export default {
   },
   computed: {
     ...mapState('play', ['lyric']),
-    ...mapGetters('play', ['current_lyric_line', 'show_trans'])
+    ...mapGetters('play', ['current_lyric_line', 'show_trans']),
+    ...mapGetters('App', ['isDark'])
   },
   watch: {
     // current_lyric_line (newLine) {
@@ -59,10 +60,20 @@ export default {
 <style lang="less" scoped>
 .lyric-list {
   width: 100%;
-  height: 330px;
+  height: 360px;
+  padding-left: 20px;
   overflow: auto;
   display: inline-block;
   vertical-align: top;
+  mask-image: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0) 0,
+    rgba(255, 255, 255, 0.6) 15%,
+    rgba(255, 255, 255, 1) 25%,
+    rgba(255, 255, 255, 1) 75%,
+    rgba(255, 255, 255, 0.6) 85%,
+    rgba(255, 255, 255, 0) 100%
+  );
   -webkit-mask-image: linear-gradient(
     to bottom,
     rgba(255, 255, 255, 0) 0,
@@ -91,7 +102,7 @@ export default {
       }
       &.current {
         color: white;
-        font-size: 18px;
+        font-size: 16px;
         text-shadow: 1px 1px @primary-color, 1px 2px @primary-color;
       }
     }
@@ -152,6 +163,21 @@ export default {
   }
   100% {
     background-position: -100% 0;
+  }
+}
+.dark-back1 {
+  &::-webkit-scrollbar-thumb {
+    background: #2f3134;
+  }
+  &.default {
+    border-right: 1px solid #39393b;
+    .text {
+      color: #828385;
+      &.current {
+        color: #fff;
+        text-shadow: none;
+      }
+    }
   }
 }
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <div class="search-album">
+  <div class="search-album" :class="{'dark-back1': isDark}">
     <a-spin :spinning="spinning">
       <a-row
         type="flex"
@@ -24,6 +24,7 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 import searchMixin from '@/mixins/Search'
 import Artists from '@/components/Common/artists'
 export default {
@@ -37,6 +38,9 @@ export default {
   },
   components: {
     Artists
+  },
+  computed: {
+    ...mapGetters('App', ['isDark'])
   },
   methods: {
     normalData () {
@@ -67,6 +71,17 @@ export default {
     width: 50px;
     height: 50px;
     margin-right: 10px;
+  }
+}
+.dark-back1 .ant-row-flex {
+  &:nth-child(even) {
+    background: #1b1d20;
+  }
+  &:hover {
+    background: #242629;
+  }
+  .album {
+    color: #dcdde4;
   }
 }
 </style>

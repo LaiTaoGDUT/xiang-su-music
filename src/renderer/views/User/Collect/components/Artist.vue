@@ -1,9 +1,9 @@
 <template>
-  <div class="artists">
-    <a-row type="flex" align="middle" v-for="artist in data" :key="artist.id" class="artist-item" @click.native="onClick(artist)">
+  <div class="artists" :class="{'dark-back1': isDark}">
+    <a-row type="flex" align="middle" v-for="artist in data" :key="artist.id" class="artist-item" @click.native="onClick(artist)" >
       <a-col :span="14">
         <img v-lazy="`${artist.picUrl}?param=40y40`" alt="" width="40">
-        <router-link :to="`/artist/${artist.id}?platform=${artist.platform}`"> {{artist.name}} </router-link>
+        <router-link class="collect-artist" :to="`/artist/${artist.id}?platform=${artist.platform}`"> {{artist.name}} </router-link>
       </a-col>
       <a-col :span="5">
         专辑: {{artist.albumSize}}
@@ -17,6 +17,7 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 import { getArtist } from '@/api/sublist'
 export default {
   data () {
@@ -27,6 +28,9 @@ export default {
         offset: 0
       }
     }
+  },
+  computed: {
+    ...mapGetters('App', ['isDark'])
   },
   methods: {
     async loadmore ($state) {
@@ -69,6 +73,23 @@ export default {
   }
   a {
     color: #333;
+  }
+}
+.dark-back1 .ant-row-flex {
+  background: #16181c;
+  &:nth-child(even) {
+    background: #1b1d20;
+  }
+  &:hover {
+    background: #242629;
+  }
+  .ant-col {
+    &:not(:first-child) {
+      color: #828385;
+    }
+  }
+  .collect-artist {
+    color: #dcdde4;
   }
 }
 </style>

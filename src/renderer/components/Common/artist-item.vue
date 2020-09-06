@@ -1,6 +1,6 @@
 <template>
-  <router-link tag="li" :to="`/artist/${artist.id}?platform=${artist.platform}`">
-    <figure class="figure">
+  <router-link tag="li" :to="`/artist/${artist.id}?platform=${artist.platform}`" >
+    <figure class="figure" :class="{'dark-back1': isDark}">
       <img v-lazy="`${artist.img1v1Url}?param=360y360`" />
       <figcaption class="figcaption">{{artist.name}}</figcaption>
     </figure>
@@ -8,12 +8,16 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 export default {
   name: 'artist-item',
   props: {
     artist: {
       type: Object
     }
+  },
+  computed: {
+    ...mapGetters('App', ['isDark'])
   }
 }
 </script>
@@ -39,6 +43,12 @@ export default {
       font-size: 14px;
       color: #333;
       text-align: center;
+    }
+  }
+
+  .dark-back1 {
+    .figcaption {
+      color: #ffffff;
     }
   }
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <div class="search-user">
+  <div class="search-user" :class="{'dark-back1': isDark}">
     <a-spin :spinning="spinning">
       <a-row
         type="flex"
@@ -21,6 +21,7 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 import searchMixin from '@/mixins/Search'
 import Artists from '@/components/Common/artists'
 export default {
@@ -34,6 +35,9 @@ export default {
   },
   components: {
     Artists
+  },
+  computed: {
+    ...mapGetters('App', ['isDark'])
   },
   methods: {
     normalData () {
@@ -65,6 +69,22 @@ export default {
     height: 50px;
     margin-right: 10px;
     border-radius: 50%;
+  }
+}
+.dark-back1 .ant-row-flex {
+  &:nth-child(even) {
+    background: #1b1d20;
+  }
+  .ant-col {
+    &:not(:first-child) {
+      color: #828385;
+    }
+  }
+  &:hover {
+    background: #242629;
+  }
+  .user {
+    color: #dcdde4;
   }
 }
 </style>

@@ -1,9 +1,10 @@
 <template>
-  <div class="basic-sider" :class="{'borderB' : Object.keys(current_song).length}">
+  <div class="basic-sider" :class="{'borderB' : Object.keys(current_song).length, 'dark-back1': isDark}">
     <a-menu v-model="current" mode="inline" :selectable="false"
-            :defaultOpenKeys="['playlist_create','playlist_collect']">
+      :defaultOpenKeys="['playlist_create','playlist_collect']"
+    >
       <a-menu-item-group key="recommend">
-        <div slot="title">
+        <div slot="title" class="common-title">
           <span>推荐</span>
         </div>
         <template v-for="item in recommendMap">
@@ -17,7 +18,7 @@
       </a-menu-item-group>
 
       <a-menu-item-group key="my_music">
-        <div slot="title">
+        <div slot="title" class="common-title">
           <span>我的音乐</span>
         </div>
         <a-menu-item v-for="item in myMusicMap" :key="item.name">
@@ -32,7 +33,6 @@
       <created />
       <subscribed />
     </template>
-
     <mini-card />
   </div>
 </template>
@@ -65,7 +65,8 @@ export default {
   },
   computed: {
     ...mapGetters('User', [ 'userId', 'userCollectists', 'subscribedList', 'createdList', 'likedsongIds' ]),
-    ...mapGetters('play', [ 'current_song', 'source', 'fullscreen' ])
+    ...mapGetters('play', [ 'current_song', 'source', 'fullscreen' ]),
+    ...mapGetters('App', ['isDark'])
   },
   watch: {
     userId (newVal) {
@@ -103,7 +104,39 @@ export default {
 }
 </script>
 
-<style lang="less">
+<style lang="less" scoped>
+  .dark-back1 {
+    &::-webkit-scrollbar-thumb {
+      background: #2f3134;
+    }
+    background: #191b1f !important;
+    .common-title {
+      span {
+        color: #7c7c7c !important;
+      }
+    }
+    a {
+      color: #adafb2 !important;
+    }
+    /deep/ .ant-menu-inline {
+      .ant-menu-item {
+        .link {
+          &:hover {
+            color: #dcdde3 !important;
+          }
+          &.router-link-exact-active,
+          &.router-link-active {
+            color: #dcdde3 !important;
+            border-left: 3px solid #5fa7e4 !important;
+            background: #26282c !important;
+            + span {
+              background: #26282c !important;
+            }
+          }
+        }
+      }
+    }
+  }
   .ant-popover.create-playlist-wrapper {
     .title {
       margin-bottom: 15px;

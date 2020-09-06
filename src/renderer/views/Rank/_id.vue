@@ -1,11 +1,12 @@
 <template>
   <div>
     <loading v-show="loading" />
-    <a-list class="intro">
+    <a-list class="intro" :class="{'dark-back1': isDark}">
       <a-list-item v-if="rank">
         <a-list-item-meta>
           <div slot="title">
-            <h1>{{rank.name}}</h1>
+            <a-tag class="tag">排行榜</a-tag>
+            <h1 class="rank-name">{{rank.name}}</h1>
           </div>
           <div slot="description">
             <div class="creator">
@@ -28,9 +29,9 @@
                   收藏({{rank.subscribedCount}})
                 </a-button>
               </li>
-              <li class="item" @click="share">
+              <!-- <li class="item" @click="share">
                 <a-button size="small" icon="share-alt">分享</a-button>
-              </li>
+              </li> -->
               <li class="item">
                 <a-button size="small" icon="download">下载全部</a-button>
               </li>
@@ -102,6 +103,7 @@ export default {
     next()
   },
   computed: {
+    ...mapGetters('App', ['isDark']),
     ...mapGetters('User', [ 'likedPlaylistIds' ]),
     ...mapGetters('play', [ 'current_play_list', 'mode' ]),
     songs () {
@@ -235,12 +237,81 @@ export default {
     }
   }
 }
-
+.tag {
+  padding: 0 10px;
+  line-height: 23px;
+  height: 24px;
+  border-radius: 2px;
+  background-color: @primary-color;
+  border-color: @primary-color;
+  color: #fff;
+  float: left;
+}
 .desc {
   display: -webkit-box;
   overflow: hidden;
   text-overflow: ellipsis;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
+}
+.dark-back1 {
+    .rank-name {
+      color: #ffffff;
+    }
+    .creator {
+      .name {
+        color: #adafb2
+      }
+      .time {
+        color: #828385;
+      }
+    }
+    .actions {
+      .item {
+        .ant-btn {
+          color: #fff;
+          background: #26272b !important;
+          border: none !important;
+          &:hover {
+            background: #686a6e !important;
+          }
+        }
+        .ant-btn[disabled] {
+          color: #828385 !important;
+          background: #26272b !important;
+        }
+        .playlist-playall {
+          .ant-btn {
+            background: #5fa7e4 !important;
+            &:hover {
+              background: #1A94E6 !important;
+            }
+          }
+        }
+      }
+    }
+    .tags {
+      color: #fff;
+      a {
+        color: #828385;
+        &:hover {
+          color: #fff;
+        }
+      }
+    }
+    .desc {
+      color: #fff;
+    }
+    .action {
+      color: #828385;
+      li {
+        &:not(:last-child) {
+          border-right: 1px solid #828385;
+        }
+      }
+    }
+  .tag {
+    background-color: #5fa7e4 !important;
+  }
 }
 </style>

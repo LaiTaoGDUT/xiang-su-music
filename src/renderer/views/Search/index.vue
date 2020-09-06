@@ -1,12 +1,12 @@
 <template>
-  <div>
+  <div :class="{'dark-back1': isDark}">
     <div class="search-result-top">
       搜索
-      <span class="highlight">{{$route.query.keyword}}</span>
+      <span class="highlight">“{{$route.query.keyword}}”</span>
       的结果
     </div>
     <a-tabs
-      :tabBarStyle="{margin:0,paddingLeft:'60px'}"
+      :tabBarStyle="{margin:0,paddingLeft:'40px'}"
       :animated="false"
       :defaultActiveKey="activeKey"
       @change="onTabChange"
@@ -16,7 +16,7 @@
     <!-- 最佳匹配 -->
     <div class="mathes" v-if="matchRes">
       <template v-for="(val, key) in matchRes">
-        <div :key="key" class="match-box" v-if="key !== 'orders'">
+        <div :key="key" class="match-box" v-if="key !== 'orders' && key !== 'rec_query'">
           <router-link
             :to="`/${key}/${item.id || item.vid}`"
             class="match-item"
@@ -34,7 +34,6 @@
     <component class="search-result" :is="componentName" :pageSize="limit" :result="result" v-if="result">
       <div class="page-wrapper" slot-scope="{total}">
         <a-pagination
-          size="small"
           :defaultCurrent="1"
           :pageSize="limit"
           :total="Number(total) || 0"
@@ -47,6 +46,7 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 // 搜索类型；默认为 1 即单曲 , 取值意义 : 1: 单曲, 10: 专辑, 100: 歌手, 1000: 歌单, 1002: 用户, 1004: MV, 1006: 歌词, 1009: 电台, 1014: 视频 ,1018: 综合
 import { getSearch, getSearchMultimatch } from '@/api/search'
 import Loading from '@/components/Common/loading'
@@ -76,11 +76,11 @@ const tabs = [
     label: '专辑',
     type: 10
   },
-  // {
-  //   name: 'search-video_1014',
-  //   label: '视频',
-  //   type: 1014
-  // },
+  {
+    name: 'search-video_1014',
+    label: '视频',
+    type: 1014
+  },
   {
     name: 'search-playlist_1000',
     label: '歌单',
@@ -101,11 +101,6 @@ const tabs = [
     label: '用户',
     type: 1002
   }
-  // {
-  //   name: 'search-all_1018',
-  //   label: '综合',
-  //   type: 1018
-  // }
 ]
 
 export default {
@@ -132,6 +127,9 @@ export default {
   },
   watch: {
     '$route.query.keyword': '_search'
+  },
+  computed: {
+    ...mapGetters('App', ['isDark'])
   },
   created () {
     this._search()
@@ -225,6 +223,97 @@ export default {
   /deep/ .ant-spin-spinning {
     display: block;
     margin-top: 20px;
+  }
+}
+.dark-back1 {
+  color: #dcdde4;
+  .highlight {
+    color: #5fa7e4 !important;
+  }
+  /deep/ .ant-tabs-bar {
+    border-bottom: 2px solid #23262c;
+    /deep/ .ant-tabs-tab {
+      color: #dcdde4;
+    }
+    /deep/ .ant-tabs-tab-active {
+      color: #5fa7e4;
+    }
+    /deep/ .ant-tabs-ink-bar {
+      background: #5fa7e4;
+    }
+  }
+  .match-box {
+    .match-item {
+      background: #23262c;
+      border: none;
+      color: #dcdde4;
+    }
+  }
+  .page-wrapper {
+    background: #16181c;
+    /*页码*/
+    /deep/ .ant-pagination-item {
+      border: none;
+      background: #16181c;
+      a {
+        background: #16181c;
+        color: #adafb2;
+        &:hover {
+          background: #242629;
+          color: #dcdde4;
+        }
+      }
+    }
+    /*当前选中的页码*/
+    /deep/ .ant-pagination-item-active {
+      a {
+        color: #5fa7e4;
+        text-decoration: underline;
+        cursor: auto;
+        &:hover {
+          background: #16181c;
+          color: #5fa7e4;
+        }
+      }
+    }
+    /*往前按钮*/
+    /deep/ .ant-pagination-prev {
+      a {
+        border: none;
+        background: #242629;
+        color: #adafb2;
+        &:hover {
+          border: 1px solid #4e4e52 !important;
+        }
+      }
+    }
+    /*往后按钮 */
+    /deep/ .ant-pagination-next {
+      a {
+        border: none;
+        background: #242629;
+        color: #adafb2;
+        &:hover {
+          border: 1px solid #4e4e52 !important;
+        }
+      }
+    }
+    /*省略号 */
+    /deep/ .ant-pagination-item-ellipsis {
+      color: #adafb2;
+    }
+    /deep/ .ant-pagination-item-link-icon {
+      color: #adafb2;
+    }
+    /*不可用的按钮*/
+    /deep/ .ant-pagination-disabled {
+      a {
+        color: #32343b;
+        &:hover {
+          border: none !important;
+        }
+      }
+    }
   }
 }
 </style>

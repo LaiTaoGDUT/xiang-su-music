@@ -1,6 +1,6 @@
 <template>
   <home-layout>
-    <div class="page-artist">
+    <div class="page-artist" :class="{'dark-back2': isDark}">
       <tags useHoverHighlight :tags="cates" @change="onTagChange" />
       <tags :tags="names" @change="onNameChange" />
 
@@ -19,6 +19,7 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 import HomeLayout from '@/layouts/HomeLayout'
 import artistItem from '@/components/Common/artist-item'
 import tags from '@/components/Common/tags'
@@ -235,6 +236,9 @@ export default {
     tags,
     artistItem
   },
+  computed: {
+    ...mapGetters('App', ['isDark'])
+  },
   methods: {
     async getArtists () {
       this.options.initial = encodeURIComponent(this.options.initial)
@@ -303,11 +307,17 @@ export default {
             transform-origin: center bottom;
           }
           .figcaption {
+            text-align: center;
             line-height: 25px;
             font-size: 14px;
           }
         }
       }
+    }
+  }
+  .dark-back2 {
+    .figcaption {
+      color: #dcdde4;
     }
   }
 </style>

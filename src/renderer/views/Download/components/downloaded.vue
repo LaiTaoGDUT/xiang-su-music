@@ -1,10 +1,10 @@
 <template>
-  <div class="downloaded">
+  <div class="downloaded" :class="{'dark-back1': isDark}">
     <a-card :bordered="false">
       <div slot="title">
 
-        <a-button type="primary" icon="play-circle" @click="playAll">播放全部</a-button>
-        <span style="margin-left: 10px">{{ downloaded.length }}首歌曲,</span>
+        <a-button type="primary" icon="play-circle" @click="playAll" class="downloaded-playall">播放全部</a-button>
+        <span class="download-nums" style="margin-left: 10px">{{ downloaded.length }}</span><span> 首歌曲,</span>
         <span>
            存储目录：{{ defaultDownloadFolder }}
           <a href="#" @click="openDownloadFolder">打开目录</a>
@@ -114,6 +114,7 @@ export default {
   computed: {
     ...mapGetters('Download', ['downloaded']),
     ...mapGetters('Setting', ['downloadSongsFolders']),
+    ...mapGetters('App', ['isDark']),
     ...mapGetters('play', ['current_song', 'mode']),
     defaultDownloadFolder () {
       return this.downloadSongsFolders[0]
@@ -204,6 +205,36 @@ export default {
   }
   /deep/ .ant-card-body {
     padding: 0;
+  }
+}
+.dark-back1 {
+  /deep/ .ant-card-head-title {
+    span {
+      color: #828385;
+      a {
+        color: #2e6bb0;
+      }
+    }
+    .download-nums {
+      color: #5fa7e4;
+    }
+    .ant-btn {
+      color: #fff;
+      background: #5fa7e4 !important;
+      border: none !important;
+      &:hover {
+        background: #1A94E6 !important;
+      }
+    }
+    .ant-btn[disabled] {
+      color: #828385 !important;
+      background: #26272b !important;
+    }
+    .downloaded-playall {
+      span {
+        color: #fff;
+      }
+    }
   }
 }
 </style>

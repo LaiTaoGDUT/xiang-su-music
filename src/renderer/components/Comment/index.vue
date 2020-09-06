@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div :class="{'dark-back1': isDark}">
     <div class='comment_num' v-if="commentData">
       <span style="font-size: 20px; margin-right: 15px;">听友评论</span>
       <span style="color: grey; font-size: 14px">（已有{{ commentData.total }}条评论）</span>
@@ -18,7 +18,7 @@
         </dd>
       </dl>
       <dl v-if="commentData.comments.length">
-        <dt>全部评论</dt>
+        <dt>全部评论（{{ commentData.total }}）</dt>
         <dd v-for="(comment, index) in commentData.comments" :key="`all_${comment.commentId}_${index}`">
           <comment-item :comment="comment" @shrink-screen="$emit('shrink-screen')" />
         </dd>
@@ -30,7 +30,7 @@
 <script>
 import CommentItem from './CommentItem'
 import Loading from '@/components/Common/loading'
-
+import { mapGetters } from 'vuex'
 export default {
   props: {
     commentData: {
@@ -42,6 +42,9 @@ export default {
   },
   components: {
     Loading, CommentItem
+  },
+  computed: {
+    ...mapGetters('App', ['isDark'])
   }
 }
 </script>
@@ -51,8 +54,23 @@ export default {
   line-height: 1;
   font-size: 18px;
   border-bottom: 1px solid #e6e6e6;
-  margin-bottom: 10px;
+  margin-bottom: 20px;
   padding-bottom: 10px;
   margin-top: 8px;
+}
+
+.dark-back1 {
+  background: transparent !important;
+  color: #dcdde4;
+  .comment_num {
+    border-bottom: 1px solid #39393b;
+  }
+  .comment-wrapper {
+    dt {
+      color: #dcdde4;
+      border-bottom: 1px solid #1c1e22;
+      padding-bottom: 10px;
+    }
+  }
 }
 </style>

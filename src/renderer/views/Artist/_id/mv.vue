@@ -15,7 +15,6 @@
 import mvItem from '@/components/Common/mv-item'
 import { getArtistMV } from '@/api/artist'
 import { normalMV } from '@/utils/video'
-
 export default {
   name: 'artist_id_mv',
   data () {

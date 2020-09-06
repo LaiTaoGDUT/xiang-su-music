@@ -1,13 +1,13 @@
 <template>
-  <div class="downloading">
+  <div class="downloading" :class="{'dark-back1': isDark}">
     <a-card :bordered="false">
       <div slot="title">
-        <a-button icon="delete" :disabled="!downloading.length" @click="openDownloadFolder">清空全部</a-button>
+        <a-button icon="delete" @click="openDownloadFolder" class="downloading-clearall">清空全部</a-button>
 
         <span>存储目录:{{ defaultDownloadFolder }} <a href="#" @click="openDownloadFolder">打开目录</a></span>
       </div>
       <loading v-show="loading" />
-      <div style="margin: 10px">正在下载</div>
+      <div style="margin: 10px" class="downloading-title">正在下载</div>
       <track-list @reloading="reloading" @reloaded="reloaded" :limit="limit" :columns="columns" :tracks="downloading" :isShowActions="false">
         <template slot="downloadPercent" slot-scope="{ row }">
           <div style="width:170px;line-height: 1;">
@@ -31,7 +31,7 @@
           </div>
         </template>
       </track-list>
-      <div style="margin: 0 10px 10px">等待下载</div>
+      <div style="margin: 0 10px 10px" class="wait-downloading-title">等待下载</div>
       <track-list @reloading="reloading" @reloaded="reloaded" :limit="limit" :columns="columns" :tracks="queue" :isShowActions="false">
         <template slot="downloadPercent">
           <div>等待中...</div>
@@ -91,6 +91,7 @@ export default {
   },
   computed: {
     ...mapState('Download', ['downloading', 'queue']),
+    ...mapGetters('App', ['isDark']),
     ...mapGetters('play', ['current_play_list']),
     ...mapGetters('Setting', ['downloadSongsFolders']),
     defaultDownloadFolder () {
@@ -160,6 +161,42 @@ export default {
     &:hover {
       color: #000;
     }
+  }
+}
+.dark-back1 {
+  /deep/ .ant-card-head-title {
+    .ant-btn {
+      color: #fff;
+      background: #26272b !important;
+      border: none !important;
+      &:hover {
+        background: #686a6e !important;
+      }
+    }
+    .ant-btn[disabled] {
+      color: #828385 !important;
+      background: #26272b !important;
+    }
+    span {
+      color: #828385;
+      a {
+        color: #2e6bb0;
+      }
+    }
+    .download-nums {
+      color: #5fa7e4;
+    }
+    .downloading-clearall {
+      span {
+        color: #fff;
+      }
+    }
+  }
+  .downloading-title {
+    color: #fff;
+  }
+  .wait-downloading-title {
+    color: #fff;
   }
 }
 </style>

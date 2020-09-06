@@ -1,22 +1,22 @@
 <template>
   <a-locale-provider :locale="locale">
     <a-layout class="basic-layout">
-      <a-layout-header class="basic-layout-header">
-        <basic-header/>
+      <a-layout-header class="basic-layout-header" :class="{'text-color': isDark}">
+        <basic-header />
       </a-layout-header>
       <a-layout>
         <a-layout-sider class="basic-layout-sider" :width="siderWidth">
-          <div ref="handle" class="split-handle"></div>
+          <div ref="handle" class="split-handle" :class="{'dark-back4': isDark}"></div>
           <basic-sider />
         </a-layout-sider>
-        <a-layout-content class="basic-layout-content" >
+        <a-layout-content class="basic-layout-content" :class="{'dark-back2': isDark}">
           <keep-alive :exclude="keepAliveExcludeList" v-if="isOnliline || noLimitRoutes.includes($route.name)">
             <router-view v-if="!refresh"></router-view>
           </keep-alive>
           <offline v-else />
         </a-layout-content>
       </a-layout>
-      <a-layout-footer class="basic-layout-footer">
+      <a-layout-footer class="basic-layout-footer" :class="{'dark-back3': isDark}">
         <play-bar/>
       </a-layout-footer>
       <login />
@@ -49,7 +49,8 @@ export default {
   },
   computed: {
     ...mapGetters('App', ['isOnliline']),
-    ...mapState('App', ['noLimitRoutes'])
+    ...mapState('App', ['noLimitRoutes']),
+    ...mapGetters('App', ['isDark'])
   },
   components: {
     BasicHeader,
@@ -137,5 +138,22 @@ export default {
   .basic-layout-content {
     background: #f5f5f7;
   }
+}
+
+.text-color {
+  color: #adafb2 !important;
+}
+.dark-back4 {
+  border-right: 1px solid #23262c !important;
+}
+.dark-back2 {
+  background: #16181c !important;
+  &::-webkit-scrollbar-thumb {
+    background: #2f3134;
+  }
+}
+
+.dark-back3 {
+  border-top: 2px solid #23262c !important;
 }
 </style>

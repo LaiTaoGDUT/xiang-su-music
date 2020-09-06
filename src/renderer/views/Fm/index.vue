@@ -1,5 +1,5 @@
 <template>
-  <div class="fm">
+  <div class="fm" :class="{'dark-back1': isDark}">
     <div class="fm-cover">
       <div class="l">
         <div class="cover-wrapper">
@@ -75,9 +75,11 @@ export default {
       'playing',
       'current_lyric_line',
       'current_song_index',
-      'current_play_list'
+      'current_play_list',
+      'show_trans'
     ]),
     ...mapGetters('User', ['likedsongIds']),
+    ...mapGetters('App', ['isDark']),
     playIcon () {
       return this.playing ? 'pause-circle' : 'play-circle'
     },
@@ -87,15 +89,25 @@ export default {
   },
   watch: {
     current_lyric_line (newLine) {
+      const len = this.show_trans && this.lyric.lines[this.current_lyric_line].trans != '' ? 3 : 6
       const lines = this.$refs.lyrics.$refs.lyricLine
       const line_HEIGHT = lines[newLine].getBoundingClientRect().height
-      let top = lines[newLine].offsetTop > 0 ? Number(lines[newLine].offsetTop - line_HEIGHT * 4) : 0
+      let top = lines[newLine].offsetTop > 0 ? Number(lines[newLine].offsetTop - line_HEIGHT * len) : 0
       this.$refs.lyrics.scrollTo(top, 'smooth')
     },
     current_song (newSong, oldSong) {
       if (newSong.id === oldSong.id) return
       if (this.adding) return
       this.handleFmChange(newSong)
+    },
+    show_trans (newVal) {
+      const len = newVal && this.lyric.lines[this.current_lyric_line].trans != '' ? 3 : 6
+      this.$nextTick(() => {
+        const lines = this.$refs.lyrics.$refs.lyricLine
+        const line_HEIGHT = lines[this.current_lyric_line].getBoundingClientRect().height
+        let top = lines[this.current_lyric_line].offsetTop > 0 ? Number(lines[this.current_lyric_line].offsetTop - line_HEIGHT * len) : 0
+        this.$refs.lyrics.scrollTo(top, 'smooth')
+      })
     }
   },
   activated () {
@@ -263,6 +275,12 @@ export default {
         overflow: hidden;
         white-space: nowrap;
         max-width: 50%;
+        a {
+          color: #000;
+          &:hover {
+            color: @primary-color;
+          }
+        }
       }
     }
   }
@@ -368,8 +386,28 @@ export default {
     }
   }
 }
-
 .value {
   color: #215eb9;
+}
+.dark-back1 {
+  .r {
+    .song-name {
+      color: #c6c5c6;
+    }
+    .song-info {
+      .song-album {
+        color: #aba9aa;
+        a {
+          color: #828385 !important;
+          &:hover {
+            color: #dcdde4 !important;
+          }
+        }
+      }
+      .song-artist {
+        color: #aba9aa;
+      }
+    }
+  }
 }
 </style>

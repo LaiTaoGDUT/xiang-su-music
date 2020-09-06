@@ -1,5 +1,5 @@
 <template>
-  <ul :class="[{'bordered':bordered},'song-list']">
+  <ul :class="[{'bordered':bordered},'song-list',{ 'dark-back1': isDark }]">
     <li
       class="song-item"
       v-for="(song, index) in tracks"
@@ -14,7 +14,7 @@
       <div class="info">
         <div class="name">
           <span>{{song.name}}</span>
-          <small class="alias" v-if="song.alia && song.alia.length">{{song.alia[0]}}</small>
+          <small class="alias" v-if="song.alia && song.alia.length">{{'(' + song.alia[0] + ')'}}</small>
           <a-icon type="youtube" class="icon-mv" v-if="song.mvid && showMore"/>
         </div>
         <div v-if="!showMore">
@@ -37,7 +37,7 @@
 
 <script>
 import Artists from '@/components/Common/artists'
-
+import { mapGetters } from 'vuex'
 export default {
   name: 'song-item',
   props: {
@@ -49,6 +49,9 @@ export default {
         return []
       }
     }
+  },
+  computed: {
+    ...mapGetters('App', ['isDark'])
   },
   components: {
     Artists
@@ -62,6 +65,39 @@ export default {
 </script>
 
 <style lang="less" scoped>
+.dark-back1 {
+  &.bordered {
+    border: 1px solid #23262c !important;
+  }
+  .song-item {
+    background: #16181c !important;
+    &:nth-child(n + 6) {
+      border-left: 1px solid #23262c !important;
+    }
+    &:nth-child(even) {
+      background-color: #1a1c20 !important;
+    }
+    &:hover {
+      background-color: #232529 !important;
+    }
+    .icon-mv {
+      color: #5fa7e4 !important;
+      font-size: 15px;
+      cursor: pointer;
+    }
+    .item-index {
+      width: 25px;
+      flex: 0 0 25px;
+    }
+    .info {
+      color: #dcdde4 !important;
+      small {
+        color: #999;
+      }
+    }
+  }
+
+}
 .song-list {
   display: flex;
   flex-direction: column;
@@ -89,6 +125,7 @@ export default {
     }
     .icon-mv {
       color: @primary-color;
+      margin-right: 5px;
       font-size: 15px;
       cursor: pointer;
     }
@@ -127,6 +164,7 @@ export default {
       }
       small {
         color: #999;
+        margin-left: 5px;
       }
     }
     .extra-item {

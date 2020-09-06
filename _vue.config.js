@@ -90,6 +90,7 @@ module.exports = {
       less: {
         modifyVars: {
           'primary-color': '#5fa7e4',
+          'text-color': '#000',
           'link-color': '#5fa7e4',
           'border-radius-base': '4px'
         },

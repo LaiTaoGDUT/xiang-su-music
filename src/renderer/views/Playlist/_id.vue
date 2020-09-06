@@ -1,21 +1,22 @@
 <template>
-  <div>
-    <loading v-show="loading" />
+  <div :class="{'dark-back1': isDark}">
+    <loading v-show="loading" text="加载中..." />
     <a-list class="intro">
       <a-list-item v-if="playlist">
         <a-list-item-meta>
           <div slot="title">
-            <h1>{{playlist.name}}</h1>
+            <a-tag class="tag">歌单</a-tag>
+            <h1 class="playlist-title">{{playlist.name}}</h1>
           </div>
           <div slot="description">
             <div class="creator">
               <img  class="creator-avatar" v-lazy="`${playlist.creator.avatarUrl}?param=32y32`" />
-              <router-link :to="`/user?id=${playlist.creator.userId}`" class="name">{{playlist.creator.nickname}}</router-link>
+              <router-link :to="`/user?id=${playlist.creator.userId}`" class="name">{{playlist.creator.nickname}} </router-link>
               <span class="time">{{playlist.createTime | toDate}}创建</span>
             </div>
             <ul class="actions">
               <li class="item">
-                <a-button-group size="small">
+                <a-button-group size="small" class="playlist-playall">
                   <a-button type="primary" icon="play-circle" @click="playAll">播放全部</a-button>
                   <a-button type="primary" icon="plus" title="添加所有到播放列表" @click="addToList"></a-button>
                 </a-button-group>
@@ -109,6 +110,7 @@ export default {
   computed: {
     ...mapGetters('User', [ 'likedPlaylistIds' ]),
     ...mapGetters('play', [ 'current_play_list', 'mode' ]),
+    ...mapGetters('App', ['isDark']),
     isLiked () {
       return this.likedPlaylistIds.includes(this.playlist.id)
     },
@@ -228,6 +230,9 @@ export default {
 <style lang="less" scoped>
 .intro {
   padding: 20px;
+  .playlist-title {
+    font-size: 20px;
+  }
   .creator {
     display: flex;
     align-items: center;
@@ -242,16 +247,21 @@ export default {
       color: #333;
     }
     .time {
+      padding-left: 10px;
       font-size: 14px;
     }
   }
   .actions {
     margin: 15px 0;
+    vertical-align: bottom;
     .item {
       display: inline-block;
       margin-right: 5px;
       i {
         vertical-align: top;
+      }
+      .playlist-playall {
+        border-radius: 4px;
       }
     }
     button {
@@ -280,11 +290,83 @@ export default {
     }
   }
 }
-
+.tag {
+  padding: 0 10px;
+  line-height: 23px;
+  height: 24px;
+  border-radius: 2px;
+  background-color: @primary-color;
+  border-color: @primary-color;
+  color: #fff;
+  float: left;
+}
 .desc {
   display: -webkit-box;
   text-overflow: ellipsis;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
+}
+
+.dark-back1 {
+  .intro {
+    .playlist-title {
+      color: #ffffff;
+    }
+    .creator {
+      .name {
+        color: #adafb2
+      }
+      .time {
+        color: #828385;
+      }
+    }
+    .actions {
+      .item {
+        .ant-btn {
+          color: #fff;
+          background: #26272b !important;
+          border: none !important;
+          &:hover {
+            background: #686a6e !important;
+          }
+        }
+        .ant-btn[disabled] {
+          color: #828385 !important;
+          background: #26272b !important;
+        }
+        .playlist-playall {
+          .ant-btn {
+            background: #5fa7e4 !important;
+            &:hover {
+              background: #1A94E6 !important;
+            }
+          }
+        }
+      }
+    }
+    .tags {
+      color: #fff;
+      a {
+        color: #828385;
+        &:hover {
+          color: #fff;
+        }
+      }
+    }
+    .desc {
+      color: #fff;
+    }
+    .action {
+      color: #828385;
+      li {
+        &:not(:last-child) {
+          border-right: 1px solid #828385;
+        }
+      }
+    }
+  }
+  .tag {
+    background-color: #5fa7e4 !important;
+  }
 }
 </style>

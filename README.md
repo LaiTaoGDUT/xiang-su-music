@@ -33,18 +33,25 @@
 ![match](https://github.com/LaiTaoGDUT/xiang-su-music/blob/master/screenshot/match.png)
 * 匹配QQ音乐的歌
 ![qqMusic](https://github.com/LaiTaoGDUT/xiang-su-music/blob/master/screenshot/qqMusic.png)
-* 评论功能表情不能少
+* 评论功能表情
 ![emoji](https://github.com/LaiTaoGDUT/xiang-su-music/blob/master/screenshot/emoji.png)
 * 聚合网易云与QQ音乐搜索
 ![search](https://github.com/LaiTaoGDUT/xiang-su-music/blob/master/screenshot/search.png)
+* 暗黑模式皮肤
+![darkTheme](https://github.com/LaiTaoGDUT/xiang-su-music/blob/master/screenshot/darkTheme.png)
+![darkTheme2](https://github.com/LaiTaoGDUT/xiang-su-music/blob/master/screenshot/darkTheme2.png)
 * mini模式
+
 ![mini](https://github.com/LaiTaoGDUT/xiang-su-music/blob/master/screenshot/mini.png)
+
 ![mini2](https://github.com/LaiTaoGDUT/xiang-su-music/blob/master/screenshot/mini2.png)
 * 托盘菜单
+
 ![tray](https://github.com/LaiTaoGDUT/xiang-su-music/blob/master/screenshot/tray.png)
 * 还有......
 
 ## 版本更新
+* 0.3.3 优化歌曲搜索功能，更新若干样式，更新暗黑模式皮肤（不仅仅是换色）
 * 0.3.2 修复若干问题，私人FM支持垃圾桶功能，支持给删除当前播放列表中的歌曲，支持在音乐详情页跳转至MV播放
 * 0.3.1 接入QQ音乐，支持QQ音乐的接口：歌曲，歌单，专辑，MV，歌手，以及以上各项的搜索，不支持通过登录获取QQ音乐的用户信息，修复接口升级后MV无法获取链接的问题，现在可以正常播放登录用户购买的专辑内歌曲
 * 0.2.4 评论区现在可以正确显示表情，歌单现在可以完整显示所有音乐，修复部分歌曲歌词无法显示的问题,现在在任何地方播放本地音乐列表或下载列表中存在的歌曲时，无需加载来自网络上的资源

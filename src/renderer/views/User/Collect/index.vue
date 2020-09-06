@@ -1,5 +1,5 @@
 <template>
-  <div class="collect">
+  <div class="collect" :class="{'dark-back1': isDark}">
     <div class="collect-header">
       <a-radio-group buttonStyle="solid" v-model="value">
         <a-radio-button value="collect-album">专辑</a-radio-button>
@@ -14,6 +14,7 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 const CollectAlbum = resolve => {
   require(['./components/Album.vue'], resolve)
 }
@@ -29,6 +30,9 @@ export default {
     return {
       value: 'collect-album'
     }
+  },
+  computed: {
+    ...mapGetters('App', ['isDark'])
   },
   components: {
     CollectAlbum, CollectArtist, CollectVideo
@@ -47,6 +51,19 @@ export default {
   }
   .collect-body {
     padding: 16px;
+  }
+}
+.dark-back1 {
+  .collect-header {
+    .ant-radio-button-wrapper {
+      border: none !important;
+      background: #222225;
+      color: #ffffff;
+    }
+    .ant-radio-button-wrapper-checked {
+      background: #ffffff !important;
+      color: #222225 !important;
+    }
   }
 }
 </style>

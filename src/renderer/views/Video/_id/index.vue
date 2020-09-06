@@ -1,8 +1,9 @@
 <template>
-  <section class="mv-detail">
+  <section class="mv-detail" :class="{'dark-back1': isDark}">
     <div class="col-l">
       <loading v-show="isLoading"></loading>
       <h5 class="video-title">
+        <a-tag class="tag">视频</a-tag>
         {{mv.title}}
         <router-link
           :to="`/user?id=${mv.creator.userId}`"
@@ -77,11 +78,11 @@
     <div class="col-r">
       <div class="mv-info">
         <h5 class="title">视频介绍</h5>
-        <div style="display: flex;" v-if="mv && mv.videoGroup.length">
+        <div style="display: flex;" v-if="mv && mv.videoGroup.length" class="tag-group">
           <span style="marginRight:3px;flex: 0 0 40px;">标签: </span>
           <a-breadcrumb>
             <a-breadcrumb-item v-for="tag in mv.videoGroup" :key="tag.id">
-              <router-link :to="`/video?groupId=${tag.id}`" class="tag">{{tag.name}}</router-link>
+              <router-link :to="`/video?groupId=${tag.id}`" class="vedio-tag">{{tag.name}}</router-link>
             </a-breadcrumb-item>
           </a-breadcrumb>
         </div>
@@ -173,6 +174,7 @@ export default {
     Artists
   },
   computed: {
+    ...mapGetters('App', ['isDark']),
     ...mapGetters('play', ['videoPlaying', 'playing']),
     percent () {
       return this.currentTime / (this.mv.durationms / 1000)
@@ -383,8 +385,9 @@ export default {
       font-size: 18px;
       margin-bottom: 10px;
       padding-left: 10px;
-      border-left: 3px solid #c52f30;
       line-height: 1;
+      display: flex;
+      align-items: center;
     }
     .artist {
       font-size: 14px;
@@ -547,7 +550,7 @@ export default {
         -webkit-box-orient: vertical;
         line-height: 1.2;
       }
-      .tag {
+      .vedio-tag {
         color: #005daf;
       }
     }
@@ -561,6 +564,7 @@ export default {
             max-width: 140px;
             height: 50%;
             width: 50%;
+            max-height: 80px;
           }
           .info {
             flex: 1;
@@ -580,6 +584,81 @@ export default {
         }
       }
     }
+  }
+}
+.tag {
+  padding: 0 10px;
+  line-height: 23px;
+  height: 24px;
+  border-radius: 2px;
+  background-color: @primary-color;
+  border-color: @primary-color;
+  color: #fff;
+  float: left;
+}
+.dark-back1 {
+  .col-l {
+    .video-title {
+      color: #dcdde4;
+    }
+    .actions {
+      .item {
+        .ant-btn {
+          color: #fff;
+          background: #26272b !important;
+          border: none !important;
+          &:hover {
+            background: #686a6e !important;
+          }
+        }
+        .ant-btn[disabled] {
+          color: #828385 !important;
+          background: #26272b !important;
+        }
+      }
+    }
+  }
+  .col-r {
+    .title {
+      color: #dcdde4;
+      border-bottom: 1px solid #23262c;
+    }
+    .mv-info {
+      .desc {
+        color: #777;
+        &::-webkit-scrollbar-thumb {
+          background: #2f3134;
+        }
+      }
+      .tag-group {
+        color: #777;
+        /deep/ .ant-breadcrumb-separator {
+          color: #777;
+        }
+      }
+    }
+    .simi-mv {
+      .list {
+        .item {
+          .info {
+            flex: 1;
+            .name{
+              color: #ffffff;
+            }
+            .duration {
+              color: #828385;
+            }
+            .artist,
+            .artist a {
+              color: #999;
+            }
+          }
+        }
+      }
+    }
+  }
+  .tag {
+    background-color: #5fa7e4 !important;
   }
 }
 </style>

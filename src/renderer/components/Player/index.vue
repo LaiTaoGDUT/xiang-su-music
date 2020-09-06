@@ -1,8 +1,8 @@
 <template>
   <transition name="player">
-    <div class="player" ref="player" v-show="fullscreen">
+    <div class="player" ref="player" v-show="fullscreen" :class="{'dark-back1': isDark}">
       <section class="main">
-        <a-icon type="shrink" class="shrink" @click="shrinkScreen"/>
+        <a-icon type="shrink" class="shrink" @click="shrinkScreen" title="收起音乐详情页"/>
         <div class="main-top">
           <div class="left">
             <div class="avatar-wrapper" ref="avatarWrapper" :class="[{'play' : isAddAnimation},{'pause' : !playing},{'has-freq' : showFreq}]">
@@ -32,6 +32,7 @@
                 :to="`/mv/${current_song.mvid}?platform=${current_song.platform}`"
                 title="查看MV"
                 v-if="current_song.mvid"
+                @click="shrinkScreen"
               >
                 <a-icon type="youtube" />
               </router-link>
@@ -120,7 +121,9 @@
           </div>
         </div>
       </section>
-      <div class="bg-player" :style="'backgroundImage: url('+current_song.avatar+')'" v-if="Object.keys(current_song).length"></div>
+      <div class="bg-player" :style="'backgroundImage: url('+current_song.avatar+')'" v-if="Object.keys(current_song).length">
+        <div v-if="isDark" class="bg-player-mask"></div>
+      </div>
     </div>
   </transition>
 </template>
@@ -173,6 +176,7 @@ export default {
   computed: {
     ...mapState('Download', ['downloaded', 'downloading', 'queue']),
     ...mapState('play', ['lyric']),
+    ...mapState('Localsong', ['localSongs']),
     ...mapGetters('play', [
       'fullscreen',
       'current_song',
@@ -184,6 +188,7 @@ export default {
     ...mapGetters('User', [
       'likedsongIds', 'createdList', 'userId'
     ]),
+    ...mapGetters('App', ['isDark']),
     isLiked () {
       return this.likedsongIds.includes(this.current_song.id)
     },
@@ -191,7 +196,7 @@ export default {
       return this.playing ? 'track-line' : 'track-line paused'
     },
     downloadstatus () {
-      return [...this.downloaded, ...this.queue].findIndex(item => item.id === this.current_song.id) >= 0
+      return [...this.localSongs, ...this.downloaded, ...this.queue].findIndex(item => item.id === this.current_song.id) >= 0
         ? { icon: 'check-circle', text: '已下载', downloaded: true }
         : { icon: 'download', text: '下载' }
     }
@@ -205,9 +210,11 @@ export default {
       }
     },
     show_trans (newVal) {
+      this.$nextTick(() => {
         const lines = this.$refs.lyrics.$refs.lyricLine
         let top = Number(lines[this.current_lyric_line].offsetTop - LYRIC_LINE_HEIGHT * 4)
         this.$refs.lyrics.scrollTo(top, 'smooth')
+      })
     },
     current_song (newSong, oldSong) {
       if (newSong.id === oldSong.id || !this.fullscreen) return
@@ -350,7 +357,6 @@ export default {
       this.$store.dispatch('User/handleLikeSong', { song: this.current_song, isLike: !this.isLiked, self: this })
     },
     download (song) {
-      // if (this.downloaded.findIndex(item => item.id === this.current_song.id) >= 0) return
       this.$store.dispatch('Download/adddownloadQueue', [song])
     },
     play (tracks, index) {
@@ -401,8 +407,8 @@ export default {
     background-repeat: no-repeat;
     background-size: cover;
     background-position: 50%;
-    filter: blur(50px);
-    -webkit-filter: blur(50px);
+    filter: blur(20px);
+    -webkit-filter: blur(20px);
     opacity: 0.6;
     background-image: linear-gradient(to top,#000,#fff);
     mask-image: linear-gradient(
@@ -531,6 +537,9 @@ export default {
           font-size: 20px;
           display: flex;
           align-items: center;
+          a {
+            padding-left: 10px;
+          }
           .label {
             padding: 1px 4px;
             border: 1px solid @primary-color;
@@ -552,6 +561,12 @@ export default {
             text-overflow: ellipsis;
             overflow: hidden;
             white-space: nowrap;
+            a {
+              color: #000;
+              &:hover {
+                color: @primary-color;
+              }
+            }
           }
         }
         .lyric {
@@ -600,8 +615,17 @@ export default {
           display: inline-block;
           vertical-align: top;
           width: 100%;
-          height: 330px;
+          height: 360px;
           overflow: auto;
+          mask-image: linear-gradient(
+            to bottom,
+            rgba(255, 255, 255, 0) 0,
+            rgba(255, 255, 255, 0.6) 15%,
+            rgba(255, 255, 255, 1) 25%,
+            rgba(255, 255, 255, 1) 75%,
+            rgba(255, 255, 255, 0.6) 85%,
+            rgba(255, 255, 255, 0) 100%
+          );
           -webkit-mask-image: linear-gradient(
             to bottom,
             rgba(255, 255, 255, 0) 0,
@@ -714,6 +738,120 @@ export default {
             flex: 0 0 100px;
             color: #999;
             text-align: right;
+          }
+        }
+      }
+    }
+  }
+}
+
+.dark-back1 {
+  background: #16181c;
+  .bg-player {
+    filter: blur(15px);
+    -webkit-filter: blur(15px);
+    .bg-player-mask {
+      width: 100%;
+      height: 100%;
+      background-image: radial-gradient(
+        rgba(87, 82, 83, 0.5) 25%,
+        rgba(22, 24, 28, 0.8) 65%,
+        #16181c 95%,
+        #16181c 100%,
+        )
+    }
+  }
+  .main {
+    background: transparent;
+    .shrink {
+      background: #393a3d;
+      color: #adafb2;
+    }
+    .main-top {
+      .left {
+        .actions {
+          /deep/ .ant-btn {
+            background-color: #292a2e;
+            border: none;
+            color: #dcdde4;
+            .anticon {
+              font-size: 15px;
+            }
+            &:disabled {
+              color: #606165;
+            }
+          }
+        }
+      }
+      .right {
+        .name {
+          color: #c6c5c6;
+          a {
+            color: #5fa7e4;
+          }
+        }
+        .info {
+          .album,
+          .singer {
+            color: #aba9aa;
+            a {
+              color: #828385;
+              &:hover {
+                color: #dcdde4;
+              }
+            }
+          }
+        }
+        .lyric {
+          border-right: 1px solid #39393b;
+          .lyric-control {
+            color: #adafb2;
+            .backward, .forward {
+              background: #393a3d;
+            }
+          }
+          .pushpin {
+            background: #393a3d;
+            color: #adafb2;
+          }
+        }
+        .lyric-list {
+          background: transparent;
+          .lyric-wrapper {
+            .text {
+              color: #6f6b6c;
+              &.current {
+                color: @primary-color;
+              }
+            }
+          }
+        }
+      }
+    }
+    .main-bottom {
+      .right{
+        .title {
+          color: #dcdde4;
+          border-bottom: 1px solid #39393b;
+        }
+        .simi-song {
+          .song-info {
+            .song-name {
+              color: #fff;
+            }
+            .playcount {
+              color: #999;
+            }
+          }
+        }
+        .related-user {
+          .user-info {
+            .username {
+              color: #fff;
+            }
+            img {
+              border: 1px solid #f3f5f7;
+            }
           }
         }
       }

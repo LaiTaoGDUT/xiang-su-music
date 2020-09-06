@@ -1,15 +1,15 @@
 <template>
-  <a-comment class="comment">
+  <a-comment class="comment" :class="{'dark-back1': isDark}">
     <template slot="actions">
       <span>
         <a-icon type="like" :theme="comment.liked?'filled':'outlined'" />
-        <span v-if="comment.likedCount">({{comment.likedCount}})</span>
+        <span> ({{comment.likedCount || 0}})</span>
       </span>
       <span>分享</span>
       <span>回复</span>
     </template>
     <div slot="author" @click="$emit('shrink-screen')">
-      <router-link :disabled="comment.platform == 'qq'" :to="`/user?id=${comment.user.userId}`">{{comment.user.nickname}}:</router-link>
+      <router-link :disabled="comment.platform == 'qq'" :to="`/user?id=${comment.user.userId}`">{{comment.user.nickname}}: </router-link>
     </div>
     <div slot="avatar" @click="$emit('shrink-screen')">
       <router-link :disabled="comment.platform == 'qq'" :to="`/user?id=${comment.user.userId}`">
@@ -26,7 +26,7 @@
           v-for="(reply, index) in comment.beReplied"
           :key="`${reply.beRepliedCommentId}_${index}`"
         >
-          <router-link :disabled="comment.platform == 'qq'" :to="`/user?id=${reply.user.userId}`">@{{reply.user.nickname}}</router-link>
+          <router-link :disabled="comment.platform == 'qq'" :to="`/user?id=${reply.user.userId}`">@{{reply.user.nickname}}: </router-link>
           <span v-html="normalComment(reply.content)"></span>
         </div>
       </template>
@@ -38,6 +38,7 @@
 import moment from 'moment'
 import { getEmoji } from '@/api/emoji.js'
 import { encodeHtml } from '@/utils/dom.js'
+import { mapGetters } from 'vuex'
 export default {
   data () {
     return {
@@ -48,6 +49,9 @@ export default {
     comment: {
       type: Object
     }
+  },
+  computed: {
+    ...mapGetters('App', ['isDark'])
   },
   methods: {
     normalComment (content) {
@@ -87,5 +91,39 @@ export default {
   background: rgba(232, 232, 232, 0.5);
   padding: 3px 6px;
   border-radius: 3px;
+}
+</style>
+<style scoped lang="less">
+.comment {
+  /deep/ .ant-comment-actions {
+    li span {
+      i {
+        font-size: 15px !important;
+      }
+    }
+  }
+}
+.dark-back1 {
+  border-bottom: 1px solid #1c1e22;
+  /deep/ .ant-comment-content-author-name {
+    div a {
+      color: #5fa7e4;
+    }
+  }
+  /deep/ .ant-comment-content-author-time {
+    color: #828385;
+  }
+  /deep/ .ant-comment-actions {
+    li span {
+      color: #828385;
+    }
+  }
+  .beReplied {
+    background: #1c1e23;
+    color: #828385;
+    a {
+      color: #5fa7e4;
+    }
+  }
 }
 </style>

@@ -14,7 +14,8 @@ const getters = {
   primaryColor: state => state.primaryColor,
   showView: state => state.showView,
   showDesktoplyric: state => state.showDesktoplyric,
-  isOnliline: state => state.isOnliline
+  isOnliline: state => state.isOnliline,
+  isDark: state => state.primaryColor == '#222225'
 }
 
 const mutations = {

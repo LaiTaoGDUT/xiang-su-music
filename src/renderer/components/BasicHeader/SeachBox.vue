@@ -8,6 +8,7 @@
       v-model="searchVisible"
     >
       <a-input-search
+        :class="{ 'dark-search': isDark }"
         placeholder="搜索音乐、视频、歌词、电台..."
         v-model="keyword"
         class="header-search"
@@ -16,7 +17,7 @@
       />
       <template slot="content">
 
-        <div class="search-result" v-if="keyword && suggests">
+        <div class="search-result" v-if="keyword && suggests" :class="{ 'dark-back1': isDark }">
           <dl v-for="(suggest, key) in suggests" :key="key">
             <dt>{{searchMap[key]}}</dt>
             <dd v-for="(item, index) in suggest" :key="index" @click="suggestClick(suggest,item,key)">
@@ -26,7 +27,7 @@
           <dd v-if='Object.keys(suggests).length == 0'>暂无搜索建议</dd>
         </div>
 
-        <div class="search-content" v-else>
+        <div class="search-content" :class="{ 'dark-back1': isDark }" v-else>
           <dl>
             <dt>
               热门搜索
@@ -88,6 +89,7 @@ export default {
   computed: {
     ...mapGetters('Search', ['searchHistory']),
     ...mapGetters('play', ['current_song']),
+    ...mapGetters('App', ['primaryColor', 'isDark']),
     overlayStyle () {
       return this.keyword && this.suggests
         ? { width: '300px', top: '50px' }
@@ -182,12 +184,27 @@ export default {
 </script>
 
 <style lang="less" scoped>
+.dark-back1 {
+  background: #222225;
+  color: #adafb2;
+  dt {
+    background: #303236 !important;
+    color: #dcdde4 !important;
+  }
+  dd {
+    color: #adafb2 !important;
+    &:hover {
+      background: #16181c !important;
+    }
+  }
+
+}
 .header-search {
   /deep/ .ant-input {
     height: 24px;
     border-radius: 12px;
     background: rgba(0, 0, 0, 0.2);
-    color: rgba(255, 255, 255, 0.6);
+    color: rgba(255, 255, 255, 0.8);
     border: none;
     box-shadow: none;
     font-size: 12px;
@@ -201,15 +218,69 @@ export default {
   justify-content: space-between;
   align-items: center;
 }
-.search-result {
-  // overflow: scroll;
+
+.search-wrapper {
+  dl,
   dd {
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    a {
-      color: #333;
+    margin-bottom: 0;
+  }
+  .search-content {
+    display: flex;
+    margin: -12px -16px;
+    dl {
+      width: 50%;
+      font-size: 14px;
+      &:not(:last-child) {
+        border-right: 1px solid #eee;
+      }
     }
+    dt {
+      padding: 7px 15px;
+      border-bottom: 1px solid #eee;
+      color: #999;
+    }
+    dd {
+      padding: 0 15px;
+      line-height: 28px;
+      color: #111;
+      cursor: pointer;
+      &:hover {
+        background: #eee;
+      }
+    }
+  }
+  .search-result {
+    margin: -12px -16px;
+    dt {
+      padding: 7px 15px;
+      background: #f3f5f9;
+    }
+    dd {
+      padding: 0 5px 0 30px;
+      line-height: 28px;
+      color: #111;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      cursor: pointer;
+      &:hover {
+        background: #eee;
+      }
+      a {
+        color: #333;
+      }
+    }
+  }
+}
+.dark-search {
+  /deep/ .ant-input {
+    color: #828385 !important
+  }
+  /deep/ .ant-input::-webkit-input-placeholder {
+    color: #828385 !important
+  }
+  /deep/ .ant-input-clear-icon {
+    color: #dcdde4 !important;
   }
 }
 </style>

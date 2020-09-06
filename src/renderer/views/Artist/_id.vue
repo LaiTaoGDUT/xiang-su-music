@@ -1,18 +1,19 @@
 <template>
   <div>
-    <loading v-show="loading" />
-    <a-list class="intro" v-if="artist">
+    <loading v-show="loading" text="加载中..." />
+    <a-list class="intro" v-if="artist" :class="{'dark-back1': isDark}">
       <a-list-item>
         <a-list-item-meta>
           <div slot="title">
-            <h1>{{artist.name}}</h1>
+            <a-tag class="tag">歌手</a-tag>
+            <h1 class="artist-name">{{artist.name}}</h1>
           </div>
           <div slot="description" class="desc">
             <div>单曲数：{{artist.musicSize}}</div>
             <div>专辑数：{{artist.albumSize}}</div>
             <div>MV数：{{artist.mvSize}}</div>
             <div  v-if="artist.fans" >粉丝数：{{ artist.fans | toWan }}</div>
-            <div v-if="artist.briefDesc" style="max-height: 100px;overflow: auto;">简介：{{ artist.briefDesc }}</div>
+            <div class="artist-briefDesc" v-if="artist.briefDesc" style="max-height: 100px;overflow: auto;">简介：{{ artist.briefDesc }}</div>
           </div>
           <img v-lazy="`${artist.img1v1Url}?param=200y200`" width="200" height="200" :key="artist.id" slot="avatar">
         </a-list-item-meta>
@@ -34,6 +35,8 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
+
 import { getArtistSongs } from '@/api/artist'
 import { normalSong } from '@/utils/song'
 import TabBar from '@/components/Common/tabBar'
@@ -81,15 +84,16 @@ export default {
     next()
   },
   computed: {
+    ...mapGetters('App', ['isDark']),
     songs () {
       return this.hotSongs.filter(track => {
-        return track.name.includes(this.searchKey)
+        return track.name.toLowerCase().includes(this.searchKey) || track.album.name.toLowerCase().includes(this.searchKey)
       })
     }
   },
   methods: {
     searchSongs (value) {
-      this.searchKey = value
+      this.searchKey = value.toLowerCase()
     },
     async _getArtistSongs (id, platform) {
       this.loading = true
@@ -121,6 +125,51 @@ export default {
     position: absolute;
     right: 0;
     top: 12px;
+  }
+  .action {
+    position: absolute;
+    right: 0;
+    top: 0;
+  }
+}
+.tag {
+  padding: 0 10px;
+  line-height: 23px;
+  height: 24px;
+  border-radius: 2px;
+  background-color: @primary-color;
+  border-color: @primary-color;
+  color: #fff;
+  float: left;
+}
+.dark-back1 {
+  .artist-name {
+    color: #ffffff;
+  }
+  .desc {
+    color: #adafb2;
+    .artist-briefDesc {
+      &::-webkit-scrollbar-thumb {
+        background: #2f3134;
+      }
+    }
+  }
+  .action {
+    .ant-btn {
+      color: #fff;
+      background: #26272b !important;
+      border: none !important;
+      &:hover {
+        background: #686a6e !important;
+      }
+    }
+    .ant-btn[disabled] {
+      color: #828385 !important;
+      background: #26272b !important;
+    }
+  }
+  .tag {
+    background-color: #5fa7e4 !important;
   }
 }
 </style>

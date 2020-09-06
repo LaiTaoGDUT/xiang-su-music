@@ -33,6 +33,7 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 export default {
   data () {
     return {
@@ -78,13 +79,10 @@ export default {
     arrow: {
       type: Boolean,
       default: true
-    },
-    color: {
-      type: String,
-      default: 'rgb(248, 85, 85)'
     }
   },
   computed: {
+    ...mapGetters('App', ['primaryColor', 'isDark']),
     sliderStyle () {
       return {
         width: this.width ? this.width + 'px' : '100%',
@@ -129,8 +127,10 @@ export default {
     },
     setActiveDot (index) {
       return index === this.currentIndex
-        ? {
-          backgroundColor: this.color
+        ? this.isDark ? {
+          backgroundColor: '#5fa7e4'
+        } : {
+          backgroundColor: this.primaryColor
         }
         : {
           backgroundColor: '#ccc'

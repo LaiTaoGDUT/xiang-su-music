@@ -1,5 +1,5 @@
 <template>
-  <div class="top-bar">
+  <div class="top-bar" :class="{ 'dark-back1': isDark }">
     <div class="top-bar-logo">
       <img src="../../assets/images/top_bar_logo.png" alt="LOGO">
     </div>
@@ -48,7 +48,7 @@ export default {
     FrameActions
   },
   computed: {
-    ...mapGetters('App', ['primaryColor']),
+    ...mapGetters('App', ['primaryColor', 'isDark']),
     ...mapGetters('User', ['userId']),
     ...mapGetters('play', [
       'current_song',
@@ -83,53 +83,7 @@ export default {
   border-left-color: #fafafa !important;
 }
 </style>
-<style lang="less">
-.search-wrapper {
-  dl,
-  dd {
-    margin-bottom: 0;
-  }
-  .search-content {
-    display: flex;
-    margin: -12px -16px;
-    dl {
-      width: 50%;
-      font-size: 14px;
-      &:not(:last-child) {
-        border-right: 1px solid #eee;
-      }
-    }
-    dt {
-      padding: 7px 15px;
-      border-bottom: 1px solid #eee;
-      color: #999;
-    }
-    dd {
-      padding: 0 15px;
-      line-height: 28px;
-      color: #111;
-      &:hover {
-        background: #eee;
-      }
-    }
-  }
-  .search-result {
-    margin: -12px -16px;
-    dt {
-      padding: 7px 15px;
-      background: #f3f5f9;
-    }
-    dd {
-      padding: 0 5px 0 30px;
-      line-height: 28px;
-      color: #111;
-      &:hover {
-        background: #eee;
-      }
-    }
-  }
-}
-
+<style lang="less" scoped>
 .top-bar {
   display: flex;
   height: 100%;
@@ -225,5 +179,9 @@ export default {
   white-space: nowrap;
   text-overflow: ellipsis;
   vertical-align: middle;
+}
+
+.dark-back1 {
+  border-bottom: 2px solid #5fa7e4;
 }
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <div class="progress-bar" ref="progressBar" @click.prevent.stop="progressClick">
+  <div class="progress-bar" ref="progressBar" @click.prevent.stop="progressClick" :class="{ 'dark-back1': isDark }">
     <div class="progress" ref="progress" :style="{width : `${progressOffsetWidth}px`}"></div>
     <!-- <div class="buffered" ref="buffered" :style="{width : `${bufferedOffsetWidth}px`}"></div> -->
     <div :class="handleCls" @mousedown="onMouseDown" :style="{transform : `translateX(${progressbarTranslateX}px)`}">
@@ -12,7 +12,7 @@
 
 <script>
 import { debounce } from '@/utils/dom'
-
+import { mapGetters } from 'vuex'
 export default {
   name: 'progressBar',
   data () {
@@ -64,6 +64,7 @@ export default {
     }, 200))
   },
   computed: {
+    ...mapGetters('App', ['isDark']),
     handleCls () {
       return this.size === 'small'
         ? 'handle small'
@@ -176,11 +177,11 @@ export default {
     }
     .handle {
       position: absolute;
-      left: -10px;
+      left: -8px;
       top: 50%;
       margin-top: -8px;
       z-index: 3;
-      width: 20px;
+      width: 16px;
       height: 16px;
       background: #fff;
       border-radius: 8px;
@@ -204,7 +205,7 @@ export default {
       .progress-btn {
         position: relative;
         top: 4px;
-        left: 6px;
+        left: 4px;
         z-index: 1;
         box-sizing: border-box;
         width: 6px;
@@ -220,6 +221,24 @@ export default {
         width: 10px;
         height: 10px;
         z-index: 2;
+      }
+    }
+  }
+  .dark-back1 {
+    background: #171719 !important;
+    .progress {
+      background: #5fa7e4 !important;
+    }
+    .buffered {
+      background: rgba(123, 123, 123, 0.5);
+    }
+    .handle {
+      background: #fff;
+      &:hover {
+        box-shadow: 0px 0px 3px 2px rgba(0, 0, 0, 0.1);
+      }
+      .progress-btn {
+        background: #5fa7e4 !important;
       }
     }
   }

@@ -1,6 +1,6 @@
 <template>
   <a-menu mode="inline" :selectable="false" :defaultOpenKeys="['playlist_subscribed']">
-    <a-sub-menu key="playlist_subscribed">
+    <a-sub-menu key="playlist_subscribed" :class="{ 'dark-back1': isDark }">
       <div slot="title" class="subscribed-title">
         <span>收藏的歌单</span>
       </div>
@@ -49,7 +49,8 @@ export default {
   },
   computed: {
     ...mapGetters('User', ['userId', 'subscribedList', 'likedsongIds']),
-    ...mapGetters('play', ['mode'])
+    ...mapGetters('play', ['mode']),
+    ...mapGetters('App', ['isDark'])
   },
   methods: {
     removePlaylist (action, pid) {
@@ -85,3 +86,14 @@ export default {
   }
 }
 </script>
+
+<style lang="less" scoped>
+  .dark-back1 {
+    .subscribed-title {
+      color: #7c7c7c;
+    }
+    a {
+      color: #adafb2 !important;
+    }
+  }
+</style>

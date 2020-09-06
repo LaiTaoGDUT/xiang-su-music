@@ -126,6 +126,7 @@ export default {
         left: 0;
         width: 100%;
         padding: 0 10px;
+        text-shadow: 2px 1px 2px #000000;
       }
       .top {
         top: 0;
@@ -137,7 +138,8 @@ export default {
         bottom: 0;
         padding-right: 30px;
         line-height: 30px;
-        background: linear-gradient(to top, rgba(0, 0, 0, 0.5), transparent);
+        padding-top: 10px;
+        background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
       }
       .play-icon {
         display: none;

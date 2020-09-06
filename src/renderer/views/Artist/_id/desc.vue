@@ -1,5 +1,5 @@
 <template>
-  <section class="desc">
+  <section class="desc" :class="{'dark-back1': isDark}">
     <div>
       <div>简介</div>
       <pre v-html="briefDesc"></pre>
@@ -16,6 +16,7 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 import { getArtistDesc } from '@/api/artist'
 export default {
   name: 'artist_id_desc',
@@ -26,6 +27,9 @@ export default {
       topicData: [],
       loading: false
     }
+  },
+  computed: {
+    ...mapGetters('App', ['isDark'])
   },
   activated () {
     this._getArtistDesc()
@@ -53,5 +57,8 @@ export default {
     line-height: 1.4;
     color: #777;
   }
+}
+.dark-back1 {
+  color: #adafb2;
 }
 </style>

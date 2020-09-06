@@ -6,6 +6,8 @@
         <a-card
           :bordered="false"
           style="background: transparent;margin-bottom: 20px;"
+          :class="{ 'dark-back1': isDark }"
+          :headStyle="headStyle"
           :style="{opacity:isRenderFinish?1:0}"
           v-for="item in navs"
           :title="item.name"
@@ -122,7 +124,14 @@ export default {
     ZIcon
   },
   computed: {
-    ...mapGetters('User', [ 'userId' ])
+    ...mapGetters('User', [ 'userId' ]),
+    ...mapGetters('App', ['isDark']),
+    headStyle () {
+      return this.isDark ? {
+        borderBottom: '1px solid #23262c',
+        color: '#dcdde4'
+      } : {}
+    }
   },
   created () {
     this._getData()
@@ -209,6 +218,9 @@ export default {
   }
 </style>
 <style lang="less" scoped>
+  .dark-back1 {
+    color: #adafb2;
+  }
   .floors {
     padding-top: 20px;
 

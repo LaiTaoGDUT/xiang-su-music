@@ -1,6 +1,6 @@
 <template>
   <home-layout>
-    <div class="page-dj">
+    <div class="page-dj" :class="{'dark-back1': isDark}">
       <div class="banners">
         <slider ref="slider" :height="width*0.251" :list="banners" @sliderClick="onSliderClick" />
       </div>
@@ -8,7 +8,7 @@
         <ul class="list">
           <router-link
             tag="li"
-            :to="`/dj-recommend?id=${item.id}`"
+            :to="`/dj-recommend?id=${item.id}&platform=netease`"
             class="item"
             v-for="item in categories"
             :key="item.id"
@@ -27,7 +27,7 @@
         <ul class="list">
           <router-link
             tag="li"
-            :to="'/dj/'+item.id"
+            :to="`/dj/${item.id}?platform=netease`"
             class="item"
             v-for="(item,index) in djList"
             :key="index"
@@ -48,14 +48,14 @@
         <div class="channel" v-for="(program, index) in programs" :key="index">
           <h5 class="title">
             <span>{{ titles[index].name }}</span>
-            <router-link :to="`/dj-recommend?id=${titles[index].id}`" class="more">更多
+            <router-link :to="`/dj-recommend?id=${titles[index].id}&platform=netease`" class="more">更多
               <a-icon type="right" />
             </router-link>
           </h5>
           <ul class="list">
             <router-link
               tag="li"
-              :to="'/dj/'+item.id"
+              :to="`/dj/${item.id}?platform=netease`"
               class="item"
               v-for="(item,index) in program.djRadios.slice(0, 5)"
               :key="index"
@@ -77,6 +77,7 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 import Slider from '@/components/Slider'
 import HomeLayout from '@/layouts/HomeLayout'
 import {
@@ -100,6 +101,9 @@ export default {
       programs: [],
       titles: []
     }
+  },
+  computed: {
+    ...mapGetters('App', ['isDark'])
   },
   components: {
     HomeLayout,
@@ -282,6 +286,21 @@ export default {
             color: #999;
             font-size: 12px;
           }
+        }
+      }
+    }
+  }
+  .dark-back1 {
+    .cates {
+      color: #dcdde4;
+    }
+    .channel {
+      .title {
+        color: #dcdde4;
+      }
+      .list {
+        .text {
+          color: #ffffff !important;
         }
       }
     }

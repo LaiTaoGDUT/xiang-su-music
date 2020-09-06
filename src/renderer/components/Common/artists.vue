@@ -3,7 +3,7 @@
     :title="`艺术家:${artistTitle}`"
     v-if="artists && artists.length"
   >
-    <span v-for="(artist, index) in artists" :key="index" class="artists">
+    <span v-for="(artist, index) in artists" :key="index" class="artists" :class="{ 'dark-back1': isDark }">
       <span v-if="index != 0">/</span>
       <router-link :to="`/artist/${artist.id}?platform=${artist.platform}`" v-if="artist.id">{{artist.name}}</router-link>
       <span v-else>{{artist.name}}</span>
@@ -25,6 +25,7 @@ export default {
   },
   computed: {
     ...mapGetters('play', ['current_song']),
+    ...mapGetters('App', ['isDark']),
     artistTitle () {
       return this.artists.map(item => item.name).join('/')
     }
@@ -44,5 +45,18 @@ export default {
   i {
     margin: 0 2px;
   }
+}
+
+.dark-back1 {
+  background: transparent;
+  a {
+    color: #828385;
+    &:hover {
+      color: #dcdde4 !important;
+    }
+  }
+    span {
+      color: #4e4e52;
+    }
 }
 </style>

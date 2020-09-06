@@ -1,5 +1,5 @@
 <template>
-  <div class="subscriber">
+  <div class="subscriber" :class="{'dark-back1': isDark}">
     <div class="items" v-if="subscribers.length">
       <router-link :to="`/user?id=${subscriber.userId}`"
                    v-for="subscriber in subscribers"
@@ -9,13 +9,13 @@
         <div class="nickname">{{ subscriber.nickname }}</div>
       </router-link>
     </div>
-    <div v-else style="text-align: center">暂无收藏者~</div>
+    <div v-else style="text-align: center" class="no-subscriber">暂无收藏者~</div>
   </div>
 </template>
 
 <script>
 import { getPlaylistSubscribers } from '@/api/playlist'
-
+import { mapGetters } from 'vuex'
 export default {
   name: 'playlist_id_subscriber',
   data () {
@@ -29,6 +29,9 @@ export default {
   },
   activated () {
     this._getPlaylistSubscribers()
+  },
+  computed: {
+    ...mapGetters('App', ['isDark'])
   },
   methods: {
     _getPlaylistSubscribers () {
@@ -45,7 +48,6 @@ export default {
 
 <style lang="less" scoped>
   @import "./../../../styles/mixins";
-
   .subscriber {
     page-break-after: 20px;
     .items {
@@ -62,6 +64,17 @@ export default {
         text-overflow: ellipsis;
         white-space: nowrap;
       }
+    }
+  }
+  .dark-back1 {
+    .items {
+      .nickname {
+        color: #fff;
+      }
+    }
+    .no-subscriber {
+      padding: 10px 0;
+      color: #fff;
     }
   }
 </style>

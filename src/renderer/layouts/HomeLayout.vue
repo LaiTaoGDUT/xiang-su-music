@@ -1,5 +1,5 @@
 <template>
-  <section class="page-layout">
+  <section class="page-layout" :class="{ 'dark-back1': isDark }">
     <header class="wy-header">
       <nav>
         <router-link :to="item.href" v-for="(item, index) in topMenus" :key="index">{{item.title}}</router-link>
@@ -13,6 +13,7 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 export default {
   name: 'indexTopNav',
   props: {
@@ -39,19 +40,31 @@ export default {
           {
             title: '歌手',
             href: '/artist'
-          },
-          {
-            title: '最新音乐',
-            href: '/newSong'
           }
         ]
       }
     }
+  },
+  computed: {
+    ...mapGetters('App', ['isDark'])
   }
 }
 </script>
 
 <style lang="less" scoped>
+  .dark-back1 {
+    background: #16181c;
+    .wy-header {
+      border-bottom: 1px solid #5c5e61;
+      a {
+          color: #828385 !important;
+        &.router-link-exact-active,&.router-link-active {
+          border-bottom: 3px solid #5fa7e4 !important;
+          color: #dcdde4 !important;
+        }
+      }
+    }
+  }
   .wy-wrapper {
     position: relative;
     max-width: 1200px;
@@ -70,7 +83,7 @@ export default {
       color: #333;
       line-height: 42px;
       &.router-link-exact-active,&.router-link-active {
-        // border-bottom: 3px solid @primary-color;
+        border-bottom: 3px solid @primary-color;
         color: @primary-color;
       }
     }

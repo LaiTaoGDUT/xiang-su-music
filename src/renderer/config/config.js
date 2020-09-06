@@ -19,13 +19,13 @@ export const colorList = [      // 皮肤列表
     key: '默认', color: '#5fa7e4'
   },
   {
+    key: '暗黑', color: '#222225'
+  },
+  {
     key: '火山', color: '#FA541C'
   },
   {
     key: '日暮', color: '#FAAD14'
-  },
-  {
-    key: '酷黑', color: '#111'
   },
   {
     key: '明青', color: '#13C2C2'

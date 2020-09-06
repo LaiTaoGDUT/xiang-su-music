@@ -1,5 +1,5 @@
 <template>
-  <div class="playlist">
+  <div class="playlist" :class="{'dark-back1': isDark}">
     <ul class="list">
       <li class="list-item" @click="goLink" v-if="userId">
         <div class="date">
@@ -33,6 +33,7 @@ export default {
   },
   computed: {
     ...mapGetters('User', ['userId']),
+    ...mapGetters('App', ['isDark']),
     playlist () {
       return this.userId ? this.list.slice(0, 9) : this.list.slice(0, 10)
     }
@@ -110,6 +111,13 @@ export default {
       color: #fff;
       transform: translateY(-100%);
       transition: all 0.3s;
+    }
+  }
+}
+.dark-back1 {
+  .info {
+    .day {
+      color: #5fa7e4 !important;
     }
   }
 }

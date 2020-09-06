@@ -10,7 +10,7 @@
       >
         <template slot="content">
           <a-spin :spinning="loadding">
-            <div class="user-box">
+            <div class="user-box" :class="{ 'dark-back1': isDark }">
               <a-row type="flex" justify="space-between" align="middle" class="list1">
                 <a-col>
                   <router-link :to="`/user?id=${userInfo.profile.userId}`" class="username">
@@ -24,7 +24,7 @@
                     {{ userInfo.pcSign ? '已签到' : '签到' }}
                   </a-button>
                   <transition name="sign">
-                    <div class="sign-point" v-if="showPoint">{{ 'EXP +' + signPoint }}</div>
+                    <div class="sign-point" v-if="showPoint" :class="{ 'show-point': showPoint }">{{ 'EXP +' + signPoint }}</div>
                   </transition>
                 </a-col>
               </a-row>
@@ -63,6 +63,7 @@
             width="30"
             height="30"
             class="avatar"
+            style="border-radius: 50%;"
             v-lazy="`${userInfo.profile.avatarUrl}?param=30y30`"
             :key="userInfo.profile.avatarUrl"
           />
@@ -98,6 +99,7 @@ export default {
   computed: {
     ...mapState('User', ['userInfo']),
     ...mapGetters('User', ['hasUserInfo']),
+    ...mapGetters('App', ['isDark']),
     userId () {
       return this.userInfo.userId
     }
@@ -142,7 +144,32 @@ export default {
 }
 </script>
 
-<style lang="less">
+<style lang="less" scoped>
+.dark-back1 {
+  background: #2d2f33 !important;
+  .username {
+    color: #dcdde4 !important;
+  }
+  .list2 {
+    .list2-item {
+      color: #dcdde4 !important;
+      &:not(:last-child) {
+        border-right: 1px solid #ddd;
+      }
+    }
+    .list2-item:hover {
+      background-color: #393b3e !important;
+    }
+  }
+  .list3 {
+    .list3-item {
+      color: #dcdde4 !important;
+    }
+  }
+  .list3:hover {
+    background-color: #393b3e !important;
+  }
+}
 .user-box {
   margin: -12px -16px;
   padding: 12px 16px;
@@ -191,11 +218,13 @@ export default {
     line-height: 27px;
     text-align: center;
     color: @primary-color;
+  }
+  .show-point {
     animation-name: cssAnimation;
     animation-duration: 2s;
     animation-timing-function: ease-in;
-    animation-delay: 0s;
-    animation-iteration-count: 0;
+    animation-delay: 0.1s;
+    animation-iteration-count: 1;
     animation-direction: normal;
   }
   @keyframes cssAnimation {

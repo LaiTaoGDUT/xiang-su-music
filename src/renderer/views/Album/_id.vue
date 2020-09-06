@@ -1,18 +1,17 @@
 <template>
   <div>
     <loading v-show="loading" />
-    <a-list class="intro" v-if="album">
+    <a-list class="intro" v-if="album" :class="{'dark-back1': isDark}">
       <a-list-item>
         <a-list-item-meta>
           <div slot="title">
             <a-tag class="tag">专辑</a-tag>
-            <h1>{{ album.name }}</h1>
+            <h1 class="album-name">{{ album.name }}</h1>
           </div>
-
           <div slot="description" class="desc">
             <ul class="actions">
               <li class="item">
-                <a-button-group size="small">
+                <a-button-group size="small" class="playlist-playall">
                   <a-button type="primary" icon="play-circle" @click="playAll">播放全部</a-button>
                   <a-button type="primary" icon="plus" @click="addToList" />
                 </a-button-group>
@@ -98,6 +97,7 @@ export default {
     next()
   },
   computed: {
+    ...mapGetters('App', ['isDark']),
     tracks () {
       return this.songs.filter(track => {
         return track.name.includes(this.searchKey)
@@ -241,6 +241,46 @@ export default {
     bottom: 0;
     width: 225px;
     background: url('../../assets/images/album_cover.png') center / cover no-repeat
+  }
+}
+.dark-back1 {
+  .album-name {
+    color: #ffffff;
+  }
+  .desc {
+    color: #adafb2;
+    .actions {
+      .item {
+        .ant-btn {
+          color: #fff;
+          background: #26272b !important;
+          border: none !important;
+          &:hover {
+            background: #686a6e !important;
+          }
+        }
+        .ant-btn[disabled] {
+          color: #828385 !important;
+          background: #26272b !important;
+        }
+        .playlist-playall {
+          .ant-btn {
+            background: #5fa7e4 !important;
+            &:hover {
+              background: #1A94E6 !important;
+            }
+          }
+        }
+      }
+    }
+    .content {
+      &::-webkit-scrollbar-thumb {
+        background: #2f3134;
+      }
+    }
+  }
+  .tag {
+    background-color: #5fa7e4 !important;
   }
 }
 </style>

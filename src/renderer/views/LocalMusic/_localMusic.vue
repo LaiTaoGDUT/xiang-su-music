@@ -1,11 +1,14 @@
 <template>
-  <div class="local-music">
-    <a-card :bordered="false">
-      <div slot="title">
-        <a-button type="primary" size="small" icon="play-circle" @click="playAll">播放全部</a-button>
-        <a-button icon="redo" size="small" type="primary" @click="refreshFolders" :disabled="matching || refreshing">扫描音乐</a-button>
-        <a-button :icon="matching ? 'loading' : 'api'" size="small" type="primary" :disabled="!localSongs.length || refreshing" @click="matchSongs">{{ matching ? '停止匹配' : '匹配音乐'}}</a-button>
-        <small>{{ localSongs.length }}首歌曲,<a href="#" @click="visible = true">选择目录</a></small>
+  <div class="local-music" :class="{'dark-back1': isDark}">
+    <a-card :bordered="false" :headStyle="headStyle">
+      <div slot="title" style="display: flex; just;align-items: center;">
+        <a-button-group size="small" class="local_music-playall">
+          <a-button type="primary" icon="play-circle" @click="playAll" title="播放全部">播放全部</a-button>
+          <a-button type="primary" icon="plus" title="添加所有到播放列表" @click="addToList"></a-button>
+        </a-button-group>
+        <a-button icon="redo" size="small" @click="refreshFolders" :disabled="matching || refreshing">扫描音乐</a-button>
+        <a-button :icon="matching ? 'loading' : 'api'" size="small" :disabled="!localSongs.length || refreshing" @click="matchSongs">{{ matching ? '停止匹配' : '匹配音乐'}}</a-button>
+        <small>{{ localSongs.length }}首歌曲,<a class="local_music-choose_dir" href="#" @click="visible = true">选择目录</a></small>
         <small style="margin-left: 10px" v-show="refreshing">
           <a-spin>
             <a-icon slot="indicator" type="loading" spin size="small" tip="Loading..." />
@@ -25,16 +28,20 @@
             />
           </span>
         </small>
-        <small style="width: 170px; float: right">
-          <a-input-search
-            placeholder="搜索本地音乐..."
-            v-model="keyword"
-            class="header-search"
-            @search="onSearch"
-            allow-clear
-          />
-        </small>
+        <div style="flex-grow: 2">
+          <small style="width: 170px; float: right">
+            <a-input-search
+              placeholder="搜索本地音乐..."
+              v-model="keyword"
+              class="header-search"
+              @search="onSearch"
+              @change="onChange"
+              allow-clear
+            />
+          </small>
+        </div>
       </div>
+
       <track-list @reloading="reloading" @reloaded="reloaded" :columns="columns" :tracks="currentShowSongs" :isShowActions="false" @dblclick="play" :limit="limit" >
         <template slot="size" slot-scope="{ row }">
           <span>{{ row.size | normalSize }}</span>
@@ -72,6 +79,8 @@ import { uniq } from '@/utils/calculate'
 import TrackList from '@/components/Common/track-list/index.js'
 import Message from 'ant-design-vue/es/message'
 import { playMode } from '@/config/config'
+import { uniqueData } from '@/utils/assist'
+import debounce from 'loadsh/debounce'
 const defaultDownloadFolder = `${remote.app.getPath('music')}`
 const columns = [
   {
@@ -141,7 +150,13 @@ export default {
   computed: {
     ...mapState('Localsong', ['exportFolders', 'needRefreshFolders']),
     ...mapGetters('Localsong', ['localSongs', 'matchSuccessNum', 'matchFailedNum', 'stopMatching']),
-    ...mapGetters('play', ['current_song', 'mode'])
+    ...mapGetters('play', ['current_song', 'mode']),
+    ...mapGetters('App', ['isDark']),
+    headStyle () {
+      return this.isDark ? {
+        background: '#16181c'
+      } : {}
+    }
   },
   watch: {
     localSongs (newVal) {
@@ -243,6 +258,12 @@ export default {
       this.filterSongs()
       this.$emit('loaded')
     },
+    onChange: debounce(function (e) {
+      this.keyword = e.target.value.toLowerCase()
+      this.$emit('reloading')
+      this.filterSongs()
+      this.$emit('loaded')
+    }, 600),
     filterSongs () {
       this.currentShowSongs = this.localSongs.filter(song => {
         if (song.name && song.name.toLowerCase().includes(this.keyword)) {
@@ -327,6 +348,15 @@ export default {
           this.play(this.localSongs, getRandomInt(0, this.localSongs.length - 1))
           break
       }
+    },
+    addToList () {
+      let current_play_list = this.current_play_list.slice()
+      let list = current_play_list.concat(this.localSongs)
+      list = uniqueData(list)
+      this.$store.commit('play/SET_CURRENT_PLAY_LIST', list)
+      this.$electron.ipcRenderer.send('set-play-list', {
+        value: list
+      })
     }
   },
   created () {
@@ -364,13 +394,21 @@ export default {
 }
 </script>
 
-<style lang="less">
+<style lang="less" scoped>
 .local-music {
   /deep/ .ant-card-body {
     padding: 0!important;
   }
   .ant-btn {
     margin-right: 4px;
+  }
+  .local_music-playall {
+    margin-right: 5px;
+    border-radius: 4px;
+    .ant-btn {
+      margin-right: 0;
+      background: @primary-color;
+    }
   }
   .header-search {
     /deep/ .ant-input {
@@ -380,12 +418,63 @@ export default {
       box-shadow: none;
       font-size: 12px;
     }
-
   }
 }
 .bodyStyle .ant-modal-body {
   padding: 12px 24px;
   min-height: 180px;
   max-height: 300px;
+}
+
+.dark-back1 {
+  background: #16181c;
+  .ant-btn {
+      color: #fff;
+      background: #26272b !important;
+      border: none !important;
+    &:hover {
+      background: #686a6e !important;
+    }
+  }
+  .ant-btn[disabled] {
+    color: #828385 !important;
+    border: none !important;
+    background: #26272b !important;
+  }
+  .local_music-playall {
+    .ant-btn {
+      background: #5fa7e4 !important;
+      &:hover {
+        background: #1A94E6 !important;
+      }
+    }
+  }
+  .local_music-choose_dir {
+    color: #5fa7e4;
+  }
+  .ant-card-head-title {
+    small {
+      .ant-spin {
+        color: #828385;
+      }
+      color: #828385;
+    }
+  }
+  .header-search {
+    /deep/ .ant-input {
+      border: none;
+      background: #212327;
+      color: #828385;
+    }
+    /deep/ .ant-input::-webkit-input-placeholder {
+      color: #828385 !important
+    }
+    /deep/ .ant-input-search-icon {
+      color: #dcdde4 !important;
+    }
+    /deep/ .ant-input-clear-icon {
+      color: #dcdde4 !important;
+    }
+  }
 }
 </style>

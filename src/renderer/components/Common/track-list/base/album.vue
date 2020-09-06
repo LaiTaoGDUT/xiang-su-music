@@ -1,5 +1,5 @@
 <template>
-  <span>
+  <span :class="{ 'dark-back1': isDark }" class="track_list-album">
     <template v-if="row[col.key] && row[col.key].name && row[col.key].id">
       <router-link
         :to="`/album/${row[col.key].id}?platform=${row[col.key].platform}`"
@@ -12,7 +12,11 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 export default {
+  computed: {
+    ...mapGetters('App', ['isDark'])
+  },
   props: {
     row: {
       type: Object,
@@ -31,7 +35,24 @@ export default {
 </script>
 
 <style lang="less" scoped>
+.track_list-album {
   a {
     color: #333;
+    &:hover {
+      color: @primary-color;
+    }
   }
+}
+.dark-back1 {
+  background: transparent;
+  a {
+    color: #828385;
+    &:hover {
+    color: #dcdde4 !important;
+    }
+  }
+  span {
+    color: #4e4e52;
+  }
+}
 </style>

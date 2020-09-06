@@ -1,5 +1,5 @@
 <template>
-  <div class="item">
+  <div class="item" :class="{'dark-back1': isDark}">
     <router-link :to="`/${this.video.type}/${this.video.id}`" class="info">
       <img class="avatar" v-lazy="video.avatar">
       <div class="top">
@@ -23,6 +23,7 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 import ZIcon from '@/components/ZIcon'
 import Artists from '@/components/Common/artists'
 export default {
@@ -30,6 +31,9 @@ export default {
     video: {
       type: Object
     }
+  },
+  computed: {
+    ...mapGetters('App', ['isDark'])
   },
   components: {
     ZIcon,
@@ -106,6 +110,18 @@ export default {
     a{
       color: #999;
     }
+  }
+}
+.dark-back1 {
+  .info {
+    &:hover {
+      .play-icon {
+        color: #ffffff;
+      }
+    }
+  }
+  .name {
+    color: #ffffff;
   }
 }
 </style>

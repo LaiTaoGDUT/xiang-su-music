@@ -1,5 +1,5 @@
 <template>
-  <router-link tag="li" :to="`/album/${album.id}?platform=${album.platform}`" class="item">
+  <router-link tag="li" :to="`/album/${album.id}?platform=${album.platform}`" class="item" :class="{'dark-back1': isDark}">
     <img v-lazy="`${album.picUrl}?param=150y150`" class="avatar">
     <div class="name">
       {{album.name}}
@@ -12,6 +12,7 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 import Artists from '@/components/Common/artists'
 export default {
   name: 'album-item',
@@ -27,6 +28,9 @@ export default {
       default: 'time'
     }
   },
+  computed: {
+    ...mapGetters('App', ['isDark'])
+  },
   components: {
     Artists
   }
@@ -39,6 +43,11 @@ export default {
     width: 141px;
     margin: 0 10px 0;
     cursor: pointer;
+    &:hover {
+      &:after {
+        transform: scaleX(1.1);
+      }
+    }
     &:after {
       content: '';
       position: absolute;
@@ -48,6 +57,8 @@ export default {
       height: 125px;
       background: url("./../../assets/images/album_cover.png") no-repeat center;
       background-size: cover;
+      transition: all .23s;
+      transform-origin: left;
     }
     .avatar {
       width: 125px;
@@ -62,6 +73,15 @@ export default {
     .publish-time,.artist {
       line-height: 20px;
       font-size: 12px;
+      color: #999;
+    }
+  }
+
+  .dark-back1 {
+    .name {
+      color: #ffffff;
+    }
+    .publish-time,.artist {
       color: #999;
     }
   }

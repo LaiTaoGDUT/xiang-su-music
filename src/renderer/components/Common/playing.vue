@@ -1,10 +1,11 @@
 <template>
-  <div class="ani_playing">
+  <div class="ani_playing" :class="{'dark-back1': isDark}">
     <div :class="cdCls" v-for="i in 4" :key="i"></div>
   </div>
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 export default {
   name: 'AniPlaying',
   props: {
@@ -14,6 +15,7 @@ export default {
     }
   },
   computed: {
+    ...mapGetters('App', ['isDark']),
     cdCls () {
       return this.playing ? 'line play' : 'line play paused'
     }
@@ -64,13 +66,17 @@ export default {
     }
   }
 }
-
 @keyframes bounce {
   0% {
     transform: scaleY(1);
   }
   100% {
     transform: scaleY(0.1);
+  }
+}
+.dark-back1 {
+  .line {
+    background: #5fa7e4 !important;
   }
 }
 </style>

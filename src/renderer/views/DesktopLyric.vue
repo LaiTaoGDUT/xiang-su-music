@@ -44,13 +44,21 @@ export default {
     } else {
       // 当主题色不是默认色时，才进行主题编译
       if ( this.primaryColor !== config.primaryColor ) {
-        this.updateTheme(this.primaryColor)
+        if (this.primaryColor == '#222225') { // 酷黑皮肤
+          this.updateTheme(this.primaryColor, '#ba8622')
+        } else {
+          this.updateTheme(this.primaryColor)
+        }
       }
     }
   },
   mounted () {
     this.$electron.ipcRenderer.on('change-color', (e, data) => {
-      this.updateTheme(data.color)
+      if (data.color == '#222225') { // 酷黑皮肤
+        this.updateTheme(data.color, '#ba8622')
+      } else {
+        this.updateTheme(data.color)
+      }
     })
     this.$electron.ipcRenderer.on('change-lyric', (e, data) => {
       this.current_lyric = data.lyric || null
@@ -62,7 +70,7 @@ export default {
     this.$electron.ipcRenderer.send('lyric-ready')
   },
   methods: {
-    updateTheme (primaryColor) {
+    updateTheme (primaryColor, textColor = '#000') {
       if ( !primaryColor ) {
         return
       }
@@ -81,7 +89,8 @@ export default {
           })
           window.less
             .modifyVars({
-              '@primary-color': primaryColor
+              '@primary-color': primaryColor,
+              '@text-color': textColor
             })
             .then(() => {
               let myTheme = document.getElementById('myTheme')

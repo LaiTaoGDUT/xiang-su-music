@@ -1,5 +1,5 @@
 <template>
-  <div class="item">
+  <div class="item"  :class="{'dark-back1': isDark}">
     <router-link :to="`/mv/${mv.id}?platform=${mv.platform}`" class="info">
       <img class="avatar" v-lazy="mv.cover">
       <div class="top">
@@ -19,6 +19,7 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 import ZIcon from '@/components/ZIcon'
 import Artists from '@/components/Common/artists'
 export default {
@@ -26,6 +27,9 @@ export default {
     mv: {
       type: Object
     }
+  },
+  computed: {
+    ...mapGetters('App', ['isDark'])
   },
   components: {
     ZIcon,
@@ -38,7 +42,6 @@ export default {
 .item {
   display: flex;
   flex-direction: column;
-  _margin-bottom: 20px;
   .info {
     position: relative;
     padding-top: 56.15%;
@@ -95,6 +98,19 @@ export default {
   .name {
     font-size: 14px;
     color: #333;
+  }
+}
+
+.dark-back1 {
+  .info {
+    &:hover {
+      .play-icon {
+        color: #ffffff;
+      }
+    }
+  }
+  .name {
+    color: #ffffff;
   }
 }
 </style>

@@ -1,12 +1,13 @@
 <template>
   <transition name="player">
     <div
+      :class="{ 'dark-back1': isDark }"
       class="mini-card"
       @click="setFullscreen"
       v-show="Object.keys(current_song).length && !fullscreen"
     >
       <figure class="figure-wrapper">
-        <img v-lazy="current_song.avatar" :key="current_song.avatar" width="50" height="50" />
+        <img v-lazy="current_song.avatar" :key="current_song.avatar" width="45" height="45" />
         <a-icon type="arrows-alt" class="fullscreen" />
       </figure>
       <section class="card-info">
@@ -25,22 +26,23 @@
             <artists :artists="current_song.artist" style="paddingLeft:10px" />
           </div>
           <div v-show="!current_song.folder" class="icon-wrapper" @click.stop >
-            <template v-if="downloaded.findIndex(item => item.id === current_song.id) >= 0">
+            <template v-if="[...localSongs, ...downloaded].findIndex(item => item.id === current_song.id) >= 0">
               <a-icon
                 type="check-circle"
                 theme="filled"
                 class="icon-downloaded"
                 title="已下载"
-                :style="{ color: $store.getters['App/primaryColor'] }"
+                :style="isDark ? {color: '#5fa7e4' } : { color: $store.getters['App/primaryColor'] }"
               />
             </template>
             <template v-else>
               <a-icon
               type="clock-circle"
+              :style="isDark ? { color: '#adafb2' } : {}"
               class="icon-waitting"
               v-if="queueIds.includes(current_song.id)"
               />
-              <z-icon type="download" @click.native="download(current_song)" v-else />
+              <z-icon type="download" :style="isDark ? { color: '#adafb2' } : {}" @click.native="download(current_song)" v-else />
           </template>
           </div>
         </footer>
@@ -66,9 +68,11 @@ export default {
   },
   computed: {
     ...mapState('Download', ['downloading', 'downloaded', 'queue']),
+    ...mapState('Localsong', ['localSongs']),
     ...mapGetters('User', ['userId', 'likedsongIds']),
     ...mapGetters('play', ['current_song', 'fullscreen']),
-    ...mapGetters('Download', ['queueIds'])
+    ...mapGetters('Download', ['queueIds']),
+    ...mapGetters('App', ['isDark'])
   },
   methods: {
     setFullscreen () {
@@ -85,6 +89,23 @@ export default {
 </script>
 
 <style lang="less" scoped>
+.dark-back1 {
+  background: #16181c !important;
+  border-top: 1px solid #23262c !important;
+  .card-info {
+    .info-header,
+    .info-footer {
+      .songname,
+      .artist {
+        color: #dcdde4;
+      }
+      .icon-wrapper {
+        flex: 0 0 20px;
+        font-size: 17px;
+      }
+    }
+  }
+}
 .mini-card {
   position: absolute;
   bottom: 0;
@@ -119,6 +140,7 @@ export default {
     flex: 0 0 50px;
     width: 50px;
     margin: 0;
+    padding: 5px;
     &:hover {
       .fullscreen {
         display: block;
@@ -126,9 +148,9 @@ export default {
     }
     .fullscreen {
       position: absolute;
-      left: 0;
-      top: 0;
-      font-size: 50px;
+      left: 5px;
+      top: 5px;
+      font-size: 45px;
       background: rgba(0, 0, 0, 0.5);
       color: rgba(255, 255, 255, 0.8);
       display: none;

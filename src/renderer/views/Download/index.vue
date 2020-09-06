@@ -1,5 +1,5 @@
 <template>
-  <div class="download">
+  <div class="download" :class="{'dark-back1': isDark}">
     <div class="download-header">
       <a-radio-group buttonStyle="solid" v-model="value">
         <a-radio-button value="downloaded">已下载单曲</a-radio-button>
@@ -13,6 +13,7 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 const Downloaded = resolve => {
   require(['./components/downloaded.vue'], resolve)
 }
@@ -25,6 +26,9 @@ export default {
     return {
       value: 'downloaded'
     }
+  },
+  computed: {
+    ...mapGetters('App', ['isDark'])
   },
   components: {
     Downloaded, Downloading
@@ -43,6 +47,19 @@ export default {
     /deep/ .ant-radio-button-wrapper {
       height: 28px;
       line-height: 26px;
+    }
+  }
+}
+.dark-back1 {
+  .download-header {
+    .ant-radio-button-wrapper {
+      border: none;
+      background: #222225;
+      color: #ffffff;
+    }
+    .ant-radio-button-wrapper-checked {
+      background: #ffffff !important;
+      color: #222225 !important;
     }
   }
 }

@@ -1,7 +1,7 @@
 <template>
   <a-spin :spinning="spinning">
     <track-list :tracks="songs" @dblclick="play" @download="download">
-      <div slot="lyric" slot-scope="{ row }" class="lyrics-wrapper">
+      <div slot="lyric" slot-scope="{ row }" class="lyrics-wrapper" :class="{'dark-back1': isDark}">
         <div class="lyrics">
           <div v-for="(text, index) in row.lyrics.showAll ? row.lyrics.lines : row.lyrics.lines.slice(0, 4)" :key="index" class="line">{{ text }}</div>
         </div>
@@ -16,6 +16,7 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 import searchMixin from '@/mixins/Search'
 import { normalSong } from '@/utils/song'
 import TrackList from '@/components/Common/track-list/index.js'
@@ -27,6 +28,9 @@ export default {
     return {
       songs: []
     }
+  },
+  computed: {
+    ...mapGetters('App', ['isDark'])
   },
   methods: {
     normalData () {
@@ -87,6 +91,30 @@ export default {
   }
   .actions {
     margin-top: 20px;
+    .ant-btn {
+      margin-right: 5px;
+    }
   }
 }
+.dark-back1 {
+  background: #202024;
+  &:hover {
+    background: #444041;
+  }
+  .actions {
+    .ant-btn {
+      color: #dcdde4;
+      background: #26272b !important;
+      border: none !important;
+      &:hover {
+        background: #686a6e !important;
+      }
+    }
+    .ant-btn[disabled] {
+      color: #828385 !important;
+      background: #26272b !important;
+    }
+  }
+}
+
 </style>

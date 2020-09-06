@@ -1,6 +1,6 @@
 <template>
   <home-layout>
-    <div class="rank" v-if="!loading">
+    <div class="rank" v-if="!loading" :class="{'dark-back1': isDark}">
       <header class="header">官方榜</header>
       <div class="first-four">
         <dl class="list" v-for="item in firstFour" :key="item.id">
@@ -38,7 +38,7 @@
       <header class="header">全球榜</header>
       <a-row type="flex" :gutter="16" class="rank-row">
         <a-col :xl="4" :lg="6" class="rank-col" v-for="item in rest" :key="item.id">
-          <router-link class="rank-item" :to="`/rank/${item.id}`">
+          <router-link class="rank-item" :to="`/rank/${item.id}?platform=netease`">
             <div class="avatar">
               <img v-lazy="`${item.coverImgUrl}?param=280y280`" />
               <div class="top">
@@ -56,6 +56,7 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 import HomeLayout from '@/layouts/HomeLayout'
 import Loading from '@/components/Common/loading'
 import Artists from '@/components/Common/artists'
@@ -95,6 +96,7 @@ export default {
     }
   },
   computed: {
+    ...mapGetters('App', ['isDark']),
     firstFour () {
       return this.list.slice(0, 4)
     },
@@ -195,9 +197,6 @@ export default {
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
-      /deep/ a {
-        color: rgba(0, 0, 0, .5);
-      }
     }
     .header {
       line-height: 40px;
@@ -328,7 +327,7 @@ export default {
           padding: 0 5px;
           background: linear-gradient(to right, transparent 0, rgba(0, 0, 0, .5));
           color: #fff;
-          font-size: 12px;
+          font-size: 14px;
           text-align: right;
           line-height: 20px;
         }
@@ -338,6 +337,50 @@ export default {
         font-size: 14px;
         text-align: center;
         color: initial;
+      }
+    }
+  }
+  .dark-back1 {
+    .header {
+      border-bottom: 1px solid #23262c;
+      color: #dcdde4;
+    }
+    .first-four {
+      .list {
+        border: 1px solid #dcdde4;
+        .item {
+          color: #dcdde4;
+          background: #16181c;
+          &:nth-child(2n) {
+            background: #1b1d20;
+          }
+          &:hover {
+            background: #242629;
+          }
+          .index {
+            &.highlight {
+              color: #b82525 !important;
+            }
+          }
+          .name {
+            color: #dcdde4;
+          }
+        }
+        .footer {
+          background: #1b1d20;
+          color: #828385;
+          a {
+            color: inherit;
+            &:hover {
+              color: #dcdde4;
+            }
+          }
+        }
+      }
+    }
+    .rank-item {
+      .name {
+        color: #dcdde4;
       }
     }
   }

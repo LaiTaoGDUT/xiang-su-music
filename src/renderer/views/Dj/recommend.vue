@@ -1,11 +1,11 @@
 <template>
-  <div class="dj-recommend">
+  <div class="dj-recommend" :class="{'dark-back1': isDark}">
     <header class="highquality-header" v-if="djRadios.length">
       {{ djRadios[0].category }}
     </header>
     <a-row type="flex" :gutter="16" class="dj-row" v-if="!loading">
       <a-col :xl="8" :md="12" class="dj-col" v-for="(djRadio, index) in djRadios" :key="`${djRadio.id}_${index}`">
-        <router-link class="dj-item" :to="`/dj/${djRadio.id}`">
+        <router-link class="dj-item" :to="`/dj/${djRadio.id}?platform=netease`">
           <div class="avatar">
             <img v-lazy="`${djRadio.picUrl}?param=150y150`" />
           </div>
@@ -31,6 +31,7 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 import { getDjByCate } from '@/api/dj'
 export default {
   data () {
@@ -47,6 +48,9 @@ export default {
     this.djRadios = []
     this.options = { limit: 30, offset: 0 }
     this.infiniteId += 1
+  },
+  computed: {
+    ...mapGetters('App', ['isDark'])
   },
   methods: {
     infiniteHandler ($state) {
@@ -142,6 +146,17 @@ export default {
       margin-top: 5px;
       color: #666;
       font-size: 12px;
+    }
+  }
+}
+.dark-back1 {
+  .highquality-header {
+    background: #26272b;
+    color: #dcdde4;
+  }
+  .dj-item {
+    .info {
+      color: #dcdde4;
     }
   }
 }

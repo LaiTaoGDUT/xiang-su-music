@@ -1,4 +1,5 @@
 @primary-color: #5fa7e4;
+@text-color: #000;
 /* stylelint-disable at-rule-empty-line-before,at-rule-name-space-after,at-rule-no-unknown */
 /* stylelint-disable no-duplicate-selectors */
 /* stylelint-disable */
@@ -7688,7 +7689,7 @@ font.weak {
 }
 
 .wy-header a.router-link-exact-active {
-  // border-bottom: 3px solid @primary-color!important;
+  border-bottom: 3px solid @primary-color!important;
   color: @primary-color!important;
 }
 .desktop-lyric .playing-lyric {
@@ -7768,6 +7769,9 @@ font.weak {
   border: 1px solid @primary-color!important;
   color: @primary-color!important;
 }
+.player .main .main-top .right .album a:hover {
+  color: @primary-color;
+}
 .player .bar4 .active {
   color: @primary-color!important;
 }
@@ -7779,8 +7783,15 @@ font.weak {
 .player .bar3 .active {
   color: @primary-color !important;
 }
+.local-music .local_music-playall .ant-btn {
+  background: @primary-color !important;
+}
 
 .fm-cover .fm-actions .isLiked {
+  color: @primary-color !important;
+}
+
+.fm-cover .r .song-info .song-album a:hover {
   color: @primary-color !important;
 }
 
@@ -7804,7 +7815,12 @@ font.weak {
 }
 .songname a {
   color: @primary-color!important;
-
+}
+.local_music-playall {
+  background: @primary-color !important;
+}
+.track_list-album a:hover {
+  color: @primary-color!important;
 }
 .dj-item .info .tag {
   border: 1px solid @primary-color!important;
@@ -7813,6 +7829,7 @@ font.weak {
 
 .tab-bar .nav .router-link-exact-active {
   color: @primary-color!important;
+  border-bottom: 5px solid @primary-color;
 }
 .lyric-list .current {
   text-shadow: 1px 1px @primary-color, 1px 2px @primary-color!important;
@@ -7823,9 +7840,9 @@ font.weak {
 .progress-bar .progress {
   background: @primary-color!important;
 }
-// .basic-sider .ant-menu-inline .ant-menu-item .link.router-link-exact-active, .basic-sider .ant-menu-inline .ant-menu-item .link.router-link-active {
-//   border-left: 3px solid @primary-color!important;
-// }
+.basic-sider .ant-menu-inline .ant-menu-item .link.router-link-exact-active, .basic-sider .ant-menu-inline .ant-menu-item .link.router-link-active {
+  border-left: 3px solid @primary-color!important;
+}
 .drag-wrapper .playing-lyric {
   text-shadow: 1px 1px 5px @primary-color, 1px -1px 3px @primary-color!important;
 }

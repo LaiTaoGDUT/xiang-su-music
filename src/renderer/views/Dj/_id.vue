@@ -1,11 +1,12 @@
 <template>
   <div>
     <loading v-show="loading" />
-    <a-list class="intro">
+    <a-list class="intro" :class="{'dark-back1': isDark}">
       <a-list-item v-if="dj">
         <a-list-item-meta>
           <div slot="title">
-            <h1>{{dj.name}}</h1>
+            <a-tag class="tag">电台</a-tag>
+            <h1 class="dj-name">{{dj.name}}</h1>
           </div>
           <div slot="description">
             <div class="creator">
@@ -76,6 +77,7 @@ export default {
     }
   },
   computed: {
+    ...mapGetters('App', ['isDark']),
     ...mapGetters('play', [
       'current_play_list'
     ])
@@ -165,5 +167,50 @@ export default {
   text-overflow: ellipsis;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
+}
+.tag {
+  padding: 0 10px;
+  line-height: 23px;
+  height: 24px;
+  border-radius: 2px;
+  background-color: @primary-color;
+  border-color: @primary-color;
+  color: #fff;
+  float: left;
+}
+.dark-back1 {
+  .dj-name {
+    color: #ffffff;
+  }
+  .creator {
+    .name {
+      color: #adafb2;
+    }
+  }
+  .desc {
+    color: #adafb2;
+    .artist-briefDesc {
+      &::-webkit-scrollbar-thumb {
+        background: #2f3134;
+      }
+    }
+  }
+  .actions {
+    .ant-btn {
+      color: #fff;
+      background: #26272b !important;
+      border: none !important;
+      &:hover {
+        background: #686a6e !important;
+      }
+    }
+    .ant-btn[disabled] {
+      color: #828385 !important;
+      background: #26272b !important;
+    }
+  }
+  .tag {
+    background-color: #5fa7e4 !important;
+  }
 }
 </style>

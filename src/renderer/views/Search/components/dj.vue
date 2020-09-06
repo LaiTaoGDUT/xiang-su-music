@@ -1,5 +1,5 @@
 <template>
-  <div class="search-dj">
+  <div class="search-dj" :class="{'dark-back1': isDark}">
     <a-spin :spinning="spinning">
       <a-row
         type="flex"
@@ -13,7 +13,7 @@
             <span>{{djRadio.name}}</span>
           </router-link>
         </a-col>
-        <a-col :span="4">
+        <a-col :span="4" class="search-dj-nickname">
           by <router-link :to="`/user?id=${djRadio.dj.userId}`">{{djRadio.dj.nickname}}</router-link>
         </a-col>
       </a-row>
@@ -23,6 +23,7 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 import searchMixin from '@/mixins/Search'
 import Artists from '@/components/Common/artists'
 export default {
@@ -36,6 +37,9 @@ export default {
   },
   components: {
     Artists
+  },
+  computed: {
+    ...mapGetters('App', ['isDark'])
   },
   methods: {
     normalData () {
@@ -67,5 +71,26 @@ export default {
     height: 50px;
     margin-right: 10px;
   }
+}
+.dark-back1 .ant-row-flex  {
+  &:nth-child(even) {
+    background: #1b1d20;
+  }
+  &:hover {
+    background: #242629;
+  }
+  .dj {
+    color: #dcdde4;
+  }
+  .search-dj-nickname {
+    color: #828385;
+    a {
+      color: #828385;
+      &:hover {
+        color: #dcdde4;
+      }
+    }
+  }
+
 }
 </style>
