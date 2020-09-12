@@ -70,7 +70,7 @@ export default {
     },
     interval: {
       type: Number,
-      default: 6000
+      default: 5000
     },
     dots: {
       type: Boolean,
@@ -88,8 +88,7 @@ export default {
         width: this.width ? this.width + 'px' : '100%',
         height: this.height === 0 ? '240px' : this.height + 'px',
         perspective: this.width + 'px',
-        backgroundSize:
-          this.imgType == 'percentage' ? '100% 100%' : this.imgType
+        backgroundSize: this.imgType == 'percentage' ? '100% 100%' : this.imgType
       }
     },
     sliderHeight () {

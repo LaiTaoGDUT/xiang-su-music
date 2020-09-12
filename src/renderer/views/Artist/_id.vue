@@ -13,7 +13,7 @@
             <div>专辑数：{{artist.albumSize}}</div>
             <div>MV数：{{artist.mvSize}}</div>
             <div  v-if="artist.fans" >粉丝数：{{ artist.fans | toWan }}</div>
-            <div class="artist-briefDesc" v-if="artist.briefDesc" style="max-height: 100px;overflow: auto;">简介：{{ artist.briefDesc }}</div>
+            <desc-box :description="artist.briefDesc"></desc-box>
           </div>
           <img v-lazy="`${artist.img1v1Url}?param=200y200`" width="200" height="200" :key="artist.id" slot="avatar">
         </a-list-item-meta>
@@ -40,6 +40,7 @@ import { mapGetters } from 'vuex'
 import { getArtistSongs } from '@/api/artist'
 import { normalSong } from '@/utils/song'
 import TabBar from '@/components/Common/tabBar'
+import descBox from '@/components/Common/descBox'
 import Loading from '@/components/Common/loading'
 export default {
   name: 'artist_id',
@@ -74,7 +75,7 @@ export default {
     }
   },
   components: {
-    TabBar, Loading
+    TabBar, descBox, Loading
   },
   activated () {
     this._getArtistSongs(this.$route.params.id, this.$route.query.platform)
@@ -120,7 +121,7 @@ export default {
 
 <style lang="less" scoped>
 .intro {
-  padding: 20px;
+  padding: 20px 50px 20px 20px;
   /deep/ .ant-list-item-content {
     position: absolute;
     right: 0;
@@ -148,11 +149,6 @@ export default {
   }
   .desc {
     color: #adafb2;
-    .artist-briefDesc {
-      &::-webkit-scrollbar-thumb {
-        background: #2f3134;
-      }
-    }
   }
   .action {
     .ant-btn {

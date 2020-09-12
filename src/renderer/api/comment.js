@@ -53,3 +53,18 @@ export function getDjComment (id, limit = 20, offset = 0, before = '') {
     }
   })
 }
+/**
+ * 给评论点赞或取消点赞
+ * @param {*} id 资源 id
+ * @param {*} cid 评论 id
+ * @param {*} t 是否点赞 ,1 为点赞 ,0 为取消点赞
+ * @param {Number} type  资源类型 0: 歌曲，1: mv，2: 歌单，3: 专辑，4: 电台，5: 视频，6: 动态
+ */
+export function likeComment (id, cid, t, type, platform) {
+  let timestamp = Date.now()
+  return request.get('/comment/like', {
+    params: {
+      id, cid, t, type, timestamp, platform
+    }
+  })
+}

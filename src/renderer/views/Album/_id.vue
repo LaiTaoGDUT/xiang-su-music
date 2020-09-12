@@ -36,7 +36,7 @@
               <artists :artists="album.artists"></artists>
             </div>
             <div>时间：{{ album.publishTime | toDate }}</div>
-            <div class="content">简介：{{ album.description }}</div>
+            <desc-box :description="album.description"></desc-box>
           </div>
           <div class="album-avatar" slot="avatar">
             <img width="200" height="200" v-lazy="`${album.picUrl}?param=200y200`" :key="album.id" />
@@ -56,6 +56,7 @@
 import { mapGetters } from 'vuex'
 import TabBar from '@/components/Common/tabBar'
 import Artists from '@/components/Common/artists'
+import descBox from '@/components/Common/descBox'
 import Loading from '@/components/Common/loading'
 import { playMode } from '@/config/config'
 import { getRandomInt } from '@/utils/calculate.js'
@@ -87,6 +88,7 @@ export default {
   components: {
     Artists,
     TabBar,
+    descBox,
     Loading
   },
   activated () {
@@ -211,7 +213,7 @@ export default {
 }
 
 .intro {
-  padding: 20px;
+  padding: 20px 50px 20px 20px;
   .actions {
     margin: 15px 0;
     .item {
@@ -221,10 +223,6 @@ export default {
     button {
       font-size: 14px;
     }
-  }
-  .content {
-    max-height: 150px;
-    overflow: auto;
   }
 }
 
@@ -271,11 +269,6 @@ export default {
             }
           }
         }
-      }
-    }
-    .content {
-      &::-webkit-scrollbar-thumb {
-        background: #2f3134;
       }
     }
   }

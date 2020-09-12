@@ -2,9 +2,8 @@
   <div>
     <transition name="track-list">
       <div class="track-list" v-if="songs.length" :class="{'dark-back1': isDark}">
-        <div :class="pagination">
+        <div v-if="isShowHeadPagination" class="head-page">
           <a-pagination
-            v-show="offset >= limit"
             :defaultCurrent="1"
             :pageSize="limit"
             :total="songs.length"
@@ -266,6 +265,10 @@ export default {
     isShowPlaying: {
       type: Boolean,
       default: true
+    },
+    isShowHeadPagination: {
+      type: Boolean,
+      dafault: false
     }
   },
   data () {
@@ -317,9 +320,6 @@ export default {
     ...mapGetters('App', ['isDark']),
     currentShowSongs () {
       return this.songs.slice(this.offset, this.offset + this.limit)
-    },
-    pagination () {
-      return this.offset >= this.limit ? 'page' : 'pageHide'
     }
   },
   watch: {
@@ -491,6 +491,11 @@ export default {
   font-family: "Source Sans Pro", "\660E\9ED1", Arial, Helvetica;
   .page {
     text-align: center;
+    padding: 20px 0;
+  }
+  .head-page {
+    text-align: center;
+    padding-bottom: 10px;
   }
   .pageHide {
     margin: 0;
@@ -613,13 +618,76 @@ export default {
         }
       }
     }
-    .page {
-      padding: 20px 0;
-      text-align: center;
-    }
   }
 }
 .dark-back1 {
+    .page,
+    .head-page {
+      background: #16181c;
+      /*页码*/
+      /deep/ .ant-pagination-item {
+        border: none;
+        background: #16181c;
+        a {
+          background: #16181c;
+          color: #adafb2;
+          &:hover {
+            background: #242629;
+            color: #dcdde4;
+          }
+        }
+      }
+      /*当前选中的页码*/
+      /deep/ .ant-pagination-item-active {
+        a {
+          color: #5fa7e4;
+          text-decoration: underline;
+          cursor: auto;
+          &:hover {
+            background: #16181c;
+            color: #5fa7e4;
+          }
+        }
+      }
+      /*往前按钮*/
+      /deep/ .ant-pagination-prev {
+        a {
+          border: none;
+          background: #242629;
+          color: #adafb2;
+          &:hover {
+            border: 1px solid #4e4e52 !important;
+          }
+        }
+      }
+      /*往后按钮 */
+      /deep/ .ant-pagination-next {
+        a {
+          border: none;
+          background: #242629;
+          color: #adafb2;
+          &:hover {
+            border: 1px solid #4e4e52 !important;
+          }
+        }
+      }
+      /*省略号 */
+      /deep/ .ant-pagination-item-ellipsis {
+        color: #adafb2 !important;
+      }
+      /deep/ .ant-pagination-item-link-icon {
+        color: #adafb2 !important;
+      }
+      /*不可用的按钮*/
+      /deep/ .ant-pagination-disabled {
+        a {
+          color: #32343b;
+          &:hover {
+            border: none !important;
+          }
+        }
+      }
+    }
   .track-list-header {
     border-top: 1px solid #23262c;
     border-bottom: 1px solid #23262c;
@@ -685,72 +753,6 @@ export default {
           }
           a {
             color: #dcdde4 !important;
-          }
-        }
-      }
-    }
-    .page {
-      background: #16181c;
-      /*页码*/
-      /deep/ .ant-pagination-item {
-        border: none;
-        background: #16181c;
-        a {
-          background: #16181c;
-          color: #adafb2;
-          &:hover {
-            background: #242629;
-            color: #dcdde4;
-          }
-        }
-      }
-      /*当前选中的页码*/
-      /deep/ .ant-pagination-item-active {
-        a {
-          color: #5fa7e4;
-          text-decoration: underline;
-          cursor: auto;
-          &:hover {
-            background: #16181c;
-            color: #5fa7e4;
-          }
-        }
-      }
-      /*往前按钮*/
-      /deep/ .ant-pagination-prev {
-        a {
-          border: none;
-          background: #242629;
-          color: #adafb2;
-          &:hover {
-            border: 1px solid #4e4e52 !important;
-          }
-        }
-      }
-      /*往后按钮 */
-      /deep/ .ant-pagination-next {
-        a {
-          border: none;
-          background: #242629;
-          color: #adafb2;
-          &:hover {
-            border: 1px solid #4e4e52 !important;
-          }
-        }
-      }
-      /*省略号 */
-      /deep/ .ant-pagination-item-ellipsis {
-        color: #adafb2;
-      }
-      /deep/ .ant-pagination-item-link-icon {
-        color: #adafb2;
-      }
-      /*不可用的按钮*/
-      /deep/ .ant-pagination-disabled {
-        a {
-          color: #32343b;
-          &:hover {
-            border: none !important;
           }
         }
       }

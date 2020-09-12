@@ -1,7 +1,7 @@
 <template>
   <div class="comment-wrapper">
     <div class="comment" v-if="commentData">
-      <comment :commentData="commentData"></comment>
+      <comment :commentData="commentData" :commentType="2" :sourceId="$route.params.id" platform="netease"></comment>
     </div>
     <infinite-loading forceUseInfiniteWrapper=".ant-layout-content" :identifier="infiniteId" @infinite="loadmore" />
   </div>

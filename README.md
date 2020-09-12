@@ -1,6 +1,6 @@
 # xiang-su-music
 
-> 像素音乐
+> 像素音乐（仅供个人练习）
 
 <!-- <p align="center">
   <img src="https://github.com/xiaozhu188/electron-vue-cloud-music/blob/master/docs/images/logo.png" width="120">
@@ -40,6 +40,7 @@
 * 暗黑模式皮肤
 ![darkTheme](https://github.com/LaiTaoGDUT/xiang-su-music/blob/master/screenshot/darkTheme.png)
 ![darkTheme2](https://github.com/LaiTaoGDUT/xiang-su-music/blob/master/screenshot/darkTheme2.png)
+
 * mini模式
 
 ![mini](https://github.com/LaiTaoGDUT/xiang-su-music/blob/master/screenshot/mini.png)
@@ -51,6 +52,7 @@
 * 还有......
 
 ## 版本更新
+* 0.3.4 优化歌曲详情页的展开卡顿，歌曲播放暂停增加渐入渐出效果，优化随机播放模式的歌曲选取算法，现在歌单描述、专辑描述和歌手描述溢出不再显示滚动条，以展开按钮替代。
 * 0.3.3 优化歌曲搜索功能，更新若干样式，更新暗黑模式皮肤（不仅仅是换色）
 * 0.3.2 修复若干问题，私人FM支持垃圾桶功能，支持给删除当前播放列表中的歌曲，支持在音乐详情页跳转至MV播放
 * 0.3.1 接入QQ音乐，支持QQ音乐的接口：歌曲，歌单，专辑，MV，歌手，以及以上各项的搜索，不支持通过登录获取QQ音乐的用户信息，修复接口升级后MV无法获取链接的问题，现在可以正常播放登录用户购买的专辑内歌曲
@@ -70,7 +72,7 @@
 
 > 项目当前依赖[QQMusicApi](https://github.com/jsososo/QQMusicApi),感谢QQMusicApi的作者。
 
->开发灵感来自[electron-vue-cloud-music](https://github.com/xiaozhu188/electron-vue-cloud-music),感谢electron-vue-cloud-music的作者。
+>开发灵感以及项目框架来自[electron-vue-cloud-music](https://github.com/xiaozhu188/electron-vue-cloud-music),感谢electron-vue-cloud-music的作者。
 
 ---
 

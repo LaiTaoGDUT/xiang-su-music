@@ -124,8 +124,8 @@ export default {
         if (res.code === 200) {
           this.$message.success('签到成功!')
           this.signPoint = res.point
+          this.userInfo.pcSign = true
           this.showPoint = true
-          this.refreshData(true)
         }
       }
     },
@@ -226,6 +226,7 @@ export default {
     animation-delay: 0.1s;
     animation-iteration-count: 1;
     animation-direction: normal;
+    animation-fill-mode: forwards;
   }
   @keyframes cssAnimation {
     form {

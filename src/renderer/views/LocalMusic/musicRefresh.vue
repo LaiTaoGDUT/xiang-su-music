@@ -19,10 +19,10 @@ async function searchMusicFile (folder, songs, localSongs) {
       const stat = fs.statSync(pathname)
       if (stat.isFile()) {
         if (item.endsWith('.mp3') || item.endsWith('.m4a') || item.endsWith('.flac')) { // 在未来增加更多可识别的格式
-          // let localSong = localSongs.find(song => pathname.substring(0, pathname.lastIndexOf('.')).trim() == song.url.substring(0, song.url.lastIndexOf('.')).trim())
+          let localSong = localSongs.find(song => pathname.substring(0, pathname.lastIndexOf('.')).trim() == song.url.substring(0, song.url.lastIndexOf('.')).trim())
           // if (localSong) { // the song is existed
           //   if (localSong.url == pathname) {
-          //     await Promise.resolve()
+          //     Promise.resolve()
           //     songs.push(localSong)
           //     continue
           //   } else {

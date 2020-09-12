@@ -69,7 +69,6 @@
           </div>
         </div>
       </div>
-
       <ul class="actions" v-if="mv">
         <li class="item">
           <a-button
@@ -94,7 +93,7 @@
       </ul>
 
       <div class="video-comment">
-        <comment :commentData="commentData"></comment>
+        <comment :commentData="commentData" :commentType="1" :sourceId="$route.params.id" :platform="$route.query.platform"></comment>
         <infinite-loading
           forceUseInfiniteWrapper=".ant-layout-content"
           :identifier="infiniteId"
@@ -107,7 +106,9 @@
         <h5 class="title">MV介绍</h5>
         <div class="publishTime">发布时间：{{mv.publishTime | normalDate}}</div>
         <div class="playCount">播放次数：{{mv.playCount | toWan}}</div>
-        <div class="desc">{{mv.briefDesc || mv.desc || '暂无描述'}}</div>
+        <div class="desc">
+          <desc-box :description="mv.briefDesc || mv.desc || '暂无描述'" :btnOutOfWords="false"></desc-box>
+        </div>
       </div>
       <div class="simi-mv">
         <h5 class="title">相关MV</h5>
@@ -140,6 +141,7 @@ import { getMVComment } from '@/api/comment'
 import ProgressBar from '@/components/Common/progressBar'
 import Comment from '@/components/Comment/index.vue'
 import Loading from '@/components/Common/loading'
+import descBox from '@/components/Common/descBox'
 import Artists from '@/components/Common/artists'
 import { normalMV, normalVideo } from '@/utils/video'
 import { getMv } from '@/api/sublist'
@@ -175,6 +177,7 @@ export default {
     ProgressBar,
     Comment,
     Loading,
+    descBox,
     Artists
   },
   computed: {
@@ -597,18 +600,13 @@ export default {
     }
     .mv-info {
       margin-bottom: 15px;
-      .briefDesc {
-        font-size: 16px;
-        margin-bottom: 5px;
-      }
       .publishTime,
       .playCount {
         color: #777;
         margin-bottom: 5px;
       }
       .desc {
-        line-height: 1.2;
-        height: 350px;
+        min-height: 300px;
         overflow: auto;
         margin-bottom: 36px;
       }
@@ -685,14 +683,6 @@ export default {
     .title {
       color: #dcdde4;
       border-bottom: 1px solid #23262c;
-    }
-    .mv-info {
-      .desc {
-        color: #777;
-        &::-webkit-scrollbar-thumb {
-          background: #2f3134;
-        }
-      }
     }
     .simi-mv {
       .list {

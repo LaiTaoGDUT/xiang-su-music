@@ -7,7 +7,7 @@
       <a-menu-item v-for="item in subscribedList" :key="item.id">
         <a-dropdown :trigger="['contextmenu']" overlayClassName="sider-right-menu">
           <div class="flex" :title="item.name">
-            <router-link class="link" :to="`/playlist/${item.id}`">
+            <router-link class="link" :to="`/playlist/${item.id}?platform=netease`">
               <z-icon type="yinleliebiaokuai" />
               <span>{{item.name}}</span>
             </router-link>
