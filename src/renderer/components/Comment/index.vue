@@ -8,19 +8,19 @@
       <dl v-if="commentData.hotComments.length">
         <dt>热门评论</dt>
         <dd v-for="(comment, index) in commentData.hotComments" :key="`hot_${comment.commentId}_${index}`">
-          <comment-item :comment="comment" @shrink-screen="$emit('shrink-screen')" />
+          <comment-item :comment="comment" @shrink-screen="$emit('shrink-screen')" @likeComment="handleLikeComment"/>
         </dd>
       </dl>
       <dl v-if="commentData.topComments.length">
         <dt>精彩评论</dt>
         <dd v-for="(comment, index) in commentData.topComments" :key="`top_${comment.commentId}_${index}`">
-          <comment-item :comment="comment" @shrink-screen="$emit('shrink-screen')" />
+          <comment-item :comment="comment" @shrink-screen="$emit('shrink-screen')" @likeComment="handleLikeComment"/>
         </dd>
       </dl>
       <dl v-if="commentData.comments.length">
         <dt>全部评论（{{ commentData.total }}）</dt>
         <dd v-for="(comment, index) in commentData.comments" :key="`all_${comment.commentId}_${index}`">
-          <comment-item :comment="comment" @shrink-screen="$emit('shrink-screen')" />
+          <comment-item :comment="comment" @shrink-screen="$emit('shrink-screen')" @likeComment="handleLikeComment"/>
         </dd>
       </dl>
     </div>
@@ -30,6 +30,7 @@
 <script>
 import CommentItem from './CommentItem'
 import Loading from '@/components/Common/loading'
+import { likeComment } from '@/api/comment'
 import { mapGetters } from 'vuex'
 export default {
   props: {
@@ -38,6 +39,18 @@ export default {
       default () {
         return null
       }
+    },
+    commentType: {
+      type: Number,
+      default: 0
+    },
+    sourceId: {
+      type: [Number, String],
+      default: 0
+    },
+    platform: {
+      type: String,
+      dafault: 'netease'
     }
   },
   components: {
@@ -45,6 +58,23 @@ export default {
   },
   computed: {
     ...mapGetters('App', ['isDark'])
+  },
+  methods: {
+    handleLikeComment (comment) {
+      if (this.sourceId == 6) { // 因为接口暂时无法获取动态的threadId，所以暂时无法给动态点赞
+        return
+      }
+      if (this.platform == 'qq') {
+        this.$message.error('暂时不支持跨平台点赞呢！')
+        return
+      }
+      likeComment(this.sourceId, comment.commentId, !comment.liked, this.commentType, this.platform).then(res => {
+        comment.liked = !comment.liked
+        comment.likedCount = comment.liked ? comment.likedCount + 1 : comment.likedCount - 1
+      }).catch(() => {
+        this.$message.error('你的点赞好像被外星人抢走了！？')
+      })
+    }
   }
 }
 </script>

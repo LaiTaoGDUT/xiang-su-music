@@ -45,11 +45,7 @@
               </a-breadcrumb>
               <span v-else>无</span>
             </div>
-            <div class="desc">
-              <span>简介：</span>
-              <span v-if="playlist.description" v-html="playlist.description"></span>
-              <span v-else>无</span>
-            </div>
+            <desc-box :description="playlist.description"></desc-box>
           </div>
           <img slot="avatar" width="200" height="200" v-lazy="`${playlist.coverImgUrl}?param=300y300`" :key="playlist.id" />
         </a-list-item-meta>
@@ -77,6 +73,7 @@
 import { getPlaylistDetail } from '@/api/playlist'
 import { getSongDetail } from '@/api/song'
 import TabBar from '@/components/Common/tabBar'
+import descBox from '@/components/Common/descBox'
 import Loading from '@/components/Common/loading'
 import ZIcon from '@/components/ZIcon/index.vue'
 import { playMode } from '@/config/config'
@@ -97,6 +94,7 @@ export default {
   },
   components: {
     TabBar,
+    descBox,
     Loading,
     ZIcon
   },
@@ -131,7 +129,7 @@ export default {
         })
         const trackIds = res.playlist.trackIds.map(ele => {
           return ele.id
-        }).slice(1000)
+        }).slice(this.tracks.length)
         if (trackIds.length) {
           let songsRes = []
           for (let i = 0; i < trackIds.length; i += 100) {
@@ -300,13 +298,6 @@ export default {
   color: #fff;
   float: left;
 }
-.desc {
-  display: -webkit-box;
-  text-overflow: ellipsis;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-}
-
 .dark-back1 {
   .intro {
     .playlist-title {
@@ -352,9 +343,9 @@ export default {
           color: #fff;
         }
       }
-    }
-    .desc {
-      color: #fff;
+      /deep/ .ant-breadcrumb-separator {
+        color: #828385;
+      }
     }
     .action {
       color: #828385;

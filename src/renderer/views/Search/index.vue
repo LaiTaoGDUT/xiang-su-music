@@ -18,7 +18,7 @@
       <template v-for="(val, key) in matchRes">
         <div :key="key" class="match-box" v-if="key !== 'orders' && key !== 'rec_query'">
           <router-link
-            :to="`/${key}/${item.id || item.vid}`"
+            :to="`/${key}/${item.id || item.vid}?platform=netease`"
             class="match-item"
             v-for="item in val"
             :key="item.id"

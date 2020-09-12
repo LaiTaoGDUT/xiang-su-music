@@ -20,7 +20,6 @@
         :percent="percent"
         :waiting="waiting"
         @percentChanged="onpercentChanged"
-        @percentChanging="onpercentChanged"
         @virtualBarMove="onVirtualBarMove"
         @virtualBarLeave="onVirtualBarLeave"
       />
@@ -116,7 +115,16 @@ export default {
       isFirstPlay: false,
       waiting: false,
       curVolume: 0,
+      fadeVolume: 0, // 歌曲当前的音量，与volume不同的是，该变量是记录歌曲在淡入淡出时的实时音量
+      volumeFadeInFlag: null, // 保存歌曲淡入的计时器
+      volumeFadeOutFlag: null, // 保存歌曲淡出的计时器
+      volumeFadeInByIntervalFlag: null,
+      volumeFadeOutByIntervalFlag: null,
+      volumeChanging: false, // 拖动滚动条结束后会触发两次改变事件，只要调用一次
       randomHistoryIndexArr: [], // 在随机模式下存储历史记录，用于歌曲播放回退时寻路
+      curRandomHistoryIndex: 0, // 在随机模式下存储历史记录的当前播放下标
+      randomHistoryMaxLength: 100, // 随机播放历史队列的最大长度
+      hadRollBack: false, // 随机播放模式下歌曲是否处于历史队列中
       needSync: true // 标识是否需要同步播放器状态，当状态改变的来源是其他窗口时不能同步，否则会造成死循环
     }
   },
@@ -208,32 +216,17 @@ export default {
         }
         this.lyricInstance && this.lyricInstance.play()
       } else {
-        audio.pause()
+        // audio.pause()
+          if (document.visibilityState == 'visible') {
+            this.songVolumeFadeOut(audio)
+          } else {
+            this.songVolumeFadeOutByInterval(audio)
+          }
         this.lyricInstance && this.lyricInstance.stop()
       }
     },
-    volume (newVal) {
-      const audio = this.$refs.audio
-      newVal = Number(newVal)
-      if (newVal == 0) {
-        this.$store.commit('play/SET_MUTED', true)
-        this.$electron.ipcRenderer.send('set-muted', {
-          value: true
-        })
-      }
-      this.$nextTick(() => {
-        audio.volume = newVal
-      })
-    },
     isMuted (newVal) {
-      const audio = this.$refs.audio
-      this.$nextTick(() => {
-        if (newVal) {
-          audio.volume = 0
-        } else {
-          audio.volume = this.volume
-        }
-      })
+
     },
     source (newVal) {
       this.$electron.ipcRenderer.send('change-source', { value: newVal })
@@ -241,6 +234,8 @@ export default {
     current_song: 'handleSongChange',
     current_play_list () { // 切换列表或双击了本列表的歌曲之后，随机历史都会清空
       this.randomHistoryIndexArr = []
+      this.curRandomHistoryIndex = 0
+      this.hadRollBack = false
     }
   },
   mounted () {
@@ -438,7 +433,6 @@ export default {
           let trans = ''
           if (!doc) {
             if (song.matched) { // check whether the song is matched online
-              console.log('song lyric searching...')
               await this.getOnlineLyric(song, true) // try to get lyric online
               return
             } else {
@@ -593,7 +587,6 @@ export default {
       this.isSongReady = true
       let artistStr = this.current_song.artist.length ? this.current_song.artist.map(item => item.name).join(',') : ''
       document.title = `${this.current_song.name} - ${artistStr}` // tray title
-      this.$store.commit('play/SET_PLAY_STATUS', true)
       if (this.needSync) {
         this.$electron.ipcRenderer.send('toggle-play2', {
           value: true
@@ -610,7 +603,13 @@ export default {
         if (this.isMuted) {
           audio.volume = 0
         } else {
-          audio.volume = this.volume
+           // 在窗口最小化或被隐藏时，requestAnimationFrame将会推迟到窗口恢复后执行，这不是我们想要的
+          if (document.visibilityState == 'visible') {
+            this.songVolumeFadeIn(audio)
+          } else {
+            // 因此在窗口不可见时我们使用setInterval来代替requestAnimationFrame
+            this.songVolumeFadeInByInterval(audio)
+          }
         }
       })
     },
@@ -618,7 +617,6 @@ export default {
       this.isSongReady = true
     },
     onPause () {
-      this.$store.commit('play/SET_PLAY_STATUS', false)
       if (this.needSync) {
         this.$electron.ipcRenderer.send('toggle-play2', {
           value: false
@@ -632,6 +630,10 @@ export default {
       // this.buffered = 0
       if (this.mode === playMode.loop) {
         this.loop()
+      } else if (this.mode === playMode.random) {
+        this.randomHistoryIndexArr = this.randomHistoryIndexArr.slice(0, this.curRandomHistoryIndex)
+        this.hadRollBack = true
+        this.forward()
       } else {
         this.forward()
       }
@@ -664,6 +666,15 @@ export default {
         value: !this.isMuted
       })
       this.$store.commit('play/SET_MUTED', !this.isMuted)
+      const audio = this.$refs.audio
+      this.$nextTick(() => {
+        if (this.isMuted) {
+          this.fadeVolume = 0
+        }
+        if (this.playing && !this.volumeFadeInFlag && !this.volumeFadeOutFlag && !this.volumeFadeInByIntervalFlag && !this.volumeFadeOutByIntervalFlag) {
+          audio.volume = this.volume
+        }
+      })
     },
     changeMode () {
       let mode = this.mode
@@ -675,6 +686,7 @@ export default {
     },
     loop () {
       this.$refs.audio.currentTime = 0
+      this.$store.commit('play/SET_PLAY_STATUS', true)
       this.$refs.audio.play()
       if (this.lyricInstance) {
         this.$electron.ipcRenderer.send('change-lyric', { lyric: this.lyricInstance.lines[0].txt, trans: this.lyricInstance.lines[0].trans })
@@ -688,17 +700,39 @@ export default {
       let list_len = this.current_play_list.length
       let current_song_index = this.current_song_index
       if (!this.privateFm && this.mode === playMode.random) {
-        while (true) {
-          let _index = getRandomInt(0, list_len - 1)
-          if (current_song_index != _index) {
-            this.randomHistoryIndexArr.push(current_song_index)
-            current_song_index = getRandomInt(0, list_len - 1)
-            break
+        // 曾经后退过
+        if (this.curRandomHistoryIndex < this.randomHistoryIndexArr.length) {
+          this.hadRollBack = true
+          current_song_index = this.randomHistoryIndexArr[this.curRandomHistoryIndex]
+          this.curRandomHistoryIndex += 1
+        } else {
+          while (true) {
+            let _index = getRandomInt(0, list_len - 1)
+            if (current_song_index != _index) {
+              if (this.randomHistoryIndexArr.length < this.current_play_list.length && this.randomHistoryIndexArr.includes(_index)) {
+                continue
+              }
+              if (this.hadRollBack) {
+                this.hadRollBack = !this.hadRollBack
+              } else {
+                this.randomHistoryIndexArr.push(current_song_index)
+                // 保持队列的最大长度
+                if (this.randomHistoryIndexArr.length > this.randomHistoryMaxLength) {
+                  this.randomHistoryIndexArr.shift()
+                } else {
+                  this.curRandomHistoryIndex += 1
+                }
+              }
+              current_song_index = _index
+              break
+            }
           }
         }
       } else {
         current_song_index++
-        this.randomHistoryIndexArr = []
+        if (this.randomHistoryIndexArr.length > 0) {
+          this.randomHistoryIndexArr = []
+        }
         if (current_song_index > list_len - 1) {
           current_song_index = 0
         }
@@ -716,13 +750,26 @@ export default {
       let list_len = this.current_play_list.length
       let current_song_index = this.current_song_index
       if (!this.privateFm && this.mode === playMode.random) {
-        if (this.randomHistoryIndexArr.length) {
-          current_song_index = this.randomHistoryIndexArr.pop()
+        if (this.curRandomHistoryIndex == this.randomHistoryIndexArr.length && !this.hadRollBack) {
+          this.curRandomHistoryIndex += 1
+          this.randomHistoryIndexArr.push(current_song_index)
+        }
+        if (this.curRandomHistoryIndex > 1) { // 存在随机播放的历史，按历史列表后退
+          this.curRandomHistoryIndex -= 1
+          current_song_index = this.randomHistoryIndexArr[this.curRandomHistoryIndex - 1]
         } else { // 如果没有随机播放的历史，就随机后退
           while (true) {
             let _index = getRandomInt(0, list_len - 1)
             if (current_song_index != _index) {
-              current_song_index = getRandomInt(0, list_len - 1)
+              if (this.randomHistoryIndexArr.length < this.current_play_list.length && this.randomHistoryIndexArr.includes(_index)) {
+                continue
+              }
+              current_song_index = _index
+              this.randomHistoryIndexArr.unshift(current_song_index)
+              // 保持队列的最大长度
+              if (this.randomHistoryIndexArr.length > this.randomHistoryMaxLength) {
+                this.randomHistoryIndexArr.pop()
+              }
               break
             }
           }
@@ -766,6 +813,8 @@ export default {
       }
     },
     onvolumeChanged (persent) {
+      if (this.volumeChanging) return
+      this.volumeChanging = true
       if (persent <= 0) { // 音量调整至0或以下时
         persent = 0
         this.$store.commit('play/SET_MUTED', true) // 改变静音状态为true
@@ -775,15 +824,24 @@ export default {
       } else { // 音量调整至0以上时
         if (persent > 1) persent = 1
         this.curVolume = Number(persent)
+        this.fadeVolume  = this.fadeVolume > 0 ? this.curVolume : 0
         this.$store.commit('play/SET_MUTED', false) // 改变静音状态为false
         this.$electron.ipcRenderer.send('set-muted', {
           value: false
         })
       }
-      this.$store.commit('play/SET_VOLUME', Number(persent))
+      persent = Number(persent)
+      this.$store.commit('play/SET_VOLUME', persent)
       this.$electron.ipcRenderer.send('set-volume', {
-        value: Number(persent)
+        value: persent
       })
+      if (this.playing && !this.volumeFadeInFlag && !this.volumeFadeOutFlag && !this.volumeFadeInByIntervalFlag && !this.volumeFadeOutByIntervalFlag) { // 当正在进行歌曲淡入时，无需手动设置歌曲音量
+        const audio = this.$refs.audio
+        this.$nextTick(() => {
+          audio.volume = persent
+        })
+      }
+      this.volumeChanging = false
     },
     onVirtualBarMove ({ pageX, percent }) {
       if (!this.lyricInstance) return
@@ -800,7 +858,7 @@ export default {
         dom.style.display = 'block'
       }
       if (current_lyric) {
-        dom.innerText = `词: ${current_lyric.txt}`
+        dom.innerText = current_lyric.txt
       }
     },
     onVirtualBarLeave () {
@@ -829,6 +887,76 @@ export default {
       let trans = this.show_trans
       this.$store.commit('play/SET_SHOW_TRANS', !trans)
       this.$electron.ipcRenderer.send('show-trans', { value: !trans })
+    },
+    songVolumeFadeOut (audio) {
+      this.volumeFadeInFlag && cancelAnimationFrame(this.volumeFadeInFlag)
+      this.volumeFadeInByIntervalFlag && clearInterval(this.volumeFadeInByIntervalFlag)
+      const _this = this;
+      (function fadeOut () {
+        if (_this.fadeVolume - 0.02 <= 0) {
+          _this.fadeVolume = 0
+          audio.volume = _this.fadeVolume
+          cancelAnimationFrame(_this.volumeFadeOutFlag)
+          _this.volumeFadeOutFlag = null
+          audio.pause()
+        } else {
+          _this.fadeVolume = _this.fadeVolume - 0.02
+          _this.fadeVolume = Number(_this.fadeVolume.toFixed(2))
+          audio.volume = _this.fadeVolume
+          _this.volumeFadeOutFlag = requestAnimationFrame(fadeOut)
+        }
+      })()
+    },
+    songVolumeFadeOutByInterval (audio) {
+      this.volumeFadeInFlag && cancelAnimationFrame(this.volumeFadeInFlag)
+      this.volumeFadeInByIntervalFlag && clearInterval(this.volumeFadeInByIntervalFlag)
+      this.volumeFadeOutByIntervalFlag = setInterval(() => {
+        if (this.fadeVolume - 0.05 <= 0) {
+          this.fadeVolume = 0
+          audio.volume = this.fadeVolume
+          clearInterval(this.volumeFadeOutByIntervalFlag)
+          this.volumeFadeOutByIntervalFlag = null
+          audio.pause()
+        } else {
+          this.fadeVolume = this.fadeVolume - 0.05
+          this.fadeVolume = Number(this.fadeVolume.toFixed(2))
+          audio.volume = this.fadeVolume
+        }
+      }, 50)
+    },
+    songVolumeFadeIn (audio) {
+      this.volumeFadeOutFlag && cancelAnimationFrame(this.volumeFadeOutFlag)
+      this.volumeFadeOutByIntervalFlag && clearInterval(this.volumeFadeOutByIntervalFlag)
+      const _this = this;
+      (function fadeIn () {
+        if (_this.fadeVolume + 0.02 >= _this.volume) {
+          _this.fadeVolume = _this.volume
+          audio.volume = _this.fadeVolume
+          cancelAnimationFrame(_this.volumeFadeInFlag)
+          _this.volumeFadeInFlag = null
+        } else {
+          _this.fadeVolume = _this.fadeVolume + 0.02
+          _this.fadeVolume = Number(_this.fadeVolume.toFixed(2))
+          audio.volume = _this.fadeVolume
+          _this.volumeFadeInFlag = requestAnimationFrame(fadeIn)
+        }
+      })()
+    },
+    songVolumeFadeInByInterval (audio) {
+      this.volumeFadeOutFlag && cancelAnimationFrame(this.volumeFadeOutFlag)
+      this.volumeFadeOutByIntervalFlag && clearInterval(this.volumeFadeOutByIntervalFlag)
+      this.volumeFadeInByIntervalFlag = setInterval(() => {
+        if (this.fadeVolume + 0.05 >= this.volume) {
+          this.fadeVolume = this.volume
+          audio.volume = this.fadeVolume
+          clearInterval(this.volumeFadeInByIntervalFlag)
+          this.volumeFadeInByIntervalFlag = null
+        } else {
+          this.fadeVolume = this.fadeVolume + 0.05
+          this.fadeVolume = Number(this.fadeVolume.toFixed(2))
+          audio.volume = this.fadeVolume
+        }
+      }, 50)
     }
   }
 }

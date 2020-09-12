@@ -71,7 +71,7 @@
       </ul>
 
       <div class="video-comment">
-        <comment :commentData="commentData"></comment>
+        <comment :commentData="commentData" :commentType="5" :sourceId="$route.params.id" platform="netease"></comment>
         <infinite-loading forceUseInfiniteWrapper=".ant-layout-content" :identifier="infiniteId" @infinite="loadmore" />
       </div>
     </div>

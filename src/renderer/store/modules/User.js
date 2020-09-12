@@ -160,12 +160,10 @@ let actions = {
           if (isLike) {
             likedsongIds.unshift(song.id)
             commit('SET_LIKEDSONG_IDS', { ids: likedsongIds, self })
-            Message.success('喜欢歌曲成功!')
           } else {
             let index = likedsongIds.findIndex(id => id === song.id)
             likedsongIds.splice(index, 1)
             commit('SET_LIKEDSONG_IDS', { ids: likedsongIds, self })
-            Message.success('取消喜欢成功!')
           }
           resolve()
         } else {

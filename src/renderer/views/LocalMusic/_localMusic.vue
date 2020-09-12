@@ -1,34 +1,37 @@
 <template>
   <div class="local-music" :class="{'dark-back1': isDark}">
     <a-card :bordered="false" :headStyle="headStyle">
-      <div slot="title" style="display: flex; just;align-items: center;">
-        <a-button-group size="small" class="local_music-playall">
-          <a-button type="primary" icon="play-circle" @click="playAll" title="播放全部">播放全部</a-button>
-          <a-button type="primary" icon="plus" title="添加所有到播放列表" @click="addToList"></a-button>
-        </a-button-group>
-        <a-button icon="redo" size="small" @click="refreshFolders" :disabled="matching || refreshing">扫描音乐</a-button>
-        <a-button :icon="matching ? 'loading' : 'api'" size="small" :disabled="!localSongs.length || refreshing" @click="matchSongs">{{ matching ? '停止匹配' : '匹配音乐'}}</a-button>
-        <small>{{ localSongs.length }}首歌曲,<a class="local_music-choose_dir" href="#" @click="visible = true">选择目录</a></small>
-        <small style="margin-left: 10px" v-show="refreshing">
-          <a-spin>
-            <a-icon slot="indicator" type="loading" spin size="small" tip="Loading..." />
-          </a-spin>
-          扫描歌曲中......
-        </small>
-        <small style="margin-left: 10px" v-show="matching">
-          <a-spin>
-            <a-icon slot="indicator" type="loading" spin size="small" tip="Loading..." />
-          </a-spin>
-          正在匹配
-          <span style="width: 170px;display: inline-block; margin-left: 10px">
-            <a-progress
-              :format="percent => `${matchSuccessNum + matchFailedNum}/${localSongs.length - matchedSongs}`"
-              size="small"
-              :percent="Math.floor((matchSuccessNum + matchFailedNum) / (localSongs.length - matchedSongs) * 100)"
-            />
-          </span>
-        </small>
-        <div style="flex-grow: 2">
+      <div slot="title">
+        <div style="display: flex;align-items: center;">
+          <a-button-group size="small" class="local_music-playall">
+            <a-button type="primary" icon="play-circle" @click="playAll" title="播放全部">播放全部</a-button>
+            <a-button type="primary" icon="plus" title="添加所有到播放列表" @click="addToList"></a-button>
+          </a-button-group>
+          <a-button icon="redo" size="small" @click="refreshFolders" :disabled="matching || refreshing">扫描音乐</a-button>
+          <a-button :icon="matching ? 'loading' : 'api'" size="small" :disabled="!localSongs.length || refreshing" @click="matchSongs">{{ matching ? '停止匹配' : '匹配音乐'}}</a-button>
+          <small>{{ localSongs.length }}首歌曲,<a class="local_music-choose_dir" href="#" @click="visible = true">选择目录</a></small>
+          <small style="margin-left: 10px" v-show="refreshing">
+            <a-spin>
+              <a-icon slot="indicator" type="loading" spin size="small" tip="Loading..." />
+            </a-spin>
+            扫描歌曲中......
+          </small>
+          <small style="margin-left: 10px" v-show="matching" class="matching-songs">
+            <a-spin>
+              <a-icon slot="indicator" type="loading" spin size="small" tip="Loading..." />
+            </a-spin>
+            正在匹配
+            <span style="width: 170px;display: inline-block; margin-left: 10px">
+              <a-progress
+                :format="percent => `${matchSuccessNum + matchFailedNum}/${localSongs.length - matchedSongs}`"
+                size="small"
+                :percent="Math.floor((matchSuccessNum + matchFailedNum) / (localSongs.length - matchedSongs) * 100)"
+              />
+            </span>
+          </small>
+        </div>
+
+        <div>
           <small style="width: 170px; float: right">
             <a-input-search
               placeholder="搜索本地音乐..."
@@ -42,7 +45,7 @@
         </div>
       </div>
 
-      <track-list @reloading="reloading" @reloaded="reloaded" :columns="columns" :tracks="currentShowSongs" :isShowActions="false" @dblclick="play" :limit="limit" >
+      <track-list :isShowHeadPagination="true" @reloading="reloading" @reloaded="reloaded" :columns="columns" :tracks="currentShowSongs" :isShowActions="false" @dblclick="play" :limit="limit" >
         <template slot="size" slot-scope="{ row }">
           <span>{{ row.size | normalSize }}</span>
         </template>
@@ -150,7 +153,7 @@ export default {
   computed: {
     ...mapState('Localsong', ['exportFolders', 'needRefreshFolders']),
     ...mapGetters('Localsong', ['localSongs', 'matchSuccessNum', 'matchFailedNum', 'stopMatching']),
-    ...mapGetters('play', ['current_song', 'mode']),
+    ...mapGetters('play', ['current_song', 'mode', 'current_play_list']),
     ...mapGetters('App', ['isDark']),
     headStyle () {
       return this.isDark ? {
@@ -345,6 +348,15 @@ export default {
           this.play(this.localSongs, 0)
           break
         case playMode.random:
+          while (true) {
+            let _index = getRandomInt(0, this.localSongs.length - 1)
+            if (!fs.existsSync(this.localSongs[_index].url)) { // 文件不存在
+              this.$message.error(`歌曲文件${this.localSongs[_index].url}已被删除`)
+              this.delete(_index)
+            } else {
+              break
+            }
+          }
           this.play(this.localSongs, getRandomInt(0, this.localSongs.length - 1))
           break
       }
@@ -396,6 +408,9 @@ export default {
 
 <style lang="less" scoped>
 .local-music {
+  /deep/ .ant-card-head {
+    border: none;
+  }
   /deep/ .ant-card-body {
     padding: 0!important;
   }
@@ -411,6 +426,7 @@ export default {
     }
   }
   .header-search {
+    margin-top: 10px;
     /deep/ .ant-input {
       height: 24px;
       border-radius: 12px;
@@ -458,6 +474,17 @@ export default {
         color: #828385;
       }
       color: #828385;
+    }
+    .matching-songs {
+      /deep/ .ant-progress-text {
+        color: #dcdde4;
+      }
+      /deep/ .ant-progress-inner {
+        background: #dcdde4;
+        .ant-progress-bg {
+          background: #5fa7e4;
+        }
+      }
     }
   }
   .header-search {

@@ -1,7 +1,7 @@
 <template>
   <div class="comment-wrapper">
     <div class="comment">
-      <comment :commentData="commentData"></comment>
+      <comment :commentData="commentData" :commentType="3" :sourceId="$route.params.id" :platform="$route.query.platform"></comment>
       <infinite-loading forceUseInfiniteWrapper=".ant-layout-content" :identifier="infiniteId" @infinite="loadmore" />
     </div>
   </div>
@@ -21,6 +21,11 @@ export default {
       infiniteId: +new Date(),
       refresh: false
     }
+  },
+  activated () {
+    this.offset = 0
+    this.commentData = null
+    this.infiniteId++
   },
   components: {
     Comment

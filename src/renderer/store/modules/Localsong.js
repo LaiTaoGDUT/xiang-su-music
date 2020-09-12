@@ -149,6 +149,7 @@ export default {
             suggest = normalSong(suggest)
             let _song = {
               ...song,
+              platform: 'netease',
               ...suggest,
               url: song.url,
               matched: true

@@ -36,7 +36,7 @@
     </div>
 
     <div class="fm-comment">
-      <comment :commentData="commentData"></comment>
+      <comment :commentData="commentData" :commentType="0" :sourceId="current_song.id" :platform="current_song.platform"></comment>
     </div>
   </div>
 </template>

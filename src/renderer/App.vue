@@ -33,7 +33,7 @@ export default {
       // this.$store.commit('play/SET_SHOW_DESKTOP_LYRIC', false)
     },
     handleNetworkChange ({ name, title, message }, status = true) {
-      // let networkNotification = new Notification(name, { // 桌面通知太恶心人了
+      // let networkNotification = new Notification(name, {
       //   title,
       //   body: message,
       //   icon: 'public/images/logo.ico'
@@ -76,6 +76,7 @@ export default {
     this.$electron.ipcRenderer.on('will-close', () => {
       this.handleAppWillClose()
       this.$store.commit('App/SET_REDIRECT', '/home')
+      this.$store.commit('play/SET_FULLSCREEN', false)
       localStorage.setItem(KEEP_SHORT_KEY, JSON.stringify(this.getState(this.$store.state)))
       this.$electron.ipcRenderer.send('app-exit')
     })

@@ -63,7 +63,7 @@
               </div>
             </div>
             <div class="event-comment" v-if="event.showComment">
-              <comment :commentData="event.commentData"></comment>
+              <comment :commentData="event.commentData" :commentType="6" :sourceId="threadId" platform="netease"></comment>
             </div>
           </div>
         </li>
@@ -92,6 +92,7 @@ export default {
       moment,
       commentData: null,
       events: [],
+      threadId: '', // 给动态点赞用的id，暂时无法获取。。。
       currentIndex: -1,
       options: {
         pagesize: 20,

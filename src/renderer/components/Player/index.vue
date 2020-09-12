@@ -32,9 +32,8 @@
                 :to="`/mv/${current_song.mvid}?platform=${current_song.platform}`"
                 title="查看MV"
                 v-if="current_song.mvid"
-                @click="shrinkScreen"
               >
-                <a-icon type="youtube" />
+                <a-icon type="youtube" @click="shrinkScreen"/>
               </router-link>
             </h4>
             <div class="alia" v-if="current_song.alia && current_song.alia.length">
@@ -47,7 +46,9 @@
               </div>
               <div class="singer" v-if="current_song.artist">
                 歌手：
-                <artists :artists="current_song.artist"/>
+                <span @click="shrinkScreen">
+                  <artists :artists="current_song.artist" />
+                </span>
               </div>
             </div>
             <div class="lyric">
@@ -74,7 +75,7 @@
         </div>
         <div class="main-bottom">
           <div class="left" v-if="!refresh && !(current_song.folder && !current_song.matched)">
-            <comment @shrink-screen="shrinkScreen" :commentData="comment" v-if="!(current_song.folder && !current_song.matched)"></comment>
+            <comment @shrink-screen="shrinkScreen" :commentData="comment" :commentType="0" :sourceId="current_song.id" :platform="current_song.platform" v-if="!(current_song.folder && !current_song.matched)"></comment>
             <infinite-loading :identifier="infiniteId" @infinite="loadmore" />
           </div>
           <div class="right">
@@ -217,6 +218,7 @@ export default {
       })
     },
     current_song (newSong, oldSong) {
+      console.log(newSong)
       if (newSong.id === oldSong.id || !this.fullscreen) return
       this.delay = 0
       this.$refs.lyrics.scrollTo(0)
@@ -241,13 +243,8 @@ export default {
             this.$refs.lyrics.scrollTo(top, 'smooth')
           }
         })
-        let img = new Image()
-        img.src = this.current_song.avatar
-        img.onload = () => {
-          this.isAddAnimation = true
-        }
-
         this.$nextTick(() => {
+          this.isAddAnimation = true
           this.scrollToCurrentLine()
         })
 
@@ -258,10 +255,10 @@ export default {
         this.refresh = true
         this.$nextTick(() => {
           this.refresh = false
+          this._getSimiPlaylist(this.current_song.id, this.current_song.platform)
+          this._getSimiSong(this.current_song.id, this.current_song.platform)
+          this._getSongUsers(this.current_song.id, this.current_song.platform)
         })
-        this._getSimiPlaylist(this.current_song.id, this.current_song.platform)
-        this._getSimiSong(this.current_song.id, this.current_song.platform)
-        this._getSongUsers(this.current_song.id, this.current_song.platform)
       } else {
         this.isAddAnimation = false
         this.unWatcher_lyric && this.unWatcher_lyric()

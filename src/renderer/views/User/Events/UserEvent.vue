@@ -56,7 +56,7 @@
               </div>
             </div>
             <div class="event-comment" v-if="event.showComment">
-              <comment :commentData="event.commentData"></comment>
+              <comment :commentData="event.commentData" :commentType="6" :sourceId="threadId" platform="netease"></comment>
             </div>
           </div>
         </li>
@@ -95,6 +95,7 @@ export default {
       moment,
       commentData: null,
       events: [],
+      threadId: '',
       currentIndex: -1,
       options: {
         limit: 10,

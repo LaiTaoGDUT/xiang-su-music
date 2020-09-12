@@ -1,7 +1,7 @@
 <template>
   <div class="comment-wrapper">
     <div class="comment" v-if="commentData">
-      <comment :commentData="commentData"></comment>
+      <comment :commentData="commentData" :commentType="2" :sourceId="$route.params.id" :platform="$route.query.platform"></comment>
     </div>
     <infinite-loading forceUseInfiniteWrapper=".ant-layout-content" :identifier="infiniteId" @infinite="loadmore" />
   </div>
@@ -33,7 +33,8 @@ export default {
   methods: {
     async loadmore ($state) {
       let id = this.$route.params.id
-      let res = await getPlaylistComment(id, this.limit, this.offset)
+      let platform = this.$route.query.platform
+      let res = await getPlaylistComment(id, this.limit, this.offset, platform)
       if (res.comments.length) {
         if (this.commentData) {
           this.commentData.comments.push(...res.comments)

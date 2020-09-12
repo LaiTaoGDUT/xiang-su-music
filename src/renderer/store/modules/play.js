@@ -78,7 +78,7 @@ const mutations = {
     state.showDesktopView = flag
   },
   SET_CURRENT_PLAY_LIST (state, list) {
-    state.current_play_list = list
+    state.current_play_list = list.slice()
   },
   SET_CURRENT_SONG (state, song) {
     let index = state.current_play_list.findIndex(item => item.id == song.id)

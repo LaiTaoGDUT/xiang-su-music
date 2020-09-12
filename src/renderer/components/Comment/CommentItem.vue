@@ -2,16 +2,16 @@
   <a-comment class="comment" :class="{'dark-back1': isDark}">
     <template slot="actions">
       <span>
-        <a-icon type="like" :theme="comment.liked?'filled':'outlined'" />
+        <a-icon type="like" :theme="comment.liked? 'filled': 'outlined'" @click="handleLikeClick"/>
         <span> ({{comment.likedCount || 0}})</span>
       </span>
       <span>分享</span>
       <span>回复</span>
     </template>
-    <div slot="author" @click="$emit('shrink-screen')">
+    <div slot="author" @click="shrinkScreen">
       <router-link :disabled="comment.platform == 'qq'" :to="`/user?id=${comment.user.userId}`">{{comment.user.nickname}}: </router-link>
     </div>
-    <div slot="avatar" @click="$emit('shrink-screen')">
+    <div slot="avatar" @click="shrinkScreen">
       <router-link :disabled="comment.platform == 'qq'" :to="`/user?id=${comment.user.userId}`">
         <img v-lazy="`${comment.user.avatarUrl}?param=32y32`" class="avatar" />
       </router-link>
@@ -21,7 +21,7 @@
       <p v-html="normalComment(comment.content)"></p>
       <template v-if="comment.beReplied && comment.beReplied.length">
         <div
-          @click="$emit('shrink-screen')"
+          @click="shrinkScreen"
           class="beReplied"
           v-for="(reply, index) in comment.beReplied"
           :key="`${reply.beRepliedCommentId}_${index}`"
@@ -64,6 +64,14 @@ export default {
         return `${encodeHtml(p1)}<img src=${imgUrl} />`
       })
       return _offset > 0 ? str + encodeHtml(content.slice(_offset)) : encodeHtml(content.slice(_offset))
+    },
+    shrinkScreen (comment) {
+        if (comment.platform != 'qq') {
+          this.$emit('shrink-screen')
+        }
+    },
+    handleLikeClick () {
+      this.$emit('likeComment', this.comment)
     }
   }
 }
