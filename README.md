@@ -8,7 +8,7 @@
 ## install
 `npm install`
 
-项目后台未部署到服务器，运行项目需要安装依赖[像素音乐聚合API](https://github.com/xiangSuMusic)
+项目后台未部署到服务器，运行项目需要安装依赖[像素音乐聚合API](https://github.com/LaiTaoGDUT/xiangSuMusicApi)
 
 ## 下一步
 * 本地音乐按歌手，专辑等分类查看功能
